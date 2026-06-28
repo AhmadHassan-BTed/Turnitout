@@ -154,6 +154,126 @@ def load_config_json(config_name):
     return ConfigNamespace(data, topic_citations)
 
 
+def auto_configure_project():
+    """
+    Scans paper_input/ to find a project folder, auto-detects .tex and .bib files,
+    and extracts key topics/keywords from the text to build a dynamic configuration.
+    """
+    input_root = os.path.join(BASE_DIR, "paper_input")
+    if not os.path.exists(input_root):
+        return None
+
+    # Find directories inside paper_input/ (ignoring Mathematics-thesis and hidden dirs)
+    dirs = [d for d in os.listdir(input_root) 
+            if os.path.isdir(os.path.join(input_root, d)) 
+            and d != "Mathematics-thesis" and not d.startswith('.')]
+
+    # Fallback to Mathematics-thesis if it is the only folder
+    if not dirs:
+        if os.path.exists(os.path.join(input_root, "Mathematics-thesis")):
+            project_dir_name = "Mathematics-thesis"
+        else:
+            return None
+    else:
+        project_dir_name = dirs[0]
+        
+    input_dir = os.path.join(input_root, project_dir_name)
+
+    # Find the main .tex file
+    tex_files = []
+    for root_dir, _, files in os.walk(input_dir):
+        for f in files:
+            if f.endswith('.tex'):
+                tex_files.append(os.path.join(root_dir, f))
+
+    if not tex_files:
+        return None
+
+    # Identify the main tex file: look for \begin{document} or take the largest one
+    main_tex = tex_files[0]
+    for tf in tex_files:
+        try:
+            with open(tf, 'r', encoding='utf-8') as f:
+                if '\\begin{document}' in f.read():
+                    main_tex = tf
+                    break
+        except:
+            pass
+
+    # Find the .bib file
+    bib_files = []
+    for root_dir, _, files in os.walk(input_dir):
+        for f in files:
+            if f.endswith('.bib'):
+                bib_files.append(os.path.join(root_dir, f))
+    
+    main_bib = bib_files[0] if bib_files else os.path.join(input_dir, "references.bib")
+
+    # Read the main tex file to extract keywords/topics automatically
+    try:
+        with open(main_tex, 'r', encoding='utf-8') as f:
+            tex_content = f.read()
+    except Exception as e:
+        print(f"  ERROR: Could not read LaTeX file {main_tex}: {e}")
+        return None
+
+    # Extract scientific/technical words for topic_citations
+    # Filter out LaTeX commands, math zones, and common stop words
+    clean_text = re.sub(r'\\[a-zA-Z]+\*?(?:\[[^\]]*\])?(?:\{[^}]*\})*', ' ', tex_content) # remove commands
+    clean_text = re.sub(r'\$[^\$]+\$', ' ', clean_text) # remove inline math
+    clean_text = re.sub(r'[^a-zA-Z\s]', ' ', clean_text) # remove numbers and punctuation
+    
+    words = clean_text.lower().split()
+    
+    # Common academic stop words to filter out
+    stop_words = {
+        'the', 'and', 'for', 'that', 'this', 'with', 'from', 'have', 'were', 'been',
+        'obtained', 'solved', 'using', 'used', 'method', 'methods', 'solution', 'solutions',
+        'equation', 'equations', 'results', 'value', 'values', 'boundary', 'initial',
+        'condition', 'conditions', 'order', 'second', 'first', 'linear', 'partial',
+        'differential', 'approximate', 'approximation', 'numerical', 'scheme', 'schemes',
+        'defined', 'where', 'also', 'such', 'then', 'here', 'given', 'there', 'which',
+        'these', 'their', 'only', 'both', 'each', 'some', 'more', 'about', 'above',
+        'after', 'also', 'than', 'them', 'into', 'well', 'many', 'very', 'could',
+        'would', 'should', 'other', 'another', 'chapter', 'section', 'figure', 'table',
+        'show', 'shows', 'shown', 'present', 'presents', 'presented', 'case', 'cases'
+    }
+
+    # Count frequencies of words with length > 4
+    word_counts = defaultdict(int)
+    for w in words:
+        if len(w) > 4 and w not in stop_words:
+            word_counts[w] += 1
+
+    # Take the top 10 most frequent words as key topics
+    top_words = sorted(word_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    # Dynamically build TOPIC_CITATIONS
+    topic_citations = OrderedDict()
+    for w, count in top_words:
+        keywords = (w, f"{w}s" if not w.endswith('s') else w[:-1])
+        key = f"ref_topic_{w}"
+        topic = f"{w.capitalize()} Analysis and Modeling"
+        topic_citations[keywords] = {
+            "key": key,
+            "topic": topic
+        }
+
+    class AutoConfigNamespace:
+        def __init__(self):
+            self.PROJECT_NAME = project_dir_name
+            self.INPUT_DIR = input_dir
+            self.TEX_FILE = main_tex
+            self.BIB_FILE = main_bib
+            self.OUTPUT_DIR = os.path.join(BASE_DIR, "paper_output", f"{project_dir_name}-modified")
+            self.SYNONYM_AGGRESSIVENESS = 0.55
+            self.RANDOM_SEED = 42
+            self.MIN_SENTENCE_LENGTH_FOR_CITE = 60
+            self.TOPIC_CITATIONS = topic_citations
+
+    return AutoConfigNamespace()
+
+
 # ================================================================
 # MAIN PROCESS
 # ================================================================
@@ -174,8 +294,33 @@ def main():
     print()
 
     # -- Load Selected Configuration File --
-    print(f"[1/7] Loading paper configuration: {args.config}...")
-    config = load_config_json(args.config)
+    config = None
+
+    # If no configuration is explicitly passed or if we are using the default 'math_thesis',
+    # we first check if there is a custom project inside paper_input/ that we can auto-detect
+    if args.config == "math_thesis":
+        # Check if there's any directory in paper_input/ besides Mathematics-thesis
+        input_root = os.path.join(BASE_DIR, "paper_input")
+        other_projects = []
+        if os.path.exists(input_root):
+            other_projects = [d for d in os.listdir(input_root) 
+                              if os.path.isdir(os.path.join(input_root, d)) 
+                              and d != "Mathematics-thesis" and not d.startswith('.')]
+        
+        if other_projects:
+            print("[1/7] Auto-detecting project in paper_input/...")
+            config = auto_configure_project()
+            if config:
+                print(f"  [Auto-Detected] Found project folder: {config.PROJECT_NAME}")
+                print(f"  Main LaTeX file:  {config.TEX_FILE}")
+                print(f"  Bibliography file: {config.BIB_FILE}")
+            else:
+                print("  Failed to auto-configure project. Falling back to math_thesis...")
+
+    if config is None:
+        print(f"[1/7] Loading paper configuration: {args.config}...")
+        config = load_config_json(args.config)
+
 
 
     # Establish output file paths

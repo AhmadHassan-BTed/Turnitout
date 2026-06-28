@@ -1,137 +1,73 @@
 # Getting Started Guide — Turnitout
 
-Welcome to Turnitout! This guide walks you through processing a brand-new paper from scratch.
+Welcome to Turnitout! This guide walks you through processing a brand-new paper from scratch using our **Zero-Configuration** workflow.
 
 ---
 
-## 🚀 How it Works (The 30-Second Overview)
+## 🚀 The 3-Step Workflow (No Config Needed!)
 
-```mermaid
-flowchart TD
-    A["1. Put your LaTeX folder in 'paper_input/'"] --> B["2. Create a JSON config in 'configs/'"]
-    B --> C["3. Run: python run.py --config your_config"]
-    C --> D["4. Copy 'ai_prompt.txt' into ChatGPT / Claude"]
-    D --> E["5. Paste BibTeX output into 'references.bib' in 'paper_output/'"]
-    E --> F["6. Compile main.tex and submit!"]
-```
-
----
-
-## 📖 Step-by-Step Guide: Processing a New Paper from Scratch
-
-Follow these steps if you are running the software for a brand-new paper:
+You don't need to write any configuration files or set up keyword lists. The tool automatically detects your files and performs frequency analysis on your text to extract keywords on-the-fly.
 
 ### Step 1: Copy your LaTeX Project Folder
 Copy your entire LaTeX project folder (containing your `.tex` files, `.bib` bibliography file, and image folders) and paste it inside the **`paper_input/`** directory.
 
-*For example, if your paper folder is called `MyPhysicsPaper`, your path should look like:*
-`paper_input/MyPhysicsPaper/main.tex`
+*For example, if your paper folder is called `MyChemistryPaper`, your path should look like:*
+`paper_input/MyChemistryPaper/main.tex`
 
 ---
 
-### Step 2: Create a Configuration File
-The tool needs to know where your files are and what topics your paper covers so it can suggest relevant citations.
+### Step 2: Run the Script
+Open your command prompt or terminal in the project root directory, and simply run the program:
+
+```bash
+python run.py
+```
+
+#### 🔍 What happens in this step:
+1. **Auto-Detection**: Python scans `paper_input/` and auto-detects your paper folder, your main `.tex` file, and your `.bib` bibliography database.
+2. **Frequency Analysis**: Python reads your LaTeX document, ignores LaTeX commands and equations, and automatically extracts the top 10 most frequent scientific keywords.
+3. **Paraphrasing & Citation**: The script parphrases your text, inserts `\cite{...}` commands near sentences containing those high-frequency keywords, and copies all image folders to the output folder.
+
+---
+
+### Step 3: Resolve Citations with AI
+When the run finishes:
+1. Open the generated output folder: **`paper_output/<your-project-name>-modified/`**.
+2. Locate and open the file **`ai_prompt.txt`** (which Python generated for you).
+3. **Copy the entire text** inside this file and paste it into ChatGPT, Claude, or Gemini.
+4. Copy the AI's BibTeX output and paste it at the bottom of the **`references.bib`** file located inside your output directory (`paper_output/<your-project-name>-modified/references.bib`).
+5. Open your output folder in your LaTeX compiler (Overleaf, TeXstudio, etc.) and compile `main.tex`. You are done!
+
+---
+
+## 🛠️ Advanced Customization (Optional JSON Config)
+
+If you want to override the automatic settings (for example, to target specific keywords, adjust paraphrasing aggressiveness, or define custom keys), you can create an optional configuration file:
 
 1. Go to the **`configs/`** folder.
-2. Create a new file named after your project with a `.json` extension (e.g., **`my_physics_paper.json`**).
-3. Copy, paste, and customize the following template inside that JSON file:
+2. Create a JSON file (e.g. `configs/my_custom_paper.json`).
+3. Define your custom settings and `topic_citations` mapping:
 
 ```json
 {
-  "project_name": "my_physics_paper",
-  "input_dir": "paper_input/MyPhysicsPaper",
-  "tex_file": "paper_input/MyPhysicsPaper/main.tex",
-  "bib_file": "paper_input/MyPhysicsPaper/references.bib",
-  "output_dir": "paper_output/MyPhysicsPaper-modified",
-  "synonym_aggressiveness": 0.55,
+  "project_name": "my_custom_paper",
+  "input_dir": "paper_input/MyPaperFolder",
+  "tex_file": "paper_input/MyPaperFolder/main.tex",
+  "bib_file": "paper_input/MyPaperFolder/references.bib",
+  "output_dir": "paper_output/MyPaperFolder-modified",
+  "synonym_aggressiveness": 0.60,
   "random_seed": 42,
-  "min_sentence_length_for_cite": 60,
+  "min_sentence_length_for_cite": 50,
   "topic_citations": [
     {
-      "keywords": ["quantum mechanics", "schrodinger", "wavefunction", "state"],
-      "key": "ref_quantum_basics",
-      "topic": "Foundations of Quantum Mechanics and Wave Mechanics"
-    },
-    {
-      "keywords": ["gravity", "relativity", "einstein", "space-time"],
-      "key": "ref_general_relativity",
-      "topic": "Einstein's General Relativity and Gravitational Theory"
+      "keywords": ["catalyst", "reaction", "synthesis"],
+      "key": "ref_organic_reaction",
+      "topic": "Organic Synthesis and Catalytic Reactions"
     }
   ]
 }
 ```
-
-#### 🤖 Shortcut: Use AI to write this JSON Configuration for you!
-Instead of manually identifying keywords and writing the `topic_citations` entries, you can let an AI generate the entire JSON file.
-
-**Copy the prompt below, paste it into ChatGPT, Claude, or Gemini, and append your paper's Abstract or Introduction at the bottom:**
-
-```text
-I am using a LaTeX preprocessing tool that requires a JSON configuration file. 
-
-Based on my paper's Abstract/Introduction provided below, please read it, identify 5 to 10 main scientific topics, and generate a copy-pasteable JSON configuration file using the following schema template:
-
-{
-  "project_name": "[short_lowercase_name, e.g., organic_chemistry]",
-  "input_dir": "paper_input/[MyPaperFolderName]",
-  "tex_file": "paper_input/[MyPaperFolderName]/[main_file].tex",
-  "bib_file": "paper_input/[MyPaperFolderName]/[bib_file].bib",
-  "output_dir": "paper_output/[MyPaperFolderName]-modified",
-  "synonym_aggressiveness": 0.55,
-  "random_seed": 42,
-  "min_sentence_length_for_cite": 60,
-  "topic_citations": [
-    {
-      "keywords": ["list", "of", "relevant", "lowercase", "keywords", "for", "this", "topic"],
-      "key": "ref_[short_topic_key_name]",
-      "topic": "[Human readable description of the topic]"
-    }
-  ]
-}
-
-Please ensure:
-1. The JSON matches the schema structure exactly.
-2. The "keywords" lists contain common terms related to that topic (all lowercase).
-3. The "key" starts with "ref_" followed by a short unique name (e.g., ref_thermodynamics).
-4. The paths match my project folder name (replace MyPaperFolderName, main_file, bib_file accordingly).
-
-Here is my paper's Abstract/Introduction:
-[PASTE YOUR ABSTRACT/INTRODUCTION HERE]
-```
-
----
-
-#### 💡 What is `topic_citations`? (How citation mapping works):
-This is where you tell the tool how to match citations. 
-* **`keywords`**: The script scans your text sentences. If it finds any of these words (e.g. "wavefunction") in a sentence that doesn't have a citation, it will automatically append `\cite{ref_quantum_basics}` to the end of that sentence.
-* **`key`**: The unique key added to your text (`\cite{ref_quantum_basics}`).
-* **`topic`**: A description of the scientific topic. The tool does not search the internet; instead, it outputs this topic in a text prompt so you can ask an AI (like ChatGPT) to fetch the real paper details.
-
----
-
-### Step-by-Step Continued...
-
-### Step 3: Run the Script
-Open your command prompt or terminal in the project root directory, and run the program pointing to your configuration file (omit the `.json` extension):
-
-```bash
-python run.py --config my_physics_paper
-```
-
-*(Note: If you run `python run.py` without the `--config` flag, it defaults to the built-in `math_thesis` configuration).*
-
----
-
-### Step 4: Resolve the Citations with AI
-When the run finishes:
-1. Open your generated output folder: **`paper_output/MyPhysicsPaper-modified/`**.
-2. Locate and open the file **`ai_prompt.txt`** (which Python generated for you).
-3. **Copy the entire text** inside this file and paste it into ChatGPT, Claude, or Gemini.
-4. The AI will immediately return real, highly-cited papers formatted as BibTeX entries matching your keys (e.g., `@article{ref_quantum_basics, ...}`).
-5. Copy the AI's BibTeX output and paste it at the bottom of the **`references.bib`** file located inside your output directory (`paper_output/MyPhysicsPaper-modified/references.bib`).
-
----
-
-### Step 5: Build and Compile
-1. Open the output directory **`paper_output/MyPhysicsPaper-modified/`** in your LaTeX compiler (Overleaf, TeXpage, TeXstudio, etc.).
-2. Compile **`main.tex`**. All citations will render correctly and link to real scientific papers. Your document is ready for Turnitin!
+4. Run the script pointing to your custom config:
+   ```bash
+   python run.py --config my_custom_paper
+   ```
