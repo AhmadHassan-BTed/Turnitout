@@ -19,9 +19,9 @@
 
 ## 💡 Preserving the Academic Voice
 
-Writing is a deeply personal, human craft. Yet, under the rigid constraints of automated similarity scanners like Turnitin, researchers, students, and authors are often forced to rewrite their natural voice, break their equations, or spend days manually replacing phrases simply to bypass automated string matching. 
+Writing is a deeply personal, human craft. Yet under the rigid constraints of similarity scanners like Turnitin, authors are often forced to rewrite their natural voice or break their formatting simply to bypass automated string matching. 
 
-Turnitout resolves this friction. By automating the mechanical process of breaking up matching n-gram chains while leaving mathematical formulations, structure, and academic formatting untouched, Turnitout protects formatting integrity, allowing researchers to focus their energy on real scientific discovery.
+Turnitout resolves this friction. By automating the process of breaking matching n-gram chains while leaving mathematical equations and structures untouched, Turnitout protects formatting integrity, allowing researchers to focus on real scientific discovery.
 
 ---
 
@@ -31,15 +31,15 @@ Turnitout runs out-of-the-box with zero configuration required. Follow these sim
 
 ### 1. Install Python
 * Download and install Python from [python.org/downloads](https://www.python.org/downloads/).
-* **Windows Users**: Ensure the box that says **"Add Python to PATH"** is checked during setup.
+* **Windows Users**: Ensure the box **"Add Python to PATH"** is checked during setup.
 
 ### 2. Prepare the Input Folder
 1. Locate the **`paper_input/`** folder in this directory.
-2. Copy your LaTeX paper folder into it (e.g., copy a folder named `MyPaper` containing `main.tex`, `references.bib`, and any image assets).
+2. Copy your LaTeX paper folder into it (containing your `main.tex`, `references.bib`, and asset folders).
 
 ### 3. Run the Process
 1. Open a terminal or command prompt in this directory.
-   - *Windows Shortcut*: Open this folder in File Explorer, click the address bar, type `cmd`, and press Enter.
+   - *Windows Shortcut*: Open this folder in File Explorer, type `cmd` in the address bar, and press Enter.
 2. Execute the following command:
    ```bash
    python run.py
@@ -47,17 +47,15 @@ Turnitout runs out-of-the-box with zero configuration required. Follow these sim
 3. The pipeline will automatically scan your folder, run keyword analysis, and perform similarity reduction.
 
 ### 4. Finalize Citations with AI
-1. Go to the **`paper_output/`** directory and open the generated folder.
-2. Open the file **`ai_prompt.txt`** (which has been generated for you).
-3. **Copy the entire text** and paste it directly into ChatGPT, Claude, or Gemini.
-4. Copy the AI's BibTeX response and paste it at the bottom of the **`references.bib`** file in your output folder.
-5. Upload the output folder to Overleaf or compile it locally. The document is compile-ready.
+1. Open the generated folder inside **`paper_output/`**.
+2. Open the file **`ai_prompt.txt`**, copy the entire text, and paste it into ChatGPT, Claude, or Gemini.
+3. Paste the AI's BibTeX response at the bottom of the **`references.bib`** file in your output folder.
+4. Upload your output folder to Overleaf or compile it locally. The document is compile-ready.
 
 ---
 
-## 🛠️ Advanced Customization & Configurations
-
-For advanced use cases, settings and overrides can be customized easily:
+<details>
+<summary><b>🛠️ Advanced Customization & Parameter Tables (Click to Expand)</b></summary>
 
 ### Configuration Parameters
 Overrides are controlled via environment variables inside a `.env` file placed at the project root:
@@ -68,9 +66,7 @@ Overrides are controlled via environment variables inside a `.env` file placed a
 | `TURNITOUT_MIN_SENTENCE_LEN` | Minimum char length of a sentence to inject citations | Integer | `45` |
 | `TURNITOUT_RANDOM_SEED` | Seed value ensuring output reproducibility | Integer | `42` |
 
-<details>
-<summary><b>⚙️ View Configuration File Example</b></summary>
-
+### Configuration File Example
 Copy `.env.example` to `.env` to configure your overrides:
 ```bash
 # Synonym aggressiveness (float value between 0.0 and 1.0)
@@ -85,7 +81,7 @@ TURNITOUT_RANDOM_SEED=42
 </details>
 
 <details>
-<summary><b>📂 View Project File Directory Structure</b></summary>
+<summary><b>📂 Project File Directory Structure (Click to Expand)</b></summary>
 
 ```text
 Turnitout/
@@ -126,11 +122,8 @@ Turnitout/
 ```
 </details>
 
----
-
-## 🏗️ Under the Hood: System Architecture
-
-The following sections illustrate the internal flow, zone tokenization, and data structures:
+<details>
+<summary><b>🏗️ Under the Hood: System Architecture & Workflow (Click to Expand)</b></summary>
 
 ### 1. Processing Pipeline
 The document undergoes structural zoning before modification to ensure mathematical equations, formatting macros, and citations remain intact:
@@ -200,12 +193,12 @@ graph TD
     cli --> utils
     modifier --> rules
 ```
+</details>
 
----
+<details>
+<summary><b>🧪 Testing & Contributor Workflows (Click to Expand)</b></summary>
 
-## 🧪 Testing & Developer Workflow
-
-### local Testing
+### Local Testing
 Tests are designed to verify syntax-safety and programmatic API contracts:
 ```bash
 # Install development dependencies
@@ -238,8 +231,7 @@ sequenceDiagram
     Git->>GA: Trigger automated check workflows
     GA-->>Dev: Build status result (Pass/Fail)
 ```
-
-Detailed guides are located in [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md).
+</details>
 
 ---
 
