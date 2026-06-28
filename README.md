@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/logo-banner.svg" alt="Turnitout Logo" width="450"/>
+</p>
+
 <h1 align="center">Turnitout</h1>
 
 <p align="center">
