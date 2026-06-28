@@ -164,20 +164,16 @@ The codebase is structured to enforce high functional cohesion and clear interfa
 
 ```mermaid
 graph TD
-    classDef package fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px;
-    classDef module fill:#fffde7,stroke:#f57f17,stroke-width:1.5px;
-    
     subgraph Package ["turnitout package"]
-        cli["cli.py\n(CLI Orchestrator)"]:::module
-        config["config.py\n(Config Loader)"]:::module
-        core["core package"]:::package
+        cli["cli.py<br>(CLI Orchestrator)"]
+        config["config.py<br>(Config Loader)"]
         
         subgraph core ["core package"]
-            parser["parser.py\n(LaTeX Zone Parser)"]:::module
-            modifier["modifier.py\n(Mutation Engine)"]:::module
-            rules["rules.py\n(JSON rule Loader)"]:::module
-            generator["generator.py\n(Report Compiler)"]:::module
-            utils["utils.py\n(LaTeX Checkers)"]:::module
+            parser["parser.py<br>(LaTeX Zone Parser)"]
+            modifier["modifier.py<br>(Mutation Engine)"]
+            rules["rules.py<br>(JSON rule Loader)"]
+            generator["generator.py<br>(Report Compiler)"]
+            utils["utils.py<br>(LaTeX Checkers)"]
         end
     end
     
