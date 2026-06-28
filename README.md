@@ -31,26 +31,22 @@ Turnitout resolves this friction. By automating the process of breaking matching
 
 ## ⚡ Getting Started (3-Minute Setup)
 
-Turnitout runs out-of-the-box with zero configuration required. Follow these simple steps:
+Turnitout runs out-of-the-box with automatic Python verification and setup. Follow these simple steps:
 
-### 1. Install Python
-* Download and install Python from [python.org/downloads](https://www.python.org/downloads/).
-* **Windows Users**: Ensure the box **"Add Python to PATH"** is checked during setup.
-
-### 2. Prepare the Input Folder
+### 1. Prepare the Input Folder
 1. Locate the **`paper_input/`** folder in this directory.
 2. Copy your LaTeX paper folder into it (containing your `main.tex`, `references.bib`, and asset folders).
 
-### 3. Run the Process
-1. Open a terminal or command prompt in this directory.
-   - *Windows Shortcut*: Open this folder in File Explorer, type `cmd` in the address bar, and press Enter.
-2. Execute the following command:
-   ```bash
-   python run.py
-   ```
-3. The pipeline will automatically scan your folder, run keyword analysis, and perform similarity reduction.
+### 2. Run the Tool
+* **Windows Users**: Double-click **`run.bat`** (or run `run.bat` from a command prompt).
+* **macOS & Linux Users**: Open a terminal in this directory and run:
+  ```bash
+  chmod +x run.sh
+  ./run.sh
+  ```
+*The runners automatically verify Python, trigger an auto-installation if Python is missing, set up dependency packages, and execute the pipeline.*
 
-### 4. Finalize Citations with AI
+### 3. Finalize Citations with AI
 1. Open the generated folder inside **`paper_output/`**.
 2. Open the file **`ai_prompt.txt`**, copy the entire text, and paste it into ChatGPT, Claude, or Gemini.
 3. Paste the AI's BibTeX response at the bottom of the **`references.bib`** file in your output folder.
