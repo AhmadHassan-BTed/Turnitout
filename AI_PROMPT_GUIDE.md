@@ -9,7 +9,35 @@ Run the pipeline to process your paper. This automatically scans your LaTeX file
 ```bash
 python run.py --config math_thesis
 ```
-*(Replace `math_thesis` with your specific configuration name if processing a different paper).*
+
+#### 🛠️ Processing a Different Paper (How to Configure):
+If you want to run this on a different paper:
+1. Create a folder in `paper_input/` and place your LaTeX files inside (e.g., `paper_input/my_new_paper/`).
+2. Create a new JSON file inside the `configs/` folder (e.g., `configs/my_new_paper.json`).
+3. Define the paths and topic citation mappings in standard JSON format:
+   ```json
+   {
+     "project_name": "my_new_paper",
+     "input_dir": "paper_input/my_new_paper",
+     "tex_file": "paper_input/my_new_paper/main.tex",
+     "bib_file": "paper_input/my_new_paper/references.bib",
+     "output_dir": "paper_output/my_new_paper-modified",
+     "synonym_aggressiveness": 0.55,
+     "random_seed": 42,
+     "min_sentence_length_for_cite": 60,
+     "topic_citations": [
+       {
+         "keywords": ["quantum mechanics", "schrodinger", "wavefunction"],
+         "key": "ref_quantum_basics",
+         "topic": "Foundations of Quantum Mechanics"
+       }
+     ]
+   }
+   ```
+4. Run the script with your new configuration name:
+   ```bash
+   python run.py --config my_new_paper
+   ```
 
 ---
 
