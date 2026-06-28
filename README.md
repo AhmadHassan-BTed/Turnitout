@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/AhmadHassan-BTed/Turnitout/main/docs/assets/banner.png" alt="Turnitout Logo" width="300" onerror="this.style.display='none'"/>
-</p>
-
 <h1 align="center">Turnitout</h1>
 
 <p align="center">
@@ -21,47 +17,123 @@
 
 ---
 
-## 💡 The Human Side of Turnitout
+## 💡 Preserving the Academic Voice
 
 Writing is a deeply personal, human craft. Yet, under the rigid constraints of automated similarity scanners like Turnitin, researchers, students, and authors are often forced to rewrite their natural voice, break their equations, or spend days manually replacing phrases simply to bypass automated string matching. 
 
-Turnitout was created to solve this friction. By automating the mechanical process of breaking up matching n-gram chains while leaving mathematical formulations, structure, and academic formatting untouched, Turnitout protects the author's formatting integrity, allowing researchers to spend their energy on real scientific discovery.
+Turnitout resolves this friction. By automating the mechanical process of breaking up matching n-gram chains while leaving mathematical formulations, structure, and academic formatting untouched, Turnitout protects formatting integrity, allowing researchers to focus their energy on real scientific discovery.
 
 ---
 
-## 🎓 Layman Quick Start (Start Here if You Do Not Code)
+## ⚡ Getting Started (3-Minute Setup)
 
-This tool can be run easily by anyone, even with zero programming experience. Follow these simple steps:
+Turnitout runs out-of-the-box with zero configuration required. Follow these simple steps:
 
-### 1. Prerequisites (Python)
-- Ensure **Python** is installed. (Download and install it from [python.org](https://www.python.org/downloads/)).
-- **IMPORTANT (Windows)**: During the installation process, check the box that says **"Add Python to PATH"** before clicking install.
+### 1. Install Python
+* Download and install Python from [python.org/downloads](https://www.python.org/downloads/).
+* **Windows Users**: Ensure the box that says **"Add Python to PATH"** is checked during setup.
 
 ### 2. Prepare the Input Folder
 1. Locate the **`paper_input/`** folder in this directory.
-2. Copy your LaTeX paper folder into it (e.g. copy a folder named `MyPaper` containing `main.tex`, `references.bib`, and any image assets).
+2. Copy your LaTeX paper folder into it (e.g., copy a folder named `MyPaper` containing `main.tex`, `references.bib`, and any image assets).
 
-### 3. Run the Tool
+### 3. Run the Process
 1. Open a terminal or command prompt in this directory.
-   - *Windows shortcut*: Open this folder in File Explorer, click the address bar, type `cmd`, and press Enter.
+   - *Windows Shortcut*: Open this folder in File Explorer, click the address bar, type `cmd`, and press Enter.
 2. Execute the following command:
    ```bash
    python run.py
    ```
-3. The tool will auto-detect your files, perform keyword analysis on-the-fly, and complete the similarity reduction.
+3. The pipeline will automatically scan your folder, run keyword analysis, and perform similarity reduction.
 
 ### 4. Finalize Citations with AI
 1. Go to the **`paper_output/`** directory and open the generated folder.
 2. Open the file **`ai_prompt.txt`** (which has been generated for you).
 3. **Copy the entire text** and paste it directly into ChatGPT, Claude, or Gemini.
 4. Copy the AI's BibTeX response and paste it at the bottom of the **`references.bib`** file in your output folder.
-5. Upload the contents of your output folder to Overleaf or compile it locally. The document is compile-ready.
+5. Upload the output folder to Overleaf or compile it locally. The document is compile-ready.
 
 ---
 
-## 🧭 System Workflow & Pipeline
+## 🛠️ Advanced Customization & Configurations
 
-The pipeline runs sequentially to parse, isolate, rewrite, and cite LaTeX documents:
+For advanced use cases, settings and overrides can be customized easily:
+
+### Configuration Parameters
+Overrides are controlled via environment variables inside a `.env` file placed at the project root:
+
+| Variable | Description | Type | Default |
+| --- | --- | --- | --- |
+| `TURNITOUT_AGGRESSIVENESS` | Probability rate of swapping words with synonyms | Float (`0.0`-`1.0`) | `0.75` |
+| `TURNITOUT_MIN_SENTENCE_LEN` | Minimum char length of a sentence to inject citations | Integer | `45` |
+| `TURNITOUT_RANDOM_SEED` | Seed value ensuring output reproducibility | Integer | `42` |
+
+<details>
+<summary><b>⚙️ View Configuration File Example</b></summary>
+
+Copy `.env.example` to `.env` to configure your overrides:
+```bash
+# Synonym aggressiveness (float value between 0.0 and 1.0)
+TURNITOUT_AGGRESSIVENESS=0.75
+
+# Minimum sentence length for citation insertion (integer)
+TURNITOUT_MIN_SENTENCE_LEN=45
+
+# Random seed (integer)
+TURNITOUT_RANDOM_SEED=42
+```
+</details>
+
+<details>
+<summary><b>📂 View Project File Directory Structure</b></summary>
+
+```text
+Turnitout/
+├── .github/                  # Community configurations and workflows
+│   ├── CODE_OF_CONDUCT.md    # Contributor Covenant Code of Conduct
+│   ├── CONTRIBUTING.md       # Onboarding guide
+│   ├── SECURITY.md           # Security disclosure instructions
+│   └── SUPPORT.md            # Community support directions
+├── configs/                  # Paper-specific configurations
+├── docs/                     # Release documentation, roadmaps, and guides
+│   ├── architecture.md       # LaTeX parser zone structures
+│   ├── changelog.md          # Semantic version history log
+│   ├── getting-started.md    # Detailed onboarding user guide
+│   └── roadmap.md            # Project milestone planning
+├── paper_input/              # Raw document input folder
+├── paper_output/             # Paraphrased clean document output folder
+├── rules/                    # Editable rules database JSON files
+├── src/                      # Packaged source directory
+│   └── turnitout/
+│       ├── __init__.py
+│       ├── cli.py            # CLI Runner orchestrator
+│       ├── config.py         # Config loader & environment parser
+│       └── core/
+│           ├── parser.py     # Structural LaTeX tokenizer
+│           ├── modifier.py   # Mutation pipeline engine
+│           ├── generator.py  # References & report compiler
+│           ├── rules.py      # Rule file JSON loader
+│           └── utils.py      # LaTeX syntax validation checkers
+├── tests/                    # Automated testing suite
+├── .editorconfig             # Standardized indent styles
+├── .env.example              # Environment variable overrides template
+├── .gitattributes            # Line normalization rules (eol=lf)
+├── .gitignore                # Target directories exclusion definitions
+├── LICENSE                   # MIT License
+├── README.md                 # Project documentation (this file)
+├── pyproject.toml            # Python package setup & test configurations
+└── run.py                    # Root launcher wrapper calling CLI module
+```
+</details>
+
+---
+
+## 🏗️ Under the Hood: System Architecture
+
+The following sections illustrate the internal flow, zone tokenization, and data structures:
+
+### 1. Processing Pipeline
+The document undergoes structural zoning before modification to ensure mathematical equations, formatting macros, and citations remain intact:
 
 ```mermaid
 flowchart TD
@@ -70,10 +142,10 @@ flowchart TD
         Env[".env Configuration\n(Aggressiveness, Seed)"]
     end
     subgraph Parser ["2. LaTeXZoneParser"]
-        Z1["Preamble & Frontmatter\n(SKIP)"]
-        Z2["Equations & Matrices\n(MATH)"]
-        Z3["Prose Paragraphs\n(PROSE)"]
-        Z4["Chapter/Section Titles\n(HEADING)"]
+        Z1["Preamble & Setup\n(SKIP Zone)"]
+        Z2["Equations & Matrices\n(MATH Zone)"]
+        Z3["Prose Paragraphs\n(PROSE Zone)"]
+        Z4["Chapter/Section Titles\n(HEADING Zone)"]
     end
     subgraph Modifier ["3. TextModifier Mutation Engine"]
         PH["Mask LaTeX Commands"]
@@ -99,11 +171,8 @@ flowchart TD
     Modifier --> Output
 ```
 
----
-
-## 🏗️ Repository Architecture & Dependency Coupling
-
-The codebase is organized as an installable Python package designed with high cohesion and low coupling:
+### 2. Internal Module Coupling
+The codebase is structured to enforce high functional cohesion and clear interface boundaries:
 
 ```mermaid
 graph TD
@@ -134,114 +203,24 @@ graph TD
 
 ---
 
-## 🗂️ Project File Structure
+## 🧪 Testing & Developer Workflow
 
-Detailed configuration and dynamic rule databases are mapped out below:
-
-* **`configs/`**: Project-specific parameters (paths, citation mappings).
-* **`rules/`**: Human-editable translation and synonym dictionaries.
-  * `rules/synonyms.json`: Academic word replacements.
-  * `rules/phrases.json`: Sequential n-gram rewrite rules.
-  * `rules/protected_terms.json`: Protected mathematical and technical words.
-  * `rules/conjunctions.json`: Conjunction list used for clause reordering.
-  * `rules/determiners.json`: Swap lists for determiners.
-  * `rules/hedge_words.json`: List of academic hedges.
-* **`src/turnitout/`**: Core package source folder.
-* **`tests/`**: Unit test suites testing syntax-safety and api contracts.
-
----
-
-## ⚙️ Configuration & Environment Settings
-
-System overrides are controlled via environment variables inside a `.env` file placed at the project root:
-
-| Variable | Description | Type | Default |
-| --- | --- | --- | --- |
-| `TURNITOUT_AGGRESSIVENESS` | Probability rate of swapping words with synonyms | Float (`0.0`-`1.0`) | `0.75` |
-| `TURNITOUT_MIN_SENTENCE_LEN` | Minimum char length of a sentence to inject citations | Integer | `45` |
-| `TURNITOUT_RANDOM_SEED` | Seed value ensuring output reproducibility | Integer | `42` |
-
-<details>
-<summary><b>🔍 View Example `.env` File</b></summary>
-
+### local Testing
+Tests are designed to verify syntax-safety and programmatic API contracts:
 ```bash
-# Synonym aggressiveness (float value between 0.0 and 1.0)
-TURNITOUT_AGGRESSIVENESS=0.75
+# Install development dependencies
+pip install -e .[dev]
 
-# Minimum sentence length for citation insertion (integer)
-TURNITOUT_MIN_SENTENCE_LEN=45
-
-# Random seed (integer)
-TURNITOUT_RANDOM_SEED=42
-```
-</details>
-
----
-
-## 📦 Installation & Setup
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/AhmadHassan-BTed/Turnitout.git
-   cd Turnitout
-   ```
-
-2. **Configure Virtual Environment**:
-   ```bash
-   python -m venv env
-   # On Windows:
-   env\Scripts\activate
-   # On macOS/Linux:
-   source env/bin/activate
-   ```
-
-3. **Install Package**:
-   Install the package locally in editable development mode:
-   ```bash
-   pip install -e .[dev]
-   ```
-
----
-
-## 📖 Basic Usage
-
-### Option 1: Zero-Configuration Auto-Detection (Default)
-Place your raw LaTeX project folder inside `paper_input/` (e.g. `paper_input/MyBiologyPaper/` containing `main.tex`, `references.bib`, and asset images). 
-
-Then, run:
-```bash
-python run.py
-```
-*The tool automatically scans `paper_input/`, configures files on-the-fly, extracts the top 10 scientific keywords from your paper, paraphrases prose, and outputs the result in `paper_output/MyBiologyPaper-modified/`.*
-
-### Option 2: Configured Run with Overrides
-If you want to explicitly define citation keywords or adjust paths, configure a JSON file in `configs/my_paper.json` and execute with the `--config` flag:
-```bash
-python run.py --config my_paper
-```
-
----
-
-## 🧪 Testing & Quality Control
-
-Verify code and formatting syntax rules pass before committing:
-
-```bash
 # Run unit tests
 python -m pytest
 
-# Check code formatting rules
+# Check code formatting & linting
 black --check src/ tests/
-
-# Perform lint analysis
 flake8 src/ tests/
 ```
 
----
-
-## 🛠️ Developer & CI Workflow
-
-The workflow for integrating new features or updating dictionaries follows these steps:
+### Contribution Integration
+New modifications are validated automatically via CI checks:
 
 ```mermaid
 sequenceDiagram
@@ -260,14 +239,13 @@ sequenceDiagram
     GA-->>Dev: Build status result (Pass/Fail)
 ```
 
-Detailed contribution workflows are documented in [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+Detailed guides are located in [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 ---
 
-## 🛡️ Support & Support Channels
+## 🛡️ Release, Support & Security
 
-Questions or requests can be directed to the following channels:
-* **Support Directions**: Guidelines are available in [SUPPORT.md](.github/SUPPORT.md).
-* **Security Reporting**: Vulnerabilities should be reported according to [SECURITY.md](.github/SECURITY.md).
-* **Release Changes**: History logs are available in [docs/changelog.md](docs/changelog.md).
-* **Milestone Planning**: Upcoming changes are outlined in [docs/roadmap.md](docs/roadmap.md).
+- **Release Changes**: History logs are available in [docs/changelog.md](docs/changelog.md).
+- **Milestone Planning**: Upcoming changes are outlined in [docs/roadmap.md](docs/roadmap.md).
+- **Support Directions**: Guidelines are available in [SUPPORT.md](.github/SUPPORT.md).
+- **Security Reporting**: Vulnerabilities should be reported according to [SECURITY.md](.github/SECURITY.md).
