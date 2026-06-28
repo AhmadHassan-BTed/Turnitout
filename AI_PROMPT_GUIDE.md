@@ -4,13 +4,21 @@ When Turnitout processes your LaTeX document, it inserts new citations to resolv
 
 To compile your document, you need to replace these dummy placeholder entries with **real, valid academic references**.
 
-This guide provides a copy-pasteable AI prompt template to help you generate these BibTeX entries instantly using ChatGPT, Claude, or Gemini.
+---
+
+## ⚡ The Automated Shortcut
+
+To put less load on manual work, the program automatically generates a **pre-filled AI prompt** tailored specifically to the placeholders used in your run.
+
+1. Open the generated output folder: `paper_output/Mathematics-thesis-modified/` (or your specific project folder).
+2. Open the file **`ai_prompt.txt`**.
+3. **Copy the entire contents of `ai_prompt.txt`** and paste it directly into ChatGPT, Claude, or Gemini.
 
 ---
 
-## 📋 The Copy-Paste AI Prompt
+## 📋 What the Generated Prompt Looks Like
 
-Copy the block below, fill in the list of keys and topics from your generated `dummy_references.bib`, and paste it into your AI assistant:
+The generated `ai_prompt.txt` file is pre-populated and formatted as follows:
 
 ```text
 I am using a LaTeX similarity reduction tool. It has generated several dummy placeholder BibTeX citations in my document. I need you to find real, highly-cited, relevant academic papers (journal articles, books, or conference papers) that match these topics, and format them as valid BibTeX entries.
@@ -19,13 +27,11 @@ For each topic, provide a real academic source. You MUST keep the exact BibTeX k
 
 Here is the list of citation keys and the academic topics they should cover:
 
-[PASTE YOUR KEYS AND TOPICS HERE - EXAMPLE:]
 1. Key: ref_thermal_modeling
    Topic: Heat Conduction and Thermal Diffusion Modeling
 2. Key: ref_wave_propagation
    Topic: Wave Propagation and Vibration Analysis
-3. Key: ref_option_pricing
-   Topic: Option Pricing and Financial Derivative Models
+...
 
 Please ensure:
 - The BibTeX citation key matches my key EXACTLY (e.g., ref_thermal_modeling).
@@ -39,12 +45,11 @@ Please ensure:
 
 Once the AI generates the BibTeX entries for you:
 
-1. **Open your project folder** (e.g. `paper_output/Mathematics-thesis-modified/`).
-2. **Open the `references.bib` file** in your text editor.
-3. Scroll to the bottom where the dummy references (prefixed with `% DUMMY REFERENCES`) were automatically appended.
-4. **Select and replace** those placeholder entries with the real BibTeX code provided by the AI.
-5. **Save** the file.
-6. Hitting compile on your LaTeX project will now link these real citations.
+1. **Open the `references.bib` file** in your output folder (`paper_output/Mathematics-thesis-modified/references.bib`).
+2. Scroll to the bottom where the dummy references (prefixed with `% DUMMY REFERENCES`) were automatically appended.
+3. **Select and replace** those placeholder entries with the real BibTeX code provided by the AI.
+4. **Save** the file.
+5. Hitting compile on your LaTeX project will now link these real citations successfully.
 
 ---
 
