@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/logo-banner.svg" alt="Turnitout Logo" width="450"/>
+  <img src="docs/assets/logo-banner.svg" alt="Turnitout Logo" width="100%"/>
 </p>
 
 <h1 align="center">Turnitout</h1>
