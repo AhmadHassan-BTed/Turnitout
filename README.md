@@ -1,108 +1,140 @@
-# Turnitout — Turnitin Plagiarism & Similarity Reduction Tool
+# Turnitin Similarity Reduction Tool (Modular Edition)
 
-Turnitout is a data-driven Python tool designed to systematically lower Turnitin similarity index scores (usually to **under 6%**) in LaTeX research papers, theses, and documents. 
+An extensible, open-source framework to systematically reduce Turnitin plagiarism and similarity indices in LaTeX research papers, theses, and documents.
 
-It works by:
-1. **Intelligently paraphrasing prose text** using customizable academic synonyms and phrase rewrite rules (without touching math formulas, equations, or LaTeX commands).
-2. **Adding targeted citations** (`\cite{...}`) for scientific assertions to resolve Turnitin's "Not Cited or Quoted" matches.
+This tool employs a configuration-driven, modular architecture with **strict separation of concerns**, allowing you to run it universally across different academic papers and customize writing rules independently of the core Python engine.
 
 ---
 
-## 🚀 How it Works (The 30-Second Overview)
+## Folder Architecture
 
-```mermaid
-flowchart TD
-    A["1. Put your LaTeX folder in 'paper_input/'"] --> B["2. Create a JSON config in 'configs/'"]
-    B --> C["3. Run: python run.py --config your_config"]
-    C --> D["4. Copy 'ai_prompt.txt' into ChatGPT / Claude"]
-    D --> E["5. Paste BibTeX output into 'references.bib' in 'paper_output/'"]
-    E --> F["6. Compile main.tex and submit!"]
+```
+Plagerism Similarity Remove/
+│
+├── core/                        # Reusable core framework
+│   ├── __init__.py
+│   ├── rules.py                 # Rules loader (reads from JSON, handles fallbacks)
+│   ├── parser.py                # LaTeX structural zone parser
+│   ├── modifier.py              # Text paraphraser & citation matcher
+│   └── generator.py             # Change report & dummy reference generator
+│
+├── rules/                       # Universal language rules (Editable JSON files)
+│   ├── synonyms.json            # Word-level swap mappings
+│   ├── phrases.json             # Phrase-level N-gram rewrite patterns
+│   └── protected_terms.json     # Technical terms protected from modifications
+│
+├── configs/                     # Project-specific configurations (JSON)
+│   └── math_thesis.json         # Configuration and keyword citation mapping for math thesis
+
+│
+├── paper_input/                 # Standard input folder (Place raw documents here)
+│   └── Mathematics-thesis/      # Input files (main.tex, references.bib, media)
+│
+├── Mathematics-thesis-modified/ # Output directory (Clean, compile-ready LaTeX project)
+│   ├── main.tex                 # Modified LaTeX output
+│   └── references.bib           # Bibliography file (with new citations appended)
+│
+├── run.py                       # CLI execution entrypoint
+└── README.md                    # Setup and usage documentation (this file)
 ```
 
 ---
 
-## 📖 Step-by-Step Guide: Processing a New Paper from Scratch
+## Separation of Concerns & Design Principles
 
-Follow these steps if you are running the software for a brand-new paper:
-
-### Step 1: Copy your LaTeX Project Folder
-Copy your entire LaTeX project folder (containing your `.tex` files, `.bib` bibliography file, and image folders) and paste it inside the **`paper_input/`** directory.
-
-*For example, if your paper folder is called `MyPhysicsPaper`, your path should look like:*
-`paper_input/MyPhysicsPaper/main.tex`
+1. **Functional Cohesion**: Each module has exactly one responsibility.
+   - `core/parser.py` parses LaTeX documents into modifiable/non-modifiable zones and does nothing else.
+   - `core/modifier.py` modifies the text strings using loaded rules and does not touch file I/O.
+   - `core/generator.py` compiles summaries and report formatting.
+2. **Data Coupling**: Modules exchange data via parameters and constructors rather than global variables or hardcoded constants.
+3. **Configuration Isolation**: All paper-specific information (such as folder paths and `TOPIC_CITATIONS` keyword rules) is isolated in `configs/` modules.
+4. **Editable Rules**: All academic synonym dictionaries, phrases, and technical terms are separated into human-editable JSON files in `rules/` so they can be modified without altering any python script code.
 
 ---
 
-### Step 2: Create a Configuration File
-The tool needs to know where your files are and what topics your paper covers so it can suggest relevant citations.
+## Customizing Language Rules
 
-1. Go to the **`configs/`** folder.
-2. Create a new file named after your project with a `.json` extension (e.g., **`my_physics_paper.json`**).
-3. Copy, paste, and customize the following template inside that JSON file:
+The folder `rules/` contains three files generated automatically on the first run:
 
+### 1. `rules/synonyms.json`
+Contains word-level mappings. You can add your own words or adjust candidates:
 ```json
-{
-  "project_name": "my_physics_paper",
-  "input_dir": "paper_input/MyPhysicsPaper",
-  "tex_file": "paper_input/MyPhysicsPaper/main.tex",
-  "bib_file": "paper_input/MyPhysicsPaper/references.bib",
-  "output_dir": "paper_output/MyPhysicsPaper-modified",
-  "synonym_aggressiveness": 0.55,
-  "random_seed": 42,
-  "min_sentence_length_for_cite": 60,
-  "topic_citations": [
-    {
-      "keywords": ["quantum mechanics", "schrodinger", "wavefunction", "state"],
-      "key": "ref_quantum_basics",
-      "topic": "Foundations of Quantum Mechanics and Wave Mechanics"
-    },
-    {
-      "keywords": ["gravity", "relativity", "einstein", "space-time"],
-      "key": "ref_general_relativity",
-      "topic": "Einstein's General Relativity and Gravitational Theory"
-    }
-  ]
-}
+"important": [
+  "significant",
+  "crucial",
+  "essential"
+]
 ```
 
-#### 💡 What is `topic_citations`? (How citation mapping works):
-This is where you tell the tool how to match citations. 
-* **`keywords`**: The script scans your text sentences. If it finds any of these words (e.g. "wavefunction") in a sentence that doesn't have a citation, it will automatically append `\cite{ref_quantum_basics}` to the end of that sentence.
-* **`key`**: The unique key added to your text (`\cite{ref_quantum_basics}`).
-* **`topic`**: A description of the scientific topic. The tool does not search the internet; instead, it outputs this topic in a text prompt so you can ask an AI (like ChatGPT) to fetch the real paper details.
+### 2. `rules/phrases.json`
+Contains phrase rewrites to break Turnitin's N-gram scanner. Patterns use regular expression boundaries:
+```json
+[
+  "\\bthis research paper\\b",
+  "the present work"
+]
+```
+
+### 3. `rules/protected_terms.json`
+Contains terms that should **never** be paraphrased or modified under any circumstances (e.g., names of theorems, organizations, software):
+```json
+[
+  "Fourier's Law",
+  "Black-Scholes",
+  "MATLAB"
+]
+```
 
 ---
 
-### Step 3: Run the Script
-Open your command prompt or terminal in the project root directory, and run the program pointing to your configuration file (omit the `.json` extension):
+## How to Run the Tool
 
+### Step 1: Set up the Input
+Place your raw LaTeX project files inside a folder in `paper_input/` (e.g. `paper_input/Mathematics-thesis/`). The directory must contain:
+* A `main.tex` file (the main thesis source)
+* A `references.bib` file (your bibliography)
+* Any subfolders containing images or graphics (e.g., `media1/`, `media2/`)
+
+### Step 2: Execute
+Run the script from the root directory:
 ```bash
-python run.py --config my_physics_paper
+python run.py --config math_thesis
 ```
+*(If `--config` is omitted, it defaults to `math_thesis`)*.
 
-*(Note: If you run `python run.py` without the `--config` flag, it defaults to the built-in `math_thesis` configuration).*
-
----
-
-### Step 4: Resolve the Citations with AI
-When the run finishes:
-1. Open your generated output folder: **`paper_output/MyPhysicsPaper-modified/`**.
-2. Locate and open the file **`ai_prompt.txt`** (which Python generated for you).
-3. **Copy the entire text** inside this file and paste it into ChatGPT, Claude, or Gemini.
-4. The AI will immediately return real, highly-cited papers formatted as BibTeX entries matching your keys (e.g., `@article{ref_quantum_basics, ...}`).
-5. Copy the AI's BibTeX output and paste it at the bottom of the **`references.bib`** file located inside your output directory (`paper_output/MyPhysicsPaper-modified/references.bib`).
+### Step 3: Review and Compile
+1. Open the generated output folder: **`Mathematics-thesis-modified/`**
+2. It is a **fully complete, self-contained project**. All media subfolders have been copied, and any new dummy references used in your text are automatically appended to the bottom of `references.bib`.
+3. Open the folder in your LaTeX compiler (TeXpage, Overleaf, TeXstudio) and compile `main.tex`.
 
 ---
 
-### Step 5: Build and Compile
-1. Open the output directory **`paper_output/MyPhysicsPaper-modified/`** in your LaTeX compiler (Overleaf, TeXpage, TeXstudio, etc.).
-2. Compile **`main.tex`**. All citations will render correctly and link to real academic papers. Your document is ready for Turnitin!
+## Creating Configurations for New Papers
 
----
-
-## 🎨 Customizing the Paraphrasing Dictionary (Optional)
-
-Inside the **`rules/`** folder, the tool creates three JSON databases on its first run:
-* **`rules/synonyms.json`**: Mappings of words to their academic synonyms. Feel free to add words or delete synonyms you don't like.
-* **`rules/phrases.json`**: Consecutive word sequences (N-grams) that Turnitin flags, mapped to rewritten alternatives.
-* **`rules/protected_terms.json`**: Technical terms (e.g. "Schrodinger equation", "Newton's second law") that the tool is forbidden from modifying to maintain scientific accuracy.
+To run the tool on a different paper:
+1. Create a folder in `paper_input/` and place the LaTeX files inside.
+2. Create a new JSON file in `configs/` (e.g., `configs/physics_paper.json`).
+3. Define the paths and config variables in standard JSON format:
+   ```json
+   {
+     "project_name": "physics_paper",
+     "input_dir": "paper_input/physics_paper_folder",
+     "tex_file": "paper_input/physics_paper_folder/document.tex",
+     "bib_file": "paper_input/physics_paper_folder/citations.bib",
+     "output_dir": "paper_output/physics_paper_modified",
+     "synonym_aggressiveness": 0.50,
+     "random_seed": 123,
+     "min_sentence_length_for_cite": 50,
+     "topic_citations": [
+       {
+         "keywords": ["quantum mechanics", "schrodinger", "wavefunction"],
+         "key": "ref_quantum_basics",
+         "topic": "Foundations of Quantum Mechanics"
+       }
+     ]
+   }
+   ```
+4. Run using the new configuration name:
+   ```bash
+   python run.py --config physics_paper
+   ```
