@@ -28,10 +28,9 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
    source env/bin/activate
    ```
 
-3. Install dependencies:
+3. Install dependencies in editable mode:
    ```bash
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
+   pip install -e .[dev]
    ```
 
 ## Development Workflow

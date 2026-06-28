@@ -22,6 +22,13 @@ dependencies = [
     "python-dotenv>=1.0.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+]
+
 [project.urls]
 "Homepage" = "https://github.com/AhmadHassan-BTed/Turnitout"
 "Bug Tracker" = "https://github.com/AhmadHassan-BTed/Turnitout/issues"

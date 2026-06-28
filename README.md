@@ -33,9 +33,12 @@ Turnitout/
 │   ├── ISSUE_TEMPLATE/       # Bug and Feature templates
 │   └── workflows/ci.yml      # CI/CD test automation runs
 ├── configs/                  # Paper-specific configuration JSONs
-├── docs/                     # Full system and technical design documentation
-│   ├── architecture.md       # Zone parsing and pipeline diagrams
-│   └── technical-decisions.md# Decision records (Offline-only logic, JSON data separation)
+├── docs/                     # Documentation and release history
+│   ├── architecture.md       # Pipeline architecture diagrams
+│   ├── changelog.md          # Release change history
+│   ├── getting-started.md    # Detailed onboarding usage guide
+│   ├── roadmap.md            # Upcoming features and planning
+│   └── technical-decisions.md# Decision records (Offline-only logic, data separation)
 ├── paper_input/              # Directory to copy raw LaTeX files
 ├── paper_output/             # Folder containing clean, processed outputs
 ├── rules/                    # Dictionaries of synonyms, phrases, and technical rules
@@ -81,8 +84,7 @@ Turnitout/
 3. **Install Dependencies & Package**:
    Install the package locally in editable development mode:
    ```bash
-   pip install -e .
-   pip install -r requirements-dev.txt
+   pip install -e .[dev]
    ```
 
 ---
