@@ -1,0 +1,142 @@
+{
+  "project_name": "math_thesis",
+  "input_dir": "paper_input/Mathematics-thesis",
+  "tex_file": "paper_input/Mathematics-thesis/main.tex",
+  "bib_file": "paper_input/Mathematics-thesis/references.bib",
+  "output_dir": "paper_output/Mathematics-thesis-modified",
+  "synonym_aggressiveness": 0.55,
+  "random_seed": 42,
+  "min_sentence_length_for_cite": 60,
+  "topic_citations": [
+    {
+      "keywords": ["heat equation", "thermal", "conduction", "fourier", "diffusion equation", "temperature"],
+      "key": "ref_thermal_modeling",
+      "topic": "Heat Conduction and Thermal Diffusion Modeling"
+    },
+    {
+      "keywords": ["wave equation", "vibration", "membrane", "propagation", "elastic", "wave motion"],
+      "key": "ref_wave_propagation",
+      "topic": "Wave Propagation and Vibration Analysis"
+    },
+    {
+      "keywords": ["black-scholes", "black--scholes", "option pricing", "financial derivative", "stochastic"],
+      "key": "ref_option_pricing",
+      "topic": "Option Pricing and Financial Derivative Models"
+    },
+    {
+      "keywords": ["laplace equation", "steady state", "steady-state", "harmonic", "potential"],
+      "key": "ref_laplace_harmonic",
+      "topic": "Laplace Equation and Harmonic Analysis"
+    },
+    {
+      "keywords": ["finite difference", "discretization", "grid", "mesh", "fdm", "difference scheme"],
+      "key": "ref_fdm_schemes",
+      "topic": "Finite Difference Discretization Schemes"
+    },
+    {
+      "keywords": ["stability", "von neumann", "stable", "unstable", "cfl"],
+      "key": "ref_numerical_stability",
+      "topic": "Numerical Stability Analysis of Difference Schemes"
+    },
+    {
+      "keywords": ["convergence", "truncation error", "consistency", "lax equivalence"],
+      "key": "ref_convergence_analysis",
+      "topic": "Convergence and Consistency of Numerical Methods"
+    },
+    {
+      "keywords": ["crank-nicolson", "crank--nicolson", "implicit scheme", "implicit method"],
+      "key": "ref_crank_nicolson",
+      "topic": "Crank--Nicolson Implicit Discretization"
+    },
+    {
+      "keywords": ["explicit method", "explicit scheme", "ftcs", "forward time"],
+      "key": "ref_explicit_methods",
+      "topic": "Explicit Time-Stepping Methods for PDEs"
+    },
+    {
+      "keywords": ["lax method", "lax scheme", "lax-wendroff"],
+      "key": "ref_lax_methods",
+      "topic": "Lax-Type Finite Difference Schemes"
+    },
+    {
+      "keywords": ["leapfrog", "staggered", "leap-frog"],
+      "key": "ref_leapfrog_scheme",
+      "topic": "Leapfrog and Staggered Grid Methods"
+    },
+    {
+      "keywords": ["advection", "transport equation", "convection"],
+      "key": "ref_advection_transport",
+      "topic": "Advection and Transport Equation Methods"
+    },
+    {
+      "keywords": ["partial differential equation", "pde", "second order", "second-order", "classification"],
+      "key": "ref_pde_theory",
+      "topic": "Theory and Classification of Partial Differential Equations"
+    },
+    {
+      "keywords": ["ordinary differential equation", "ode", "first order", "initial value"],
+      "key": "ref_ode_fundamentals",
+      "topic": "Fundamentals of Ordinary Differential Equations"
+    },
+    {
+      "keywords": ["elliptic", "parabolic", "hyperbolic", "discriminant"],
+      "key": "ref_pde_classification",
+      "topic": "Classification of Second-Order PDEs"
+    },
+    {
+      "keywords": ["taylor series", "taylor expansion", "taylor"],
+      "key": "ref_taylor_approx",
+      "topic": "Taylor Series Approximation Methods"
+    },
+    {
+      "keywords": ["boundary value", "dirichlet", "neumann", "boundary condition"],
+      "key": "ref_boundary_problems",
+      "topic": "Boundary Value Problems for Differential Equations"
+    },
+    {
+      "keywords": ["newton", "leibniz", "calculus", "history"],
+      "key": "ref_calculus_history",
+      "topic": "Historical Development of Calculus and Differential Equations"
+    },
+    {
+      "keywords": ["stochastic calculus", "ito", "brownian motion", "wiener process"],
+      "key": "ref_stochastic_calc",
+      "topic": "Stochastic Calculus and Its Lemma"
+    },
+    {
+      "keywords": ["matrix", "tridiagonal", "linear system", "linear algebra"],
+      "key": "ref_linear_algebra",
+      "topic": "Matrix Methods for Linear Systems"
+    },
+    {
+      "keywords": ["numerical simulation", "computational", "algorithm", "implementation"],
+      "key": "ref_computational_methods",
+      "topic": "Computational Methods and Algorithm Implementation"
+    },
+    {
+      "keywords": ["engineering", "applied mathematics", "mathematical modeling", "physical"],
+      "key": "ref_applied_math",
+      "topic": "Applied Mathematics in Engineering and Physical Sciences"
+    },
+    {
+      "keywords": ["quantitative finance", "financial mathematics", "risk", "portfolio"],
+      "key": "ref_quant_finance",
+      "topic": "Quantitative Finance and Mathematical Risk Modeling"
+    },
+    {
+      "keywords": ["conservation", "energy balance", "conservation law"],
+      "key": "ref_conservation_laws",
+      "topic": "Conservation Laws and Energy Balance Principles"
+    },
+    {
+      "keywords": ["payoff", "call option", "put option", "european option", "american option"],
+      "key": "ref_option_payoffs",
+      "topic": "Option Payoff Structures and Strategies"
+    },
+    {
+      "keywords": ["volatility", "drift", "diffusion coefficient"],
+      "key": "ref_volatility_models",
+      "topic": "Volatility and Diffusion Coefficient Modeling"
+    }
+  ]
+}

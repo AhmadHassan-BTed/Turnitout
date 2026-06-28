@@ -16,10 +16,11 @@ Usage:
 import os
 import re
 import sys
+import json
 import shutil
 import argparse
 import importlib
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 # Add current directory to path to ensure imports work correctly
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -91,6 +92,68 @@ def validate_latex(content):
     return issues
 
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def load_config_json(config_name):
+    """
+    Loads config details from configs/{config_name}.json.
+    Supports either a config name (e.g. 'math_thesis') or a direct path to a JSON file.
+    """
+    if config_name.endswith('.json'):
+        config_path = config_name
+    else:
+        config_path = os.path.join(BASE_DIR, "configs", f"{config_name}.json")
+
+    if not os.path.exists(config_path):
+        print(f"  ERROR: Configuration file not found at: {config_path}")
+        print("  Please make sure you have placed the JSON file in 'configs/' directory.")
+        sys.exit(1)
+
+    with open(config_path, 'r', encoding='utf-8') as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"  ERROR: Configuration file '{config_path}' is not a valid JSON file.")
+            print(f"  Details: {e}")
+            sys.exit(1)
+
+    # Convert topic_citations list to OrderedDict with tuples of keywords
+    topic_citations = OrderedDict()
+    for item in data.get("topic_citations", []):
+        if "keywords" not in item or "key" not in item or "topic" not in item:
+            print(f"  ERROR: Invalid topic_citations entry in config: {item}")
+            sys.exit(1)
+        keywords = tuple(item["keywords"])
+        topic_citations[keywords] = {
+            "key": item["key"],
+            "topic": item["topic"]
+        }
+
+    # Verify required keys in JSON
+    required_keys = ["project_name", "input_dir", "tex_file", "bib_file", "output_dir"]
+    for key in required_keys:
+        if key not in data:
+            print(f"  ERROR: Configuration is missing required property: '{key}'")
+            sys.exit(1)
+
+    class ConfigNamespace:
+        def __init__(self, d, tc):
+            self.PROJECT_NAME = d["project_name"]
+            
+            # Resolve relative paths relative to BASE_DIR
+            self.INPUT_DIR = os.path.normpath(os.path.join(BASE_DIR, d["input_dir"]))
+            self.TEX_FILE = os.path.normpath(os.path.join(BASE_DIR, d["tex_file"]))
+            self.BIB_FILE = os.path.normpath(os.path.join(BASE_DIR, d["bib_file"]))
+            self.OUTPUT_DIR = os.path.normpath(os.path.join(BASE_DIR, d["output_dir"]))
+            
+            self.SYNONYM_AGGRESSIVENESS = d.get("synonym_aggressiveness", 0.55)
+            self.RANDOM_SEED = d.get("random_seed", 42)
+            self.MIN_SENTENCE_LENGTH_FOR_CITE = d.get("min_sentence_length_for_cite", 60)
+            self.TOPIC_CITATIONS = tc
+
+    return ConfigNamespace(data, topic_citations)
+
+
 # ================================================================
 # MAIN PROCESS
 # ================================================================
@@ -101,7 +164,7 @@ def main():
         "--config",
         type=str,
         default="math_thesis",
-        help="Name of the paper configuration module in paper_config/ (default: math_thesis)"
+        help="Name of the JSON configuration in configs/ (default: math_thesis)"
     )
     args = parser.parse_args()
 
@@ -110,23 +173,10 @@ def main():
     print("=" * 65)
     print()
 
-    # -- Load Selected Configuration Module --
-    config_module_name = f"paper_config.{args.config}"
-    print(f"[1/7] Loading paper configuration: {config_module_name}...")
-    try:
-        config = importlib.import_module(config_module_name)
-    except ImportError as e:
-        print(f"  ERROR: Could not load configuration '{config_module_name}'.")
-        print(f"  Details: {e}")
-        print("  Please make sure the file exists in paper_config/ folder.")
-        sys.exit(1)
+    # -- Load Selected Configuration File --
+    print(f"[1/7] Loading paper configuration: {args.config}...")
+    config = load_config_json(args.config)
 
-    # Validate configuration contents
-    required_attrs = ["TEX_FILE", "BIB_FILE", "OUTPUT_DIR", "TOPIC_CITATIONS"]
-    for attr in required_attrs:
-        if not hasattr(config, attr):
-            print(f"  ERROR: Configuration is missing required attribute: '{attr}'")
-            sys.exit(1)
 
     # Establish output file paths
     output_tex = os.path.join(config.OUTPUT_DIR, "main.tex")
