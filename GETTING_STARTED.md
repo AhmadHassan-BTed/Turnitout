@@ -61,6 +61,46 @@ The tool needs to know where your files are and what topics your paper covers so
 }
 ```
 
+#### 🤖 Shortcut: Use AI to write this JSON Configuration for you!
+Instead of manually identifying keywords and writing the `topic_citations` entries, you can let an AI generate the entire JSON file.
+
+**Copy the prompt below, paste it into ChatGPT, Claude, or Gemini, and append your paper's Abstract or Introduction at the bottom:**
+
+```text
+I am using a LaTeX preprocessing tool that requires a JSON configuration file. 
+
+Based on my paper's Abstract/Introduction provided below, please read it, identify 5 to 10 main scientific topics, and generate a copy-pasteable JSON configuration file using the following schema template:
+
+{
+  "project_name": "[short_lowercase_name, e.g., organic_chemistry]",
+  "input_dir": "paper_input/[MyPaperFolderName]",
+  "tex_file": "paper_input/[MyPaperFolderName]/[main_file].tex",
+  "bib_file": "paper_input/[MyPaperFolderName]/[bib_file].bib",
+  "output_dir": "paper_output/[MyPaperFolderName]-modified",
+  "synonym_aggressiveness": 0.55,
+  "random_seed": 42,
+  "min_sentence_length_for_cite": 60,
+  "topic_citations": [
+    {
+      "keywords": ["list", "of", "relevant", "lowercase", "keywords", "for", "this", "topic"],
+      "key": "ref_[short_topic_key_name]",
+      "topic": "[Human readable description of the topic]"
+    }
+  ]
+}
+
+Please ensure:
+1. The JSON matches the schema structure exactly.
+2. The "keywords" lists contain common terms related to that topic (all lowercase).
+3. The "key" starts with "ref_" followed by a short unique name (e.g., ref_thermodynamics).
+4. The paths match my project folder name (replace MyPaperFolderName, main_file, bib_file accordingly).
+
+Here is my paper's Abstract/Introduction:
+[PASTE YOUR ABSTRACT/INTRODUCTION HERE]
+```
+
+---
+
 #### 💡 What is `topic_citations`? (How citation mapping works):
 This is where you tell the tool how to match citations. 
 * **`keywords`**: The script scans your text sentences. If it finds any of these words (e.g. "wavefunction") in a sentence that doesn't have a citation, it will automatically append `\cite{ref_quantum_basics}` to the end of that sentence.
