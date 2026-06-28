@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "turnitout"
+version = "1.0.0-beta"
+description = "A data-driven CLI tool for LaTeX plagiarism and similarity reduction"
+readme = "README.md"
+authors = [
+    { name = "Ahmad Hassan" }
+]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Text Processing :: Markup :: LaTeX",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "python-dotenv>=1.0.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/AhmadHassan-BTed/Turnitout"
+"Bug Tracker" = "https://github.com/AhmadHassan-BTed/Turnitout/issues"
+
+[project.scripts]
+turnitout = "turnitout.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["turnitout", "turnitout.core"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]

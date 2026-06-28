@@ -1,6 +1,6 @@
 import re
 import random
-from core.rules import (
+from turnitout.core.rules import (
     ACADEMIC_SYNONYMS, PHRASE_REWRITES, PROTECTED_TERMS,
     HEDGE_WORDS, DETERMINER_MAP, SUBORDINATE_CONJUNCTIONS
 )

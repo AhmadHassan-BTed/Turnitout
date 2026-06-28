@@ -1,140 +1,143 @@
-# Turnitin Similarity Reduction Tool (Modular Edition)
+# Turnitout — Intelligent LaTeX Plagiarism & Similarity Reduction Tool
 
-An extensible, open-source framework to systematically reduce Turnitin plagiarism and similarity indices in LaTeX research papers, theses, and documents.
+[![CI Build Status](https://github.com/AhmadHassan-BTed/Turnitout/workflows/CI/badge.svg)](https://github.com/AhmadHassan-BTed/Turnitout/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python Version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
 
-This tool employs a configuration-driven, modular architecture with **strict separation of concerns**, allowing you to run it universally across different academic papers and customize writing rules independently of the core Python engine.
-
----
-
-## Folder Architecture
-
-```
-Plagerism Similarity Remove/
-│
-├── core/                        # Reusable core framework
-│   ├── __init__.py
-│   ├── rules.py                 # Rules loader (reads from JSON, handles fallbacks)
-│   ├── parser.py                # LaTeX structural zone parser
-│   ├── modifier.py              # Text paraphraser & citation matcher
-│   └── generator.py             # Change report & dummy reference generator
-│
-├── rules/                       # Universal language rules (Editable JSON files)
-│   ├── synonyms.json            # Word-level swap mappings
-│   ├── phrases.json             # Phrase-level N-gram rewrite patterns
-│   └── protected_terms.json     # Technical terms protected from modifications
-│
-├── configs/                     # Project-specific configurations (JSON)
-│   └── math_thesis.json         # Configuration and keyword citation mapping for math thesis
-
-│
-├── paper_input/                 # Standard input folder (Place raw documents here)
-│   └── Mathematics-thesis/      # Input files (main.tex, references.bib, media)
-│
-├── Mathematics-thesis-modified/ # Output directory (Clean, compile-ready LaTeX project)
-│   ├── main.tex                 # Modified LaTeX output
-│   └── references.bib           # Bibliography file (with new citations appended)
-│
-├── run.py                       # CLI execution entrypoint
-└── README.md                    # Setup and usage documentation (this file)
-```
+Turnitout is a production-grade, highly-cohesive, configuration-driven command-line tool designed to systematically lower Turnitin similarity and plagiarism scores in LaTeX documents. It utilizes deterministic parsing, contextual word and phrase mutations, and automated keyword-driven citation injections to break up Turnitin's sequential n-gram detection windows while fully preserving mathematical equations, formatting macros, and compilation validity.
 
 ---
 
-## Separation of Concerns & Design Principles
+## 🚀 Key Features
 
-1. **Functional Cohesion**: Each module has exactly one responsibility.
-   - `core/parser.py` parses LaTeX documents into modifiable/non-modifiable zones and does nothing else.
-   - `core/modifier.py` modifies the text strings using loaded rules and does not touch file I/O.
-   - `core/generator.py` compiles summaries and report formatting.
-2. **Data Coupling**: Modules exchange data via parameters and constructors rather than global variables or hardcoded constants.
-3. **Configuration Isolation**: All paper-specific information (such as folder paths and `TOPIC_CITATIONS` keyword rules) is isolated in `configs/` modules.
-4. **Editable Rules**: All academic synonym dictionaries, phrases, and technical terms are separated into human-editable JSON files in `rules/` so they can be modified without altering any python script code.
+* **Strict LaTeX Structural Zone Parsing**: Isolates prose from preamble, formatting commands, comments, listings, tables, figures, and inline/display math blocks (`$ ... $`, `\[ ... \]`, `\begin{equation}`).
+* **Linguistic Mutation Engine**:
+  * **Academic Synonym Substitution**: Dynamically swaps verbs, nouns, and adjectives with academically sound synonyms.
+  * **Turnitin N-Gram Idiom Rewriter**: Rewrites common academic word sequences to break Turnitin's sequential scanner.
+  * **Contextual Determiner Swapping**: Swaps determiners to disrupt structural matches.
+  * **Voice & Clause Reordering**: Automatically transforms clauses (e.g. passive/active structures) to restructure lines.
+  * **Sentence Splitting & Hedge Word Injection**: Splits complex sentences at conjunctions and injects qualifiers.
+* **Automated Keyword Citation Injections**: Dynamically matches prose blocks against configurable target subjects, inserting citations (`\cite{...}`) for assertions to bypass Turnitin's "Not Cited or Quoted" matches.
+* **Zero-Configuration Run Mode**: Automatically detects LaTeX directories inside `paper_input/`, identifies `.tex` and `.bib` files, extracts core keywords using local term-frequency analysis, and processes the paper on-the-fly.
+* **Separation of Concerns**: Statically separates execution logic from word/phrase dictionaries (`rules/*.json`) and project paths (`configs/*.json`).
 
 ---
 
-## Customizing Language Rules
+## 📐 Project Architecture
 
-The folder `rules/` contains three files generated automatically on the first run:
+Turnitout is structured as a clean, installable Python package matching professional repository standards:
 
-### 1. `rules/synonyms.json`
-Contains word-level mappings. You can add your own words or adjust candidates:
-```json
-"important": [
-  "significant",
-  "crucial",
-  "essential"
-]
-```
-
-### 2. `rules/phrases.json`
-Contains phrase rewrites to break Turnitin's N-gram scanner. Patterns use regular expression boundaries:
-```json
-[
-  "\\bthis research paper\\b",
-  "the present work"
-]
-```
-
-### 3. `rules/protected_terms.json`
-Contains terms that should **never** be paraphrased or modified under any circumstances (e.g., names of theorems, organizations, software):
-```json
-[
-  "Fourier's Law",
-  "Black-Scholes",
-  "MATLAB"
-]
+```text
+Turnitout/
+├── .github/                  # GitHub Community Configs & CI/CD Pipelines
+│   ├── ISSUE_TEMPLATE/       # Bug and Feature templates
+│   └── workflows/ci.yml      # CI/CD test automation runs
+├── configs/                  # Paper-specific configuration JSONs
+├── docs/                     # Full system and technical design documentation
+│   ├── architecture.md       # Zone parsing and pipeline diagrams
+│   └── technical-decisions.md# Decision records (Offline-only logic, JSON data separation)
+├── paper_input/              # Directory to copy raw LaTeX files
+├── paper_output/             # Folder containing clean, processed outputs
+├── rules/                    # Dictionaries of synonyms, phrases, and technical rules
+├── src/                      # Source package directory
+│   └── turnitout/
+│       ├── __init__.py
+│       ├── cli.py            # Command Line Interface runner
+│       ├── config.py         # Config parser & environment loader
+│       └── core/
+│           ├── parser.py     # Structural LaTeX tokenizer
+│           ├── modifier.py   # Mutation pipeline engine
+│           ├── generator.py  # References & report compiler
+│           ├── rules.py      # Rule file JSON database parser
+│           └── utils.py      # LaTeX syntax checkers
+├── tests/                    # Automated testing suite
+│   ├── test_parser.py        # Parser zone validation tests
+│   ├── test_modifier.py      # Modifier syntax-safety test runs
+│   └── test_rules.py         # JSON files contract checkers
+├── pyproject.toml            # Package build configuration & PEP 517 metadata
+├── run.py                    # Root entrypoint launcher wrapper
+└── .env.example              # Template environment configuration variables
 ```
 
 ---
 
-## How to Run the Tool
+## 📦 Installation & Setup
 
-### Step 1: Set up the Input
-Place your raw LaTeX project files inside a folder in `paper_input/` (e.g. `paper_input/Mathematics-thesis/`). The directory must contain:
-* A `main.tex` file (the main thesis source)
-* A `references.bib` file (your bibliography)
-* Any subfolders containing images or graphics (e.g., `media1/`, `media2/`)
-
-### Step 2: Execute
-Run the script from the root directory:
-```bash
-python run.py --config math_thesis
-```
-*(If `--config` is omitted, it defaults to `math_thesis`)*.
-
-### Step 3: Review and Compile
-1. Open the generated output folder: **`Mathematics-thesis-modified/`**
-2. It is a **fully complete, self-contained project**. All media subfolders have been copied, and any new dummy references used in your text are automatically appended to the bottom of `references.bib`.
-3. Open the folder in your LaTeX compiler (TeXpage, Overleaf, TeXstudio) and compile `main.tex`.
-
----
-
-## Creating Configurations for New Papers
-
-To run the tool on a different paper:
-1. Create a folder in `paper_input/` and place the LaTeX files inside.
-2. Create a new JSON file in `configs/` (e.g., `configs/physics_paper.json`).
-3. Define the paths and config variables in standard JSON format:
-   ```json
-   {
-     "project_name": "physics_paper",
-     "input_dir": "paper_input/physics_paper_folder",
-     "tex_file": "paper_input/physics_paper_folder/document.tex",
-     "bib_file": "paper_input/physics_paper_folder/citations.bib",
-     "output_dir": "paper_output/physics_paper_modified",
-     "synonym_aggressiveness": 0.50,
-     "random_seed": 123,
-     "min_sentence_length_for_cite": 50,
-     "topic_citations": [
-       {
-         "keywords": ["quantum mechanics", "schrodinger", "wavefunction"],
-         "key": "ref_quantum_basics",
-         "topic": "Foundations of Quantum Mechanics"
-       }
-     ]
-   }
-   ```
-4. Run using the new configuration name:
+1. **Clone the Repository**:
    ```bash
-   python run.py --config physics_paper
+   git clone https://github.com/AhmadHassan-BTed/Turnitout.git
+   cd Turnitout
    ```
+
+2. **Configure Virtual Environment**:
+   ```bash
+   python -m venv env
+   # On Windows:
+   env\Scripts\activate
+   # On macOS/Linux:
+   source env/bin/activate
+   ```
+
+3. **Install Dependencies & Package**:
+   Install the package locally in editable development mode:
+   ```bash
+   pip install -e .
+   pip install -r requirements-dev.txt
+   ```
+
+---
+
+## ⚙️ Configuration & Environment Settings
+
+Turnitout supports environment variables to override default pipeline behaviors. Copy the `.env.example` file to `.env` to configure your overrides:
+
+```bash
+cp .env.example .env
+```
+
+Available variables inside `.env`:
+* `TURNITOUT_AGGRESSIVENESS`: Mutation probability threshold (float, default: `0.75`).
+* `TURNITOUT_MIN_SENTENCE_LEN`: Minimum line character length to append citations (int, default: `45`).
+* `TURNITOUT_RANDOM_SEED`: Random generator seed to guarantee reproducible outputs (int, default: `42`).
+
+---
+
+## 📖 Basic Usage
+
+### Option 1: Zero-Configuration Auto-Detection (Default)
+Place your raw LaTeX project folder inside `paper_input/` (e.g. `paper_input/MyBiologyPaper/` containing `main.tex`, `references.bib`, and asset images). 
+
+Then, run:
+```bash
+python run.py
+```
+*The tool automatically scans `paper_input/`, configures files on-the-fly, extracts the top 10 scientific keywords from your paper, paraphrases prose, and outputs the result in `paper_output/MyBiologyPaper-modified/`.*
+
+### Option 2: Configured Run with Overrides
+If you want to explicitly define citation keywords or adjust paths, configure a JSON file in `configs/my_paper.json` and execute with the `--config` flag:
+```bash
+python run.py --config my_paper
+```
+
+---
+
+## 🧪 Testing & Quality Control
+
+Verify code and formatting syntax rules pass before committing:
+
+```bash
+# Run unit tests
+python -m pytest
+
+# Check code formatting rules
+black --check src/ tests/
+
+# Perform lint analysis
+flake8 src/ tests/
+```
+
+---
+
+## 🛡️ License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

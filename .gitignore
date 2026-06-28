@@ -42,3 +42,7 @@ paper_input/*
 *.sublime-project
 *.sublime-workspace
 .DS_Store
+
+# Environment & Testing caches
+.env
+.pytest_cache/
