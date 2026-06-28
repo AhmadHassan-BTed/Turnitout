@@ -1,0 +1,418 @@
+[
+  [
+    "\\bthis research paper\\b",
+    "the present work"
+  ],
+  [
+    "\\bthis research\\b",
+    "the current study"
+  ],
+  [
+    "\\bthis study\\b",
+    "the present investigation"
+  ],
+  [
+    "\\bthis paper\\b",
+    "the present work"
+  ],
+  [
+    "\\bthis work\\b",
+    "the current investigation"
+  ],
+  [
+    "\\bin this paper\\b",
+    "in the present work"
+  ],
+  [
+    "\\bin this study\\b",
+    "in this investigation"
+  ],
+  [
+    "\\bin this chapter\\b",
+    "within this chapter"
+  ],
+  [
+    "\\bin this section\\b",
+    "within the current section"
+  ],
+  [
+    "\\bthe purpose of this\\b",
+    "the objective of the present"
+  ],
+  [
+    "\\bthe aim of this\\b",
+    "the goal of the current"
+  ],
+  [
+    "\\bis defined as\\b",
+    "is characterized as"
+  ],
+  [
+    "\\bis said to be\\b",
+    "is classified as"
+  ],
+  [
+    "\\bis called\\b",
+    "is referred to as"
+  ],
+  [
+    "\\bis known as\\b",
+    "is recognized as"
+  ],
+  [
+    "\\bis given by\\b",
+    "is expressed through"
+  ],
+  [
+    "\\bcan be written as\\b",
+    "may be expressed as"
+  ],
+  [
+    "\\bcan be expressed as\\b",
+    "may be stated as"
+  ],
+  [
+    "\\btakes the form\\b",
+    "assumes the form"
+  ],
+  [
+    "\\bhas the form\\b",
+    "assumes the structure"
+  ],
+  [
+    "\\bof the form\\b",
+    "having the structure"
+  ],
+  [
+    "\\bin the form of\\b",
+    "structured as"
+  ],
+  [
+    "\\bin order to\\b",
+    "so as to"
+  ],
+  [
+    "\\bdue to the fact that\\b",
+    "because"
+  ],
+  [
+    "\\bdue to\\b",
+    "owing to"
+  ],
+  [
+    "\\bbecause of\\b",
+    "on account of"
+  ],
+  [
+    "\\bas a result of\\b",
+    "as a consequence of"
+  ],
+  [
+    "\\bas a result\\b",
+    "consequently"
+  ],
+  [
+    "\\bfor this reason\\b",
+    "on this account"
+  ],
+  [
+    "\\bon the other hand\\b",
+    "conversely"
+  ],
+  [
+    "\\bin contrast\\b",
+    "by comparison"
+  ],
+  [
+    "\\bin addition to\\b",
+    "alongside"
+  ],
+  [
+    "\\bin addition\\b",
+    "additionally"
+  ],
+  [
+    "\\bas well as\\b",
+    "together with"
+  ],
+  [
+    "\\bin terms of\\b",
+    "with respect to"
+  ],
+  [
+    "\\bwith respect to\\b",
+    "relative to"
+  ],
+  [
+    "\\baccording to\\b",
+    "as stated by"
+  ],
+  [
+    "\\bbased on\\b",
+    "grounded in"
+  ],
+  [
+    "\\bplays an important role\\b",
+    "serves a pivotal function"
+  ],
+  [
+    "\\bplays a key role\\b",
+    "fulfills a central function"
+  ],
+  [
+    "\\bplays a significant role\\b",
+    "occupies a prominent position"
+  ],
+  [
+    "\\bplays a crucial role\\b",
+    "holds a critical position"
+  ],
+  [
+    "\\bis of great importance\\b",
+    "carries considerable significance"
+  ],
+  [
+    "\\bwidely used\\b",
+    "extensively employed"
+  ],
+  [
+    "\\bwidely studied\\b",
+    "the subject of extensive research"
+  ],
+  [
+    "\\bhas been widely\\b",
+    "has been extensively"
+  ],
+  [
+    "\\bhas been extensively\\b",
+    "has received substantial"
+  ],
+  [
+    "\\bhas attracted\\b",
+    "has drawn"
+  ],
+  [
+    "\\ba large number of\\b",
+    "numerous"
+  ],
+  [
+    "\\ba number of\\b",
+    "several"
+  ],
+  [
+    "\\ba wide range of\\b",
+    "a broad spectrum of"
+  ],
+  [
+    "\\ba wide variety of\\b",
+    "a diverse assortment of"
+  ],
+  [
+    "\\bthe majority of\\b",
+    "most of"
+  ],
+  [
+    "\\bin many cases\\b",
+    "frequently"
+  ],
+  [
+    "\\bin most cases\\b",
+    "predominantly"
+  ],
+  [
+    "\\bin some cases\\b",
+    "occasionally"
+  ],
+  [
+    "\\bin the case of\\b",
+    "for"
+  ],
+  [
+    "\\bin the context of\\b",
+    "within the scope of"
+  ],
+  [
+    "\\bin the literature\\b",
+    "in published research"
+  ],
+  [
+    "\\bin recent years\\b",
+    "in the recent period"
+  ],
+  [
+    "\\bfinite difference method\\b",
+    "finite difference scheme"
+  ],
+  [
+    "\\bfinite difference methods\\b",
+    "finite difference schemes"
+  ],
+  [
+    "\\bnumerical solution\\b",
+    "computational solution"
+  ],
+  [
+    "\\bnumerical solutions\\b",
+    "computational solutions"
+  ],
+  [
+    "\\bnumerical method\\b",
+    "computational technique"
+  ],
+  [
+    "\\bnumerical methods\\b",
+    "computational techniques"
+  ],
+  [
+    "\\bnumerical scheme\\b",
+    "computational scheme"
+  ],
+  [
+    "\\bnumerical approximation\\b",
+    "computational approximation"
+  ],
+  [
+    "\\bboundary conditions\\b",
+    "boundary constraints"
+  ],
+  [
+    "\\binitial conditions\\b",
+    "initial constraints"
+  ],
+  [
+    "\\bboundary value problem\\b",
+    "boundary-constrained problem"
+  ],
+  [
+    "\\binitial value problem\\b",
+    "initial-state problem"
+  ],
+  [
+    "\\bthe results show that\\b",
+    "the findings indicate that"
+  ],
+  [
+    "\\bthe results indicate\\b",
+    "the outcomes suggest"
+  ],
+  [
+    "\\bthe results demonstrate\\b",
+    "the findings reveal"
+  ],
+  [
+    "\\bit can be seen that\\b",
+    "it is evident that"
+  ],
+  [
+    "\\bit is clear that\\b",
+    "it is apparent that"
+  ],
+  [
+    "\\bit is worth noting\\b",
+    "it merits attention"
+  ],
+  [
+    "\\bit should be noted that\\b",
+    "one should recognize that"
+  ],
+  [
+    "\\bit is important to note\\b",
+    "it bears emphasis"
+  ],
+  [
+    "\\bit is well known that\\b",
+    "it is widely acknowledged that"
+  ],
+  [
+    "\\bit has been shown that\\b",
+    "it has been demonstrated that"
+  ],
+  [
+    "\\bit follows that\b",
+    "one may infer that"
+  ],
+  [
+    "\\bwe can see that\\b",
+    "one observes that"
+  ],
+  [
+    "\\bwe observe that\\b",
+    "it is observed that"
+  ],
+  [
+    "\\bwe note that\\b",
+    "it is noteworthy that"
+  ],
+  [
+    "\\bwe have\\b",
+    "one has"
+  ],
+  [
+    "\\bwe get\\b",
+    "one obtains"
+  ],
+  [
+    "\\bwe obtain\\b",
+    "one derives"
+  ],
+  [
+    "\\bwe consider\\b",
+    "one examines"
+  ],
+  [
+    "\\bwe need\\b",
+    "it is necessary"
+  ],
+  [
+    "\\bwe assume\\b",
+    "it is assumed"
+  ],
+  [
+    "\\bin the following\\b",
+    "in what follows"
+  ],
+  [
+    "\\bas follows\\b",
+    "in the following manner"
+  ],
+  [
+    "\\bas mentioned above\\b",
+    "as previously noted"
+  ],
+  [
+    "\\bas discussed\\b",
+    "as examined"
+  ],
+  [
+    "\\bas shown\\b",
+    "as demonstrated"
+  ],
+  [
+    "\\bfor example\\b",
+    "as an illustration"
+  ],
+  [
+    "\\bfor instance\\b",
+    "to illustrate"
+  ],
+  [
+    "\\bthat is\\b",
+    "namely"
+  ],
+  [
+    "\\bin other words\\b",
+    "stated differently"
+  ],
+  [
+    "\\bon the basis of\\b",
+    "drawing upon"
+  ],
+  [
+    "\\bfrom the above\\b",
+    "from the preceding discussion"
+  ],
+  [
+    "\\bin the above\\b",
+    "in the preceding"
+  ]
+]

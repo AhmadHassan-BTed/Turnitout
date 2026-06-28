@@ -1,0 +1,1259 @@
+{
+  "show": [
+    "demonstrate",
+    "illustrate",
+    "reveal"
+  ],
+  "shows": [
+    "demonstrates",
+    "illustrates",
+    "reveals"
+  ],
+  "shown": [
+    "demonstrated",
+    "illustrated",
+    "established"
+  ],
+  "showing": [
+    "demonstrating",
+    "illustrating",
+    "revealing"
+  ],
+  "use": [
+    "employ",
+    "utilize",
+    "apply"
+  ],
+  "uses": [
+    "employs",
+    "utilizes",
+    "applies"
+  ],
+  "used": [
+    "employed",
+    "utilized",
+    "applied"
+  ],
+  "using": [
+    "employing",
+    "utilizing",
+    "applying"
+  ],
+  "describe": [
+    "characterize",
+    "outline",
+    "delineate"
+  ],
+  "describes": [
+    "characterizes",
+    "outlines",
+    "delineates"
+  ],
+  "described": [
+    "characterized",
+    "outlined",
+    "delineated"
+  ],
+  "describing": [
+    "characterizing",
+    "outlining",
+    "delineating"
+  ],
+  "derive": [
+    "obtain",
+    "establish",
+    "formulate"
+  ],
+  "derives": [
+    "obtains",
+    "establishes",
+    "formulates"
+  ],
+  "derived": [
+    "obtained",
+    "established",
+    "formulated"
+  ],
+  "deriving": [
+    "obtaining",
+    "establishing",
+    "formulating"
+  ],
+  "consider": [
+    "examine",
+    "investigate",
+    "analyze"
+  ],
+  "considers": [
+    "examines",
+    "investigates",
+    "analyzes"
+  ],
+  "considered": [
+    "examined",
+    "investigated",
+    "analyzed"
+  ],
+  "considering": [
+    "examining",
+    "investigating",
+    "analyzing"
+  ],
+  "obtain": [
+    "derive",
+    "acquire",
+    "determine"
+  ],
+  "obtains": [
+    "derives",
+    "acquires",
+    "determines"
+  ],
+  "obtained": [
+    "derived",
+    "acquired",
+    "determined"
+  ],
+  "solve": [
+    "resolve",
+    "address",
+    "tackle"
+  ],
+  "solves": [
+    "resolves",
+    "addresses",
+    "tackles"
+  ],
+  "solved": [
+    "resolved",
+    "addressed",
+    "tackled"
+  ],
+  "solving": [
+    "resolving",
+    "addressing",
+    "tackling"
+  ],
+  "assume": [
+    "suppose",
+    "postulate",
+    "presume"
+  ],
+  "assumes": [
+    "supposes",
+    "postulates",
+    "presumes"
+  ],
+  "assumed": [
+    "supposed",
+    "postulated",
+    "presumed"
+  ],
+  "define": [
+    "specify",
+    "designate",
+    "characterize"
+  ],
+  "defined": [
+    "specified",
+    "designated",
+    "characterized"
+  ],
+  "present": [
+    "introduce",
+    "provide",
+    "put forward"
+  ],
+  "presents": [
+    "introduces",
+    "provides",
+    "puts forward"
+  ],
+  "presented": [
+    "introduced",
+    "provided",
+    "put forward"
+  ],
+  "discuss": [
+    "examine",
+    "explore",
+    "address"
+  ],
+  "discusses": [
+    "examines",
+    "explores",
+    "addresses"
+  ],
+  "discussed": [
+    "examined",
+    "explored",
+    "addressed"
+  ],
+  "note": [
+    "observe",
+    "recognize",
+    "highlight"
+  ],
+  "noted": [
+    "observed",
+    "recognized",
+    "highlighted"
+  ],
+  "represent": [
+    "denote",
+    "express",
+    "capture"
+  ],
+  "represents": [
+    "denotes",
+    "expresses",
+    "captures"
+  ],
+  "apply": [
+    "employ",
+    "implement",
+    "adopt"
+  ],
+  "applies": [
+    "employs",
+    "implements",
+    "adopts"
+  ],
+  "applied": [
+    "employed",
+    "implemented",
+    "adopted"
+  ],
+  "provide": [
+    "furnish",
+    "supply",
+    "offer"
+  ],
+  "provides": [
+    "furnishes",
+    "supplies",
+    "offers"
+  ],
+  "provided": [
+    "furnished",
+    "supplied",
+    "offered"
+  ],
+  "require": [
+    "necessitate",
+    "demand",
+    "call for"
+  ],
+  "requires": [
+    "necessitates",
+    "demands",
+    "calls for"
+  ],
+  "required": [
+    "necessitated",
+    "demanded",
+    "called for"
+  ],
+  "propose": [
+    "suggest",
+    "put forward",
+    "advance"
+  ],
+  "proposes": [
+    "suggests",
+    "puts forward",
+    "advances"
+  ],
+  "proposed": [
+    "suggested",
+    "put forward",
+    "advanced"
+  ],
+  "investigate": [
+    "examine",
+    "explore",
+    "study"
+  ],
+  "investigates": [
+    "examines",
+    "explores",
+    "studies"
+  ],
+  "investigated": [
+    "examined",
+    "explored",
+    "studied"
+  ],
+  "focus": [
+    "concentrate",
+    "center",
+    "emphasize"
+  ],
+  "focuses": [
+    "concentrates",
+    "centers",
+    "emphasizes"
+  ],
+  "focused": [
+    "concentrated",
+    "centered",
+    "emphasized"
+  ],
+  "develop": [
+    "formulate",
+    "construct",
+    "devise"
+  ],
+  "develops": [
+    "formulates",
+    "constructs",
+    "devises"
+  ],
+  "developed": [
+    "formulated",
+    "constructed",
+    "devised"
+  ],
+  "determine": [
+    "ascertain",
+    "compute",
+    "evaluate"
+  ],
+  "determines": [
+    "ascertains",
+    "computes",
+    "evaluates"
+  ],
+  "determined": [
+    "ascertained",
+    "computed",
+    "evaluated"
+  ],
+  "analyze": [
+    "examine",
+    "evaluate",
+    "assess"
+  ],
+  "analyzes": [
+    "examines",
+    "evaluates",
+    "assesses"
+  ],
+  "analyzed": [
+    "examined",
+    "evaluated",
+    "assessed"
+  ],
+  "evaluate": [
+    "assess",
+    "appraise",
+    "gauge"
+  ],
+  "evaluates": [
+    "assesses",
+    "appraises",
+    "gauges"
+  ],
+  "evaluated": [
+    "assessed",
+    "appraised",
+    "gauged"
+  ],
+  "confirm": [
+    "verify",
+    "validate",
+    "corroborate"
+  ],
+  "confirms": [
+    "verifies",
+    "validates",
+    "corroborates"
+  ],
+  "confirmed": [
+    "verified",
+    "validated",
+    "corroborated"
+  ],
+  "yield": [
+    "produce",
+    "generate",
+    "give rise to"
+  ],
+  "yields": [
+    "produces",
+    "generates",
+    "gives rise to"
+  ],
+  "extend": [
+    "generalize",
+    "broaden",
+    "expand"
+  ],
+  "extends": [
+    "generalizes",
+    "broadens",
+    "expands"
+  ],
+  "extended": [
+    "generalized",
+    "broadened",
+    "expanded"
+  ],
+  "reduce": [
+    "decrease",
+    "diminish",
+    "lower"
+  ],
+  "reduces": [
+    "decreases",
+    "diminishes",
+    "lowers"
+  ],
+  "involve": [
+    "entail",
+    "encompass",
+    "comprise"
+  ],
+  "involves": [
+    "entails",
+    "encompasses",
+    "comprises"
+  ],
+  "involved": [
+    "entailed",
+    "encompassed",
+    "comprised"
+  ],
+  "ensure": [
+    "guarantee",
+    "ascertain",
+    "secure"
+  ],
+  "ensures": [
+    "guarantees",
+    "ascertains",
+    "secures"
+  ],
+  "occur": [
+    "arise",
+    "emerge",
+    "take place"
+  ],
+  "occurs": [
+    "arises",
+    "emerges",
+    "takes place"
+  ],
+  "lead": [
+    "give rise",
+    "result",
+    "contribute"
+  ],
+  "leads": [
+    "gives rise",
+    "results",
+    "contributes"
+  ],
+  "perform": [
+    "carry out",
+    "execute",
+    "conduct"
+  ],
+  "performs": [
+    "carries out",
+    "executes",
+    "conducts"
+  ],
+  "compute": [
+    "calculate",
+    "evaluate",
+    "determine"
+  ],
+  "computes": [
+    "calculates",
+    "evaluates",
+    "determines"
+  ],
+  "computed": [
+    "calculated",
+    "evaluated",
+    "determined"
+  ],
+  "approximate": [
+    "estimate",
+    "approach"
+  ],
+  "approximates": [
+    "estimates",
+    "approaches"
+  ],
+  "approximated": [
+    "estimated",
+    "approached"
+  ],
+  "indicate": [
+    "suggest",
+    "imply",
+    "signal"
+  ],
+  "indicates": [
+    "suggests",
+    "implies",
+    "signals"
+  ],
+  "indicated": [
+    "suggested",
+    "implied",
+    "signaled"
+  ],
+  "depend": [
+    "rely",
+    "hinge",
+    "rest"
+  ],
+  "depends": [
+    "relies",
+    "hinges",
+    "rests"
+  ],
+  "satisfy": [
+    "fulfill",
+    "meet",
+    "comply with"
+  ],
+  "satisfies": [
+    "fulfills",
+    "meets",
+    "complies with"
+  ],
+  "construct": [
+    "build",
+    "formulate",
+    "assemble"
+  ],
+  "constructs": [
+    "builds",
+    "formulates",
+    "assembles"
+  ],
+  "arises": [
+    "emerges",
+    "originates",
+    "results"
+  ],
+  "arising": [
+    "emerging",
+    "originating",
+    "resulting"
+  ],
+  "hold": [
+    "remain valid",
+    "persist",
+    "be satisfied"
+  ],
+  "holds": [
+    "remains valid",
+    "persists",
+    "is satisfied"
+  ],
+  "denote": [
+    "represent",
+    "signify",
+    "designate"
+  ],
+  "denotes": [
+    "represents",
+    "signifies",
+    "designates"
+  ],
+  "denoted": [
+    "represented",
+    "signified",
+    "designated"
+  ],
+  "express": [
+    "formulate",
+    "state",
+    "articulate"
+  ],
+  "expressed": [
+    "formulated",
+    "stated",
+    "articulated"
+  ],
+  "establish": [
+    "demonstrate",
+    "set up",
+    "prove"
+  ],
+  "establishes": [
+    "demonstrates",
+    "sets up",
+    "proves"
+  ],
+  "established": [
+    "demonstrated",
+    "set up",
+    "proven"
+  ],
+  "measure": [
+    "quantify",
+    "gauge",
+    "assess"
+  ],
+  "measures": [
+    "quantifies",
+    "gauges",
+    "assesses"
+  ],
+  "observe": [
+    "notice",
+    "note",
+    "detect"
+  ],
+  "observes": [
+    "notices",
+    "notes",
+    "detects"
+  ],
+  "observed": [
+    "noticed",
+    "noted",
+    "detected"
+  ],
+  "method": [
+    "approach",
+    "technique",
+    "scheme"
+  ],
+  "methods": [
+    "approaches",
+    "techniques",
+    "schemes"
+  ],
+  "approach": [
+    "method",
+    "strategy",
+    "framework"
+  ],
+  "approaches": [
+    "methods",
+    "strategies",
+    "frameworks"
+  ],
+  "technique": [
+    "method",
+    "procedure",
+    "scheme"
+  ],
+  "techniques": [
+    "methods",
+    "procedures",
+    "schemes"
+  ],
+  "problem": [
+    "challenge",
+    "issue",
+    "question"
+  ],
+  "problems": [
+    "challenges",
+    "issues",
+    "questions"
+  ],
+  "solution": [
+    "resolution",
+    "result",
+    "outcome"
+  ],
+  "solutions": [
+    "resolutions",
+    "results",
+    "outcomes"
+  ],
+  "result": [
+    "outcome",
+    "finding",
+    "consequence"
+  ],
+  "results": [
+    "outcomes",
+    "findings",
+    "consequences"
+  ],
+  "analysis": [
+    "examination",
+    "investigation",
+    "assessment"
+  ],
+  "behavior": [
+    "behaviour",
+    "characteristics",
+    "dynamics"
+  ],
+  "property": [
+    "characteristic",
+    "attribute",
+    "feature"
+  ],
+  "properties": [
+    "characteristics",
+    "attributes",
+    "features"
+  ],
+  "application": [
+    "implementation",
+    "utilization",
+    "usage"
+  ],
+  "applications": [
+    "implementations",
+    "utilizations",
+    "usages"
+  ],
+  "framework": [
+    "structure",
+    "paradigm",
+    "architecture"
+  ],
+  "model": [
+    "representation",
+    "formulation",
+    "construct"
+  ],
+  "models": [
+    "representations",
+    "formulations",
+    "constructs"
+  ],
+  "system": [
+    "framework",
+    "configuration",
+    "arrangement"
+  ],
+  "systems": [
+    "frameworks",
+    "configurations",
+    "arrangements"
+  ],
+  "accuracy": [
+    "precision",
+    "fidelity",
+    "exactness"
+  ],
+  "error": [
+    "deviation",
+    "discrepancy",
+    "residual"
+  ],
+  "errors": [
+    "deviations",
+    "discrepancies",
+    "residuals"
+  ],
+  "condition": [
+    "criterion",
+    "requirement",
+    "constraint"
+  ],
+  "conditions": [
+    "criteria",
+    "requirements",
+    "constraints"
+  ],
+  "domain": [
+    "region",
+    "area",
+    "zone"
+  ],
+  "investigation": [
+    "study",
+    "examination",
+    "inquiry"
+  ],
+  "investigations": [
+    "studies",
+    "examinations",
+    "inquiries"
+  ],
+  "research": [
+    "study",
+    "investigation",
+    "inquiry"
+  ],
+  "concept": [
+    "notion",
+    "idea",
+    "construct"
+  ],
+  "concepts": [
+    "notions",
+    "ideas",
+    "constructs"
+  ],
+  "aspect": [
+    "facet",
+    "dimension",
+    "component"
+  ],
+  "aspects": [
+    "facets",
+    "dimensions",
+    "components"
+  ],
+  "process": [
+    "procedure",
+    "mechanism",
+    "operation"
+  ],
+  "processes": [
+    "procedures",
+    "mechanisms",
+    "operations"
+  ],
+  "phenomenon": [
+    "effect",
+    "occurrence",
+    "event"
+  ],
+  "phenomena": [
+    "effects",
+    "occurrences",
+    "events"
+  ],
+  "structure": [
+    "architecture",
+    "arrangement",
+    "organization"
+  ],
+  "context": [
+    "setting",
+    "framework",
+    "scope"
+  ],
+  "feature": [
+    "characteristic",
+    "attribute",
+    "trait"
+  ],
+  "features": [
+    "characteristics",
+    "attributes",
+    "traits"
+  ],
+  "tool": [
+    "instrument",
+    "utility",
+    "resource"
+  ],
+  "tools": [
+    "instruments",
+    "utilities",
+    "resources"
+  ],
+  "insight": [
+    "understanding",
+    "perspective",
+    "viewpoint"
+  ],
+  "insights": [
+    "understandings",
+    "perspectives",
+    "viewpoints"
+  ],
+  "constraint": [
+    "restriction",
+    "limitation",
+    "bound"
+  ],
+  "constraints": [
+    "restrictions",
+    "limitations",
+    "bounds"
+  ],
+  "formulation": [
+    "expression",
+    "representation",
+    "statement"
+  ],
+  "formulations": [
+    "expressions",
+    "representations",
+    "statements"
+  ],
+  "component": [
+    "element",
+    "constituent",
+    "part"
+  ],
+  "components": [
+    "elements",
+    "constituents",
+    "parts"
+  ],
+  "scheme": [
+    "approach",
+    "method",
+    "strategy"
+  ],
+  "schemes": [
+    "approaches",
+    "methods",
+    "strategies"
+  ],
+  "procedure": [
+    "protocol",
+    "process",
+    "method"
+  ],
+  "procedures": [
+    "protocols",
+    "processes",
+    "methods"
+  ],
+  "assumption": [
+    "hypothesis",
+    "premise",
+    "supposition"
+  ],
+  "assumptions": [
+    "hypotheses",
+    "premises",
+    "suppositions"
+  ],
+  "derivation": [
+    "development",
+    "formulation",
+    "construction"
+  ],
+  "derivations": [
+    "developments",
+    "formulations",
+    "constructions"
+  ],
+  "principle": [
+    "law",
+    "axiom",
+    "tenet"
+  ],
+  "principles": [
+    "laws",
+    "axioms",
+    "tenets"
+  ],
+  "limitation": [
+    "restriction",
+    "shortcoming",
+    "drawback"
+  ],
+  "limitations": [
+    "restrictions",
+    "shortcomings",
+    "drawbacks"
+  ],
+  "important": [
+    "significant",
+    "crucial",
+    "essential"
+  ],
+  "significant": [
+    "substantial",
+    "considerable",
+    "notable"
+  ],
+  "fundamental": [
+    "essential",
+    "core",
+    "primary"
+  ],
+  "basic": [
+    "foundational",
+    "elementary",
+    "rudimentary"
+  ],
+  "complex": [
+    "intricate",
+    "sophisticated",
+    "involved"
+  ],
+  "simple": [
+    "straightforward",
+    "elementary",
+    "uncomplicated"
+  ],
+  "classical": [
+    "traditional",
+    "conventional",
+    "standard"
+  ],
+  "common": [
+    "prevalent",
+    "widespread",
+    "typical"
+  ],
+  "various": [
+    "diverse",
+    "several",
+    "multiple"
+  ],
+  "different": [
+    "distinct",
+    "diverse",
+    "alternative"
+  ],
+  "general": [
+    "broad",
+    "comprehensive",
+    "overarching"
+  ],
+  "specific": [
+    "particular",
+    "precise",
+    "definite"
+  ],
+  "numerical": [
+    "computational",
+    "discrete",
+    "quantitative"
+  ],
+  "practical": [
+    "pragmatic",
+    "applied",
+    "concrete"
+  ],
+  "appropriate": [
+    "suitable",
+    "fitting",
+    "proper"
+  ],
+  "sufficient": [
+    "adequate",
+    "ample",
+    "satisfactory"
+  ],
+  "necessary": [
+    "essential",
+    "required",
+    "indispensable"
+  ],
+  "similar": [
+    "analogous",
+    "comparable",
+    "akin"
+  ],
+  "main": [
+    "principal",
+    "primary",
+    "central"
+  ],
+  "key": [
+    "pivotal",
+    "central",
+    "critical"
+  ],
+  "wide": [
+    "broad",
+    "extensive",
+    "expansive"
+  ],
+  "useful": [
+    "valuable",
+    "beneficial",
+    "advantageous"
+  ],
+  "detailed": [
+    "comprehensive",
+    "thorough",
+    "in-depth"
+  ],
+  "standard": [
+    "conventional",
+    "established",
+    "canonical"
+  ],
+  "typical": [
+    "characteristic",
+    "representative",
+    "standard"
+  ],
+  "well-known": [
+    "widely recognized",
+    "established",
+    "celebrated"
+  ],
+  "well known": [
+    "widely recognized",
+    "established",
+    "celebrated"
+  ],
+  "corresponding": [
+    "associated",
+    "related",
+    "matching"
+  ],
+  "suitable": [
+    "appropriate",
+    "fitting",
+    "apt"
+  ],
+  "certain": [
+    "specific",
+    "particular",
+    "given"
+  ],
+  "notable": [
+    "remarkable",
+    "noteworthy",
+    "prominent"
+  ],
+  "relevant": [
+    "pertinent",
+    "applicable",
+    "germane"
+  ],
+  "extensive": [
+    "comprehensive",
+    "thorough",
+    "wide-ranging"
+  ],
+  "underlying": [
+    "foundational",
+    "fundamental",
+    "core"
+  ],
+  "crucial": [
+    "vital",
+    "critical",
+    "indispensable"
+  ],
+  "essential": [
+    "indispensable",
+    "vital",
+    "fundamental"
+  ],
+  "rigorous": [
+    "systematic",
+    "meticulous",
+    "thorough"
+  ],
+  "typically": [
+    "generally",
+    "commonly",
+    "ordinarily"
+  ],
+  "particularly": [
+    "especially",
+    "notably",
+    "specifically"
+  ],
+  "commonly": [
+    "frequently",
+    "often",
+    "routinely"
+  ],
+  "usually": [
+    "generally",
+    "typically",
+    "ordinarily"
+  ],
+  "therefore": [
+    "consequently",
+    "thus",
+    "hence"
+  ],
+  "however": [
+    "nevertheless",
+    "nonetheless",
+    "yet"
+  ],
+  "moreover": [
+    "furthermore",
+    "additionally",
+    "besides"
+  ],
+  "furthermore": [
+    "moreover",
+    "additionally",
+    "in addition"
+  ],
+  "directly": [
+    "immediately",
+    "straightforwardly",
+    "explicitly"
+  ],
+  "especially": [
+    "particularly",
+    "notably",
+    "chiefly"
+  ],
+  "essentially": [
+    "fundamentally",
+    "basically",
+    "inherently"
+  ],
+  "significantly": [
+    "substantially",
+    "considerably",
+    "markedly"
+  ],
+  "approximately": [
+    "roughly",
+    "nearly",
+    "about"
+  ],
+  "precisely": [
+    "exactly",
+    "accurately",
+    "rigorously"
+  ],
+  "clearly": [
+    "evidently",
+    "obviously",
+    "manifestly"
+  ],
+  "primarily": [
+    "mainly",
+    "chiefly",
+    "principally"
+  ],
+  "subsequently": [
+    "afterward",
+    "later",
+    "then"
+  ],
+  "effectively": [
+    "efficiently",
+    "successfully",
+    "competently"
+  ],
+  "readily": [
+    "easily",
+    "promptly",
+    "swiftly"
+  ],
+  "widely": [
+    "extensively",
+    "broadly",
+    "generally"
+  ],
+  "briefly": [
+    "concisely",
+    "succinctly",
+    "in short"
+  ],
+  "similarly": [
+    "likewise",
+    "analogously",
+    "in a comparable manner"
+  ],
+  "consequently": [
+    "therefore",
+    "thus",
+    "as a result"
+  ],
+  "alternatively": [
+    "conversely",
+    "on the other hand",
+    "instead"
+  ]
+}
