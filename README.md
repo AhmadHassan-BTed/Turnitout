@@ -29,6 +29,36 @@ Turnitout was created to solve this friction. By automating the mechanical proce
 
 ---
 
+## 🎓 Layman Quick Start (Start Here if You Do Not Code)
+
+This tool can be run easily by anyone, even with zero programming experience. Follow these simple steps:
+
+### 1. Prerequisites (Python)
+- Ensure **Python** is installed. (Download and install it from [python.org](https://www.python.org/downloads/)).
+- **IMPORTANT (Windows)**: During the installation process, check the box that says **"Add Python to PATH"** before clicking install.
+
+### 2. Prepare the Input Folder
+1. Locate the **`paper_input/`** folder in this directory.
+2. Copy your LaTeX paper folder into it (e.g. copy a folder named `MyPaper` containing `main.tex`, `references.bib`, and any image assets).
+
+### 3. Run the Tool
+1. Open a terminal or command prompt in this directory.
+   - *Windows shortcut*: Open this folder in File Explorer, click the address bar, type `cmd`, and press Enter.
+2. Execute the following command:
+   ```bash
+   python run.py
+   ```
+3. The tool will auto-detect your files, perform keyword analysis on-the-fly, and complete the similarity reduction.
+
+### 4. Finalize Citations with AI
+1. Go to the **`paper_output/`** directory and open the generated folder.
+2. Open the file **`ai_prompt.txt`** (which has been generated for you).
+3. **Copy the entire text** and paste it directly into ChatGPT, Claude, or Gemini.
+4. Copy the AI's BibTeX response and paste it at the bottom of the **`references.bib`** file in your output folder.
+5. Upload the contents of your output folder to Overleaf or compile it locally. The document is compile-ready.
+
+---
+
 ## 🧭 System Workflow & Pipeline
 
 The pipeline runs sequentially to parse, isolate, rewrite, and cite LaTeX documents:
