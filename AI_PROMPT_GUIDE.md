@@ -7,37 +7,9 @@ Follow these simple, step-by-step instructions to automatically resolve the plac
 ### Step 1: Run the Similarity Reduction Tool
 Run the pipeline to process your paper. This automatically scans your LaTeX file, applies rewrites, inserts citations, and creates your output folder.
 ```bash
-python run.py --config math_thesis
+python run.py
 ```
-
-#### 🛠️ Processing a Different Paper (How to Configure):
-If you want to run this on a different paper:
-1. Create a folder in `paper_input/` and place your LaTeX files inside (e.g., `paper_input/my_new_paper/`).
-2. Create a new JSON file inside the `configs/` folder (e.g., `configs/my_new_paper.json`).
-3. Define the paths and topic citation mappings in standard JSON format:
-   ```json
-   {
-     "project_name": "my_new_paper",
-     "input_dir": "paper_input/my_new_paper",
-     "tex_file": "paper_input/my_new_paper/main.tex",
-     "bib_file": "paper_input/my_new_paper/references.bib",
-     "output_dir": "paper_output/my_new_paper-modified",
-     "synonym_aggressiveness": 0.55,
-     "random_seed": 42,
-     "min_sentence_length_for_cite": 60,
-     "topic_citations": [
-       {
-         "keywords": ["quantum mechanics", "schrodinger", "wavefunction"],
-         "key": "ref_quantum_basics",
-         "topic": "Foundations of Quantum Mechanics"
-       }
-     ]
-   }
-   ```
-4. Run the script with your new configuration name:
-   ```bash
-   python run.py --config my_new_paper
-   ```
+*(By default, this automatically loads the `math_thesis` configuration. You only need to specify `--config <name>` if you are processing a different paper).*
 
 ---
 
@@ -68,6 +40,38 @@ If you want to run this on a different paper:
 ### Step 5: Compile your Document
 1. Upload/open the **`paper_output/<your-project-modified>/`** folder in your LaTeX editor (e.g., Overleaf, TeXpage, TeXstudio).
 2. Open `main.tex` and compile. All citations will now successfully render and link to real scientific papers.
+
+---
+
+## 🛠️ Processing a Different Paper (How to Configure)
+
+If you want to run this tool on a different paper in the future:
+1. Create a folder in `paper_input/` and place your raw LaTeX files inside (e.g., `paper_input/my_new_paper/`).
+2. Create a new JSON file inside the `configs/` folder (e.g., `configs/my_new_paper.json`).
+3. Define the paths and topic citation mappings in standard JSON format:
+   ```json
+   {
+     "project_name": "my_new_paper",
+     "input_dir": "paper_input/my_new_paper",
+     "tex_file": "paper_input/my_new_paper/main.tex",
+     "bib_file": "paper_input/my_new_paper/references.bib",
+     "output_dir": "paper_output/my_new_paper-modified",
+     "synonym_aggressiveness": 0.55,
+     "random_seed": 42,
+     "min_sentence_length_for_cite": 60,
+     "topic_citations": [
+       {
+         "keywords": ["quantum mechanics", "schrodinger", "wavefunction"],
+         "key": "ref_quantum_basics",
+         "topic": "Foundations of Quantum Mechanics"
+       }
+     ]
+   }
+   ```
+4. Run the script pointing to your new configuration name:
+   ```bash
+   python run.py --config my_new_paper
+   ```
 
 ---
 
