@@ -1,6 +1,6 @@
 # Getting Started Guide — Turnitout
 
-Welcome to Turnitout! This guide walks you through processing a brand-new paper from scratch using our **Zero-Configuration** workflow.
+This guide outlines the steps required to process a brand-new paper from scratch using the **Zero-Configuration** workflow.
 
 ---
 

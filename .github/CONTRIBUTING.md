@@ -1,10 +1,10 @@
 # Contributing to Turnitout
 
-Thank you for your interest in contributing to Turnitout! We welcome community contributions to improve similarity reduction algorithms, add new synonym dictionaries, or enhance developer experience.
+Thank you for your interest in contributing to Turnitout! Community contributions are welcomed to improve similarity reduction algorithms, add new synonym dictionaries, or enhance developer experience.
 
 ## Code of Conduct
 
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md).
+By participating in this project, compliance with the [Code of Conduct](CODE_OF_CONDUCT.md) is required.
 
 ## Getting Started
 
@@ -36,7 +36,7 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 ## Development Workflow
 
 ### Coding Standards
-We follow standard PEP 8 formatting rules.
+Standard PEP 8 formatting rules are followed.
 - Run `black --check src/ tests/` to verify code formatting.
 - Run `flake8 src/ tests/` to perform lint checks.
 

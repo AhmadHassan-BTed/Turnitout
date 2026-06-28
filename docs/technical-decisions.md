@@ -7,7 +7,7 @@ This document outlines the major architectural and design decisions made in the 
 ## 1. Rule-Based Preprocessing vs. Run-time LLM APIs
 **Context**: Turnitin similarity reduction requires replacing phrases and adding citations. A naive approach would query an LLM (like GPT-4) at runtime to paraphrase the text.
 
-**Decision**: We choose a deterministic, rule-based and regex-based pipeline.
+**Decision**: A deterministic, rule-based and regex-based pipeline is used.
 - **Why**:
   - **Zero Cost & Speed**: Run-time LLM APIs are expensive, have latency, and require API keys. A local Python script processes thousands of lines in milliseconds.
   - **Math Integrity**: LLMs frequently introduce subtle mathematical bugs or break custom LaTeX macros. By protecting math zones and running exact replacements, we guarantee compilation.

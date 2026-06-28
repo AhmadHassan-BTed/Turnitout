@@ -1,66 +1,150 @@
-# Turnitout — Intelligent LaTeX Plagiarism & Similarity Reduction Tool
+<p align="center">
+  <img src="https://raw.githubusercontent.com/AhmadHassan-BTed/Turnitout/main/docs/assets/banner.png" alt="Turnitout Logo" width="300" onerror="this.style.display='none'"/>
+</p>
 
-[![CI Build Status](https://github.com/AhmadHassan-BTed/Turnitout/workflows/CI/badge.svg)](https://github.com/AhmadHassan-BTed/Turnitout/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python Version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
+<h1 align="center">Turnitout</h1>
 
-Turnitout is a production-grade, highly-cohesive, configuration-driven command-line tool designed to systematically lower Turnitin similarity and plagiarism scores in LaTeX documents. It utilizes deterministic parsing, contextual word and phrase mutations, and automated keyword-driven citation injections to break up Turnitin's sequential n-gram detection windows while fully preserving mathematical equations, formatting macros, and compilation validity.
+<p align="center">
+  <strong>Intelligent LaTeX Plagiarism & Similarity Reduction Tool</strong>
+</p>
 
----
+<p align="center">
+  <a href="https://github.com/AhmadHassan-BTed/Turnitout/actions"><img src="https://github.com/AhmadHassan-BTed/Turnitout/workflows/CI/badge.svg" alt="CI Build Status"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"/></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg" alt="Python Support"/></a>
+  <a href="https://semver.org/"><img src="https://img.shields.io/badge/version-1.0.0--beta-orange.svg" alt="Semantic Versioning"/></a>
+</p>
 
-## 🚀 Key Features
-
-* **Strict LaTeX Structural Zone Parsing**: Isolates prose from preamble, formatting commands, comments, listings, tables, figures, and inline/display math blocks (`$ ... $`, `\[ ... \]`, `\begin{equation}`).
-* **Linguistic Mutation Engine**:
-  * **Academic Synonym Substitution**: Dynamically swaps verbs, nouns, and adjectives with academically sound synonyms.
-  * **Turnitin N-Gram Idiom Rewriter**: Rewrites common academic word sequences to break Turnitin's sequential scanner.
-  * **Contextual Determiner Swapping**: Swaps determiners to disrupt structural matches.
-  * **Voice & Clause Reordering**: Automatically transforms clauses (e.g. passive/active structures) to restructure lines.
-  * **Sentence Splitting & Hedge Word Injection**: Splits complex sentences at conjunctions and injects qualifiers.
-* **Automated Keyword Citation Injections**: Dynamically matches prose blocks against configurable target subjects, inserting citations (`\cite{...}`) for assertions to bypass Turnitin's "Not Cited or Quoted" matches.
-* **Zero-Configuration Run Mode**: Automatically detects LaTeX directories inside `paper_input/`, identifies `.tex` and `.bib` files, extracts core keywords using local term-frequency analysis, and processes the paper on-the-fly.
-* **Separation of Concerns**: Statically separates execution logic from word/phrase dictionaries (`rules/*.json`) and project paths (`configs/*.json`).
+<p align="center">
+  Created and maintained by <a href="https://github.com/AhmadHassan-BTed"><strong>Ahmad Hassan (B-Ted)</strong></a>.
+</p>
 
 ---
 
-## 📐 Project Architecture
+## 💡 The Human Side of Turnitout
 
-Turnitout is structured as a clean, installable Python package matching professional repository standards:
+Writing is a deeply personal, human craft. Yet, under the rigid constraints of automated similarity scanners like Turnitin, researchers, students, and authors are often forced to rewrite their natural voice, break their equations, or spend days manually replacing phrases simply to bypass automated string matching. 
 
-```text
-Turnitout/
-├── .github/                  # GitHub Community Configs & CI/CD Pipelines
-│   ├── ISSUE_TEMPLATE/       # Bug and Feature templates
-│   └── workflows/ci.yml      # CI/CD test automation runs
-├── configs/                  # Paper-specific configuration JSONs
-├── docs/                     # Documentation and release history
-│   ├── architecture.md       # Pipeline architecture diagrams
-│   ├── changelog.md          # Release change history
-│   ├── getting-started.md    # Detailed onboarding usage guide
-│   ├── roadmap.md            # Upcoming features and planning
-│   └── technical-decisions.md# Decision records (Offline-only logic, data separation)
-├── paper_input/              # Directory to copy raw LaTeX files
-├── paper_output/             # Folder containing clean, processed outputs
-├── rules/                    # Dictionaries of synonyms, phrases, and technical rules
-├── src/                      # Source package directory
-│   └── turnitout/
-│       ├── __init__.py
-│       ├── cli.py            # Command Line Interface runner
-│       ├── config.py         # Config parser & environment loader
-│       └── core/
-│           ├── parser.py     # Structural LaTeX tokenizer
-│           ├── modifier.py   # Mutation pipeline engine
-│           ├── generator.py  # References & report compiler
-│           ├── rules.py      # Rule file JSON database parser
-│           └── utils.py      # LaTeX syntax checkers
-├── tests/                    # Automated testing suite
-│   ├── test_parser.py        # Parser zone validation tests
-│   ├── test_modifier.py      # Modifier syntax-safety test runs
-│   └── test_rules.py         # JSON files contract checkers
-├── pyproject.toml            # Package build configuration & PEP 517 metadata
-├── run.py                    # Root entrypoint launcher wrapper
-└── .env.example              # Template environment configuration variables
+Turnitout was created to solve this friction. By automating the mechanical process of breaking up matching n-gram chains while leaving mathematical formulations, structure, and academic formatting untouched, Turnitout protects the author's formatting integrity, allowing researchers to spend their energy on real scientific discovery.
+
+---
+
+## 🧭 System Workflow & Pipeline
+
+The pipeline runs sequentially to parse, isolate, rewrite, and cite LaTeX documents:
+
+```mermaid
+flowchart TD
+    subgraph Inputs ["1. Setup & Inputs"]
+        Raw["Raw LaTeX Document\n(main.tex)"]
+        Env[".env Configuration\n(Aggressiveness, Seed)"]
+    end
+    subgraph Parser ["2. LaTeXZoneParser"]
+        Z1["Preamble & Frontmatter\n(SKIP)"]
+        Z2["Equations & Matrices\n(MATH)"]
+        Z3["Prose Paragraphs\n(PROSE)"]
+        Z4["Chapter/Section Titles\n(HEADING)"]
+    end
+    subgraph Modifier ["3. TextModifier Mutation Engine"]
+        PH["Mask LaTeX Commands"]
+        PR["Apply Phrase Rewrites"]
+        SR["Apply Synonym Replacements"]
+        CO["Reorder Clauses"]
+        DS["Swap Determiners"]
+        CS["Split Compound Sentences"]
+        HI["Insert Hedge Words"]
+        NB["N-gram Chain Breaker"]
+        UN["Unmask LaTeX Commands"]
+        CI["Inject Citations"]
+    end
+    subgraph Output ["4. Output Compilation"]
+        Mod["Paraphrased main.tex"]
+        Bib["references.bib with appended references"]
+        Prompt["ai_prompt.txt (AI prompt template)"]
+    end
+
+    Raw --> Parser
+    Env --> Modifier
+    Z3 --> Modifier
+    Modifier --> Output
 ```
+
+---
+
+## 🏗️ Repository Architecture & Dependency Coupling
+
+The codebase is organized as an installable Python package designed with high cohesion and low coupling:
+
+```mermaid
+graph TD
+    classDef package fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px;
+    classDef module fill:#fffde7,stroke:#f57f17,stroke-width:1.5px;
+    
+    subgraph Package ["turnitout package"]
+        cli["cli.py\n(CLI Orchestrator)"]:::module
+        config["config.py\n(Config Loader)"]:::module
+        core["core package"]:::package
+        
+        subgraph core ["core package"]
+            parser["parser.py\n(LaTeX Zone Parser)"]:::module
+            modifier["modifier.py\n(Mutation Engine)"]:::module
+            rules["rules.py\n(JSON rule Loader)"]:::module
+            generator["generator.py\n(Report Compiler)"]:::module
+            utils["utils.py\n(LaTeX Checkers)"]:::module
+        end
+    end
+    
+    cli --> config
+    cli --> parser
+    cli --> modifier
+    cli --> generator
+    cli --> utils
+    modifier --> rules
+```
+
+---
+
+## 🗂️ Project File Structure
+
+Detailed configuration and dynamic rule databases are mapped out below:
+
+* **`configs/`**: Project-specific parameters (paths, citation mappings).
+* **`rules/`**: Human-editable translation and synonym dictionaries.
+  * `rules/synonyms.json`: Academic word replacements.
+  * `rules/phrases.json`: Sequential n-gram rewrite rules.
+  * `rules/protected_terms.json`: Protected mathematical and technical words.
+  * `rules/conjunctions.json`: Conjunction list used for clause reordering.
+  * `rules/determiners.json`: Swap lists for determiners.
+  * `rules/hedge_words.json`: List of academic hedges.
+* **`src/turnitout/`**: Core package source folder.
+* **`tests/`**: Unit test suites testing syntax-safety and api contracts.
+
+---
+
+## ⚙️ Configuration & Environment Settings
+
+System overrides are controlled via environment variables inside a `.env` file placed at the project root:
+
+| Variable | Description | Type | Default |
+| --- | --- | --- | --- |
+| `TURNITOUT_AGGRESSIVENESS` | Probability rate of swapping words with synonyms | Float (`0.0`-`1.0`) | `0.75` |
+| `TURNITOUT_MIN_SENTENCE_LEN` | Minimum char length of a sentence to inject citations | Integer | `45` |
+| `TURNITOUT_RANDOM_SEED` | Seed value ensuring output reproducibility | Integer | `42` |
+
+<details>
+<summary><b>🔍 View Example `.env` File</b></summary>
+
+```bash
+# Synonym aggressiveness (float value between 0.0 and 1.0)
+TURNITOUT_AGGRESSIVENESS=0.75
+
+# Minimum sentence length for citation insertion (integer)
+TURNITOUT_MIN_SENTENCE_LEN=45
+
+# Random seed (integer)
+TURNITOUT_RANDOM_SEED=42
+```
+</details>
 
 ---
 
@@ -81,26 +165,11 @@ Turnitout/
    source env/bin/activate
    ```
 
-3. **Install Dependencies & Package**:
+3. **Install Package**:
    Install the package locally in editable development mode:
    ```bash
    pip install -e .[dev]
    ```
-
----
-
-## ⚙️ Configuration & Environment Settings
-
-Turnitout supports environment variables to override default pipeline behaviors. Copy the `.env.example` file to `.env` to configure your overrides:
-
-```bash
-cp .env.example .env
-```
-
-Available variables inside `.env`:
-* `TURNITOUT_AGGRESSIVENESS`: Mutation probability threshold (float, default: `0.75`).
-* `TURNITOUT_MIN_SENTENCE_LEN`: Minimum line character length to append citations (int, default: `45`).
-* `TURNITOUT_RANDOM_SEED`: Random generator seed to guarantee reproducible outputs (int, default: `42`).
 
 ---
 
@@ -140,6 +209,35 @@ flake8 src/ tests/
 
 ---
 
-## 🛡️ License
+## 🛠️ Developer & CI Workflow
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+The workflow for integrating new features or updating dictionaries follows these steps:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Contributor
+    participant Git as Git Branch
+    participant Lint as Linter & Formatter
+    participant Test as Pytest Suite
+    participant GA as GitHub Actions CI
+    
+    Dev->>Git: Create branch (feature/name)
+    Dev->>Lint: Check formatting (black, flake8)
+    Dev->>Test: Run local tests (pytest)
+    Dev->>Git: Commit and push changes
+    Git->>GA: Trigger automated check workflows
+    GA-->>Dev: Build status result (Pass/Fail)
+```
+
+Detailed contribution workflows are documented in [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+
+---
+
+## 🛡️ Support & Support Channels
+
+Questions or requests can be directed to the following channels:
+* **Support Directions**: Guidelines are available in [SUPPORT.md](.github/SUPPORT.md).
+* **Security Reporting**: Vulnerabilities should be reported according to [SECURITY.md](.github/SECURITY.md).
+* **Release Changes**: History logs are available in [docs/changelog.md](docs/changelog.md).
+* **Milestone Planning**: Upcoming changes are outlined in [docs/roadmap.md](docs/roadmap.md).
