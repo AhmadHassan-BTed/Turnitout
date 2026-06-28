@@ -23,8 +23,8 @@ share/python-wheels/
 *.egg
 
 # Output directories & reports
-*-modified/
-Mathematics-thesis-modified/
+paper_output/*
+!paper_output/.gitkeep
 change_report.md
 
 # Inputs (ignore raw input papers to keep repo clean)

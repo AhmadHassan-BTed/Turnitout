@@ -12,7 +12,8 @@ TEX_FILE = os.path.join(INPUT_DIR, "main.tex")
 BIB_FILE = os.path.join(INPUT_DIR, "references.bib")
 
 # Output path (separate folder)
-OUTPUT_DIR = os.path.join(BASE_DIR, "Mathematics-thesis-modified")
+OUTPUT_DIR = os.path.join(BASE_DIR, "paper_output", "Mathematics-thesis-modified")
+
 
 # Execution configurations
 SYNONYM_AGGRESSIVENESS = 0.55
