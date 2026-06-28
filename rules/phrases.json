@@ -414,5 +414,265 @@
   [
     "\\bin the above\\b",
     "in the preceding"
+  ],
+  [
+    "\\bfor the purpose of\\b",
+    "to"
+  ],
+  [
+    "\\ba small number of\\b",
+    "few"
+  ],
+  [
+    "\\bin the presence of\\b",
+    "with"
+  ],
+  [
+    "\\bin the absence of\\b",
+    "without"
+  ],
+  [
+    "\\bat the same time\\b",
+    "simultaneously"
+  ],
+  [
+    "\\bfor the sake of\\b",
+    "for"
+  ],
+  [
+    "\\bby means of\\b",
+    "using"
+  ],
+  [
+    "\\bin accordance with\\b",
+    "following"
+  ],
+  [
+    "\\bwith the aim of\\b",
+    "to"
+  ],
+  [
+    "\\bwith the exception of\\b",
+    "except for"
+  ],
+  [
+    "\\bin the vicinity of\\b",
+    "near"
+  ],
+  [
+    "\\bin close proximity to\\b",
+    "near"
+  ],
+  [
+    "\\bprior to\\b",
+    "before"
+  ],
+  [
+    "\\bsubsequent to\\b",
+    "after"
+  ],
+  [
+    "\\bas a consequence\\b",
+    "consequently"
+  ],
+  [
+    "\\bit is worth noting that\\b",
+    "notably"
+  ],
+  [
+    "\\bit is evident that\\b",
+    "clearly"
+  ],
+  [
+    "\\bit is important to note that\\b",
+    "importantly"
+  ],
+  [
+    "\\bit is widely recognized that\\b",
+    "as is well recognized"
+  ],
+  [
+    "\\bthe fact that\\b",
+    "that"
+  ],
+  [
+    "\\ba variety of\\b",
+    "various"
+  ],
+  [
+    "\\btakes into account\\b",
+    "accounts for"
+  ],
+  [
+    "\\btake into account\\b",
+    "account for"
+  ],
+  [
+    "\\btaken into account\\b",
+    "accounted for"
+  ],
+  [
+    "\\btaking into account\\b",
+    "accounting for"
+  ],
+  [
+    "\\bgive rise to\\b",
+    "produce"
+  ],
+  [
+    "\\bgives rise to\\b",
+    "produces"
+  ],
+  [
+    "\\bgiven rise to\\b",
+    "produced"
+  ],
+  [
+    "\\bcarried out\\b",
+    "conducted"
+  ],
+  [
+    "\\bcarry out\\b",
+    "conduct"
+  ],
+  [
+    "\\bbrought about\\b",
+    "caused"
+  ],
+  [
+    "\\bbring about\\b",
+    "cause"
+  ],
+  [
+    "\\bmake use of\\b",
+    "employ"
+  ],
+  [
+    "\\bmakes use of\\b",
+    "employs"
+  ],
+  [
+    "\\bmade use of\\b",
+    "employed"
+  ],
+  [
+    "\\bin this regard\\b",
+    "in this respect"
+  ],
+  [
+    "\\bin this manner\\b",
+    "in this fashion"
+  ],
+  [
+    "\\bto a large extent\\b",
+    "substantially"
+  ],
+  [
+    "\\bto a great extent\\b",
+    "considerably"
+  ],
+  [
+    "\\bto some extent\\b",
+    "partially"
+  ],
+  [
+    "\\bto a certain extent\\b",
+    "partly"
+  ],
+  [
+    "\\bas mentioned earlier\\b",
+    "as noted previously"
+  ],
+  [
+    "\\bas discussed above\\b",
+    "as outlined earlier"
+  ],
+  [
+    "\\bas shown above\\b",
+    "as illustrated previously"
+  ],
+  [
+    "\\bas can be seen\\b",
+    "as is apparent"
+  ],
+  [
+    "\\bin the next section\\b",
+    "in the subsequent section"
+  ],
+  [
+    "\\bin the previous section\\b",
+    "in the preceding section"
+  ],
+  [
+    "\\bthe following section\\b",
+    "the ensuing section"
+  ],
+  [
+    "\\bthe above equation\\b",
+    "the preceding equation"
+  ],
+  [
+    "\\bthe above expression\\b",
+    "the preceding expression"
+  ],
+  [
+    "\\bthe above result\\b",
+    "the preceding result"
+  ],
+  [
+    "\\bwe can observe that\\b",
+    "one may observe that"
+  ],
+  [
+    "\\bwe can write\\b",
+    "one may write"
+  ],
+  [
+    "\\bwe can express\\b",
+    "one may express"
+  ],
+  [
+    "\\bwe see that\\b",
+    "it is seen that"
+  ],
+  [
+    "\\bwe find that\\b",
+    "it is found that"
+  ],
+  [
+    "\\bit is necessary to\\b",
+    "one must"
+  ],
+  [
+    "\\bit is possible to\\b",
+    "one can"
+  ],
+  [
+    "\\bit follows that\\b",
+    "consequently"
+  ],
+  [
+    "\\bthere exists\\b",
+    "there is"
+  ],
+  [
+    "\\bthere exist\\b",
+    "there are"
+  ],
+  [
+    "\\bmore specifically\\b",
+    "in particular"
+  ],
+  [
+    "\\bmore precisely\\b",
+    "to be precise"
+  ],
+  [
+    "\\bmore importantly\\b",
+    "crucially"
+  ],
+  [
+    "\\bmore generally\\b",
+    "in a broader sense"
   ]
 ]

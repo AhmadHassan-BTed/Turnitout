@@ -361,9 +361,9 @@ def main():
     print(f"\n[4/7] Applying intelligent modifications...")
     
     # Instantiate Modifier with config settings
-    aggressiveness = getattr(config, "SYNONYM_AGGRESSIVENESS", 0.55)
+    aggressiveness = getattr(config, "SYNONYM_AGGRESSIVENESS", 0.75)
     seed = getattr(config, "RANDOM_SEED", 42)
-    min_cite_len = getattr(config, "MIN_SENTENCE_LENGTH_FOR_CITE", 60)
+    min_cite_len = getattr(config, "MIN_SENTENCE_LENGTH_FOR_CITE", 45)
     
     modifier = TextModifier(
         seed=seed,
@@ -410,6 +410,11 @@ def main():
 
     print(f"  Synonym replacements:  {modifier.replacement_count}")
     print(f"  Phrase rewrites:       {modifier.phrase_rewrite_count}")
+    print(f"  Clause reorders:       {modifier.clause_reorder_count}")
+    print(f"  Determiner swaps:      {modifier.determiner_swap_count}")
+    print(f"  Hedge insertions:      {modifier.hedge_insertion_count}")
+    print(f"  N-gram chain breaks:   {modifier.ngram_break_count}")
+    print(f"  Sentence splits:       {modifier.sentence_split_count}")
     print(f"  Citations added:       {modifier.citation_count}")
     print(f"  Lines modified:        {len(modifier.changes_log)}")
 
@@ -501,11 +506,21 @@ def main():
     print("\n" + "=" * 65)
     print("  SUMMARY")
     print("=" * 65)
+    total_transforms = (modifier.replacement_count + modifier.phrase_rewrite_count +
+                         modifier.clause_reorder_count + modifier.determiner_swap_count +
+                         modifier.hedge_insertion_count + modifier.ngram_break_count +
+                         modifier.sentence_split_count + modifier.citation_count)
     print(f"  Total lines processed:    {total_lines}")
     print(f"  Prose lines modified:     {len(modifier.changes_log)}")
-    print(f"  Synonym replacements:     {modifier.replacement_count}")
-    print(f"  Phrase rewrites:          {modifier.phrase_rewrite_count}")
-    print(f"  Citations added:          {modifier.citation_count}")
+    print(f"  Total transformations:    {total_transforms}")
+    print(f"    Synonym replacements:   {modifier.replacement_count}")
+    print(f"    Phrase rewrites:        {modifier.phrase_rewrite_count}")
+    print(f"    Clause reorders:        {modifier.clause_reorder_count}")
+    print(f"    Determiner swaps:       {modifier.determiner_swap_count}")
+    print(f"    Hedge insertions:       {modifier.hedge_insertion_count}")
+    print(f"    N-gram breaks:          {modifier.ngram_break_count}")
+    print(f"    Sentence splits:        {modifier.sentence_split_count}")
+    print(f"    Citations added:        {modifier.citation_count}")
     
     new_dummies = sum(1 for kw_tuple, info in config.TOPIC_CITATIONS.items() 
                       if info["key"] in modifier.used_cite_keys and info["key"] not in existing_cite_keys)
