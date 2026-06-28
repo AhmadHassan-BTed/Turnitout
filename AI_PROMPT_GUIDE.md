@@ -10,7 +10,7 @@ To compile your document, you need to replace these dummy placeholder entries wi
 
 To put less load on manual work, the program automatically generates a **pre-filled AI prompt** tailored specifically to the placeholders used in your run.
 
-1. Open the generated output folder: `paper_output/Mathematics-thesis-modified/` (or your specific project folder).
+1. Open the generated output folder inside the `paper_output/` directory (e.g. `paper_output/<your-project-modified>/`).
 2. Open the file **`ai_prompt.txt`**.
 3. **Copy the entire contents of `ai_prompt.txt`** and paste it directly into ChatGPT, Claude, or Gemini.
 
@@ -45,7 +45,7 @@ Please ensure:
 
 Once the AI generates the BibTeX entries for you:
 
-1. **Open the `references.bib` file** in your output folder (`paper_output/Mathematics-thesis-modified/references.bib`).
+1. **Open the `references.bib` file** in your output folder (e.g. `paper_output/<your-project-modified>/references.bib`).
 2. Scroll to the bottom where the dummy references (prefixed with `% DUMMY REFERENCES`) were automatically appended.
 3. **Select and replace** those placeholder entries with the real BibTeX code provided by the AI.
 4. **Save** the file.
