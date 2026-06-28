@@ -23,9 +23,9 @@ Plagerism Similarity Remove/
 │   ├── phrases.json             # Phrase-level N-gram rewrite patterns
 │   └── protected_terms.json     # Technical terms protected from modifications
 │
-├── paper_config/                # Project-specific configurations
-│   ├── __init__.py
-│   └── math_thesis.py           # Configuration and keyword citation mapping for math thesis
+├── configs/                     # Project-specific configurations (JSON)
+│   └── math_thesis.json         # Configuration and keyword citation mapping for math thesis
+
 │
 ├── paper_input/                 # Standard input folder (Place raw documents here)
 │   └── Mathematics-thesis/      # Input files (main.tex, references.bib, media)
@@ -47,7 +47,7 @@ Plagerism Similarity Remove/
    - `core/modifier.py` modifies the text strings using loaded rules and does not touch file I/O.
    - `core/generator.py` compiles summaries and report formatting.
 2. **Data Coupling**: Modules exchange data via parameters and constructors rather than global variables or hardcoded constants.
-3. **Configuration Isolation**: All paper-specific information (such as folder paths and `TOPIC_CITATIONS` keyword rules) is isolated in `paper_config/` modules.
+3. **Configuration Isolation**: All paper-specific information (such as folder paths and `TOPIC_CITATIONS` keyword rules) is isolated in `configs/` modules.
 4. **Editable Rules**: All academic synonym dictionaries, phrases, and technical terms are separated into human-editable JSON files in `rules/` so they can be modified without altering any python script code.
 
 ---
@@ -113,29 +113,26 @@ python run.py --config math_thesis
 
 To run the tool on a different paper:
 1. Create a folder in `paper_input/` and place the LaTeX files inside.
-2. Create a new python file in `paper_config/` (e.g., `paper_config/physics_paper.py`).
-3. Define the paths and config variables:
-   ```python
-   import os
-   from collections import OrderedDict
-
-   BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-   PROJECT_NAME = "physics_paper"
-   INPUT_DIR = os.path.join(BASE_DIR, "paper_input", "physics_paper_folder")
-   TEX_FILE = os.path.join(INPUT_DIR, "document.tex")
-   BIB_FILE = os.path.join(INPUT_DIR, "citations.bib")
-   OUTPUT_DIR = os.path.join(BASE_DIR, "physics_paper_modified")
-
-   SYNONYM_AGGRESSIVENESS = 0.50
-   RANDOM_SEED = 123
-   MIN_SENTENCE_LENGTH_FOR_CITE = 50
-
-   # Key physics topics to automatically cite
-   TOPIC_CITATIONS = OrderedDict([
-       (("quantum mechanics", "schrodinger", "wavefunction"),
-        {"key": "ref_quantum_basics", "topic": "Foundations of Quantum Mechanics"}),
-   ])
+2. Create a new JSON file in `configs/` (e.g., `configs/physics_paper.json`).
+3. Define the paths and config variables in standard JSON format:
+   ```json
+   {
+     "project_name": "physics_paper",
+     "input_dir": "paper_input/physics_paper_folder",
+     "tex_file": "paper_input/physics_paper_folder/document.tex",
+     "bib_file": "paper_input/physics_paper_folder/citations.bib",
+     "output_dir": "paper_output/physics_paper_modified",
+     "synonym_aggressiveness": 0.50,
+     "random_seed": 123,
+     "min_sentence_length_for_cite": 50,
+     "topic_citations": [
+       {
+         "keywords": ["quantum mechanics", "schrodinger", "wavefunction"],
+         "key": "ref_quantum_basics",
+         "topic": "Foundations of Quantum Mechanics"
+       }
+     ]
+   }
    ```
 4. Run using the new configuration name:
    ```bash
