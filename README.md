@@ -122,8 +122,7 @@ Turnitout/
 ```
 </details>
 
-<details>
-<summary><b>🏗️ Under the Hood: System Architecture & Workflow (Click to Expand)</b></summary>
+## 🏗️ Under the Hood: System Architecture & Workflow
 
 ### 1. Processing Pipeline
 The document undergoes structural zoning before modification to ensure mathematical equations, formatting macros, and citations remain intact:
@@ -193,10 +192,10 @@ graph TD
     cli --> utils
     modifier --> rules
 ```
-</details>
 
-<details>
-<summary><b>🧪 Testing & Contributor Workflows (Click to Expand)</b></summary>
+---
+
+## 🧪 Testing & Contributor Workflows
 
 ### Local Testing
 Tests are designed to verify syntax-safety and programmatic API contracts:
@@ -231,7 +230,6 @@ sequenceDiagram
     Git->>GA: Trigger automated check workflows
     GA-->>Dev: Build status result (Pass/Fail)
 ```
-</details>
 
 ---
 
