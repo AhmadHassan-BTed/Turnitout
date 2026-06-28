@@ -15,15 +15,11 @@
   <a href="https://semver.org/"><img src="https://img.shields.io/badge/version-1.0.0--beta-orange.svg" alt="Semantic Versioning"/></a>
 </p>
 
-<p align="center">
-  Created and maintained by <a href="https://github.com/AhmadHassan-BTed"><strong>Ahmad Hassan (B-Ted)</strong></a>.
-</p>
-
 ---
 
 ## 💡 Preserving the Academic Voice
 
-Writing is a deeply personal, human craft. Yet under the rigid constraints of similarity scanners like Turnitin, authors are often forced to rewrite their natural voice or break their formatting simply to bypass automated string matching. 
+Writing is a deeply personal, human craft. Yet under the rigid constraints of similarity scanners like Turnitin, authors are often forced to rewrite their natural voice or break their formatting simply to bypass automated string matching.
 
 Turnitout resolves this friction. By automating the process of breaking matching n-gram chains while leaving mathematical equations and structures untouched, Turnitout protects formatting integrity, allowing researchers to focus on real scientific discovery.
 
@@ -34,19 +30,22 @@ Turnitout resolves this friction. By automating the process of breaking matching
 Turnitout runs out-of-the-box with automatic Python verification and setup. Follow these simple steps:
 
 ### 1. Prepare the Input Folder
+
 1. Locate the **`paper_input/`** folder in this directory.
 2. Copy your LaTeX paper folder into it (containing your `main.tex`, `references.bib`, and asset folders).
 
 ### 2. Run the Tool
-* **Windows Users**: Double-click **`run.bat`** (or run `run.bat` from a command prompt).
-* **macOS & Linux Users**: Open a terminal in this directory and run:
-  ```bash
-  chmod +x run.sh
-  ./run.sh
-  ```
-*The runners automatically verify Python, trigger an auto-installation if Python is missing, set up dependency packages, and execute the pipeline.*
+
+- **Windows Users**: Double-click **`run.bat`** (or run `run.bat` from a command prompt).
+- **macOS & Linux Users**: Open a terminal in this directory and run:
+    ```bash
+    chmod +x run.sh
+    ./run.sh
+    ```
+    _The runners automatically verify Python, trigger an auto-installation if Python is missing, set up dependency packages, and execute the pipeline._
 
 ### 3. Finalize Citations with AI
+
 1. Open the generated folder inside **`paper_output/`**.
 2. Open the file **`ai_prompt.txt`**, copy the entire text, and paste it into ChatGPT, Claude, or Gemini.
 3. Paste the AI's BibTeX response at the bottom of the **`references.bib`** file in your output folder.
@@ -58,13 +57,14 @@ Turnitout runs out-of-the-box with automatic Python verification and setup. Foll
 
 Overrides can be configured via environment variables inside a `.env` file placed at the project root:
 
-| Variable | Description | Type | Default |
-| --- | --- | --- | --- |
-| `TURNITOUT_AGGRESSIVENESS` | Probability rate of swapping words with synonyms | Float (`0.0`-`1.0`) | `0.75` |
-| `TURNITOUT_MIN_SENTENCE_LEN` | Minimum char length of a sentence to inject citations | Integer | `45` |
-| `TURNITOUT_RANDOM_SEED` | Seed value ensuring output reproducibility | Integer | `42` |
+| Variable                     | Description                                           | Type                | Default |
+| ---------------------------- | ----------------------------------------------------- | ------------------- | ------- |
+| `TURNITOUT_AGGRESSIVENESS`   | Probability rate of swapping words with synonyms      | Float (`0.0`-`1.0`) | `0.75`  |
+| `TURNITOUT_MIN_SENTENCE_LEN` | Minimum char length of a sentence to inject citations | Integer             | `45`    |
+| `TURNITOUT_RANDOM_SEED`      | Seed value ensuring output reproducibility            | Integer             | `42`    |
 
 To override settings, copy `.env.example` to `.env` and set the desired values:
+
 ```bash
 # Example .env configuration
 TURNITOUT_AGGRESSIVENESS=0.75
@@ -121,6 +121,7 @@ Turnitout/
 ## 🏗️ Under the Hood: System Architecture & Workflow
 
 ### 1. Processing Pipeline
+
 The document undergoes structural zoning before modification to ensure mathematical equations, formatting macros, and citations remain intact:
 
 ```mermaid
@@ -160,6 +161,7 @@ flowchart TD
 ```
 
 ### 2. Internal Module Coupling
+
 The codebase is structured to enforce high functional cohesion and clear interface boundaries:
 
 ```mermaid
@@ -167,7 +169,7 @@ graph TD
     subgraph Package ["turnitout package"]
         cli["cli.py<br>(CLI Orchestrator)"]
         config["config.py<br>(Config Loader)"]
-        
+
         subgraph core ["core package"]
             parser["parser.py<br>(LaTeX Zone Parser)"]
             modifier["modifier.py<br>(Mutation Engine)"]
@@ -176,7 +178,7 @@ graph TD
             utils["utils.py<br>(LaTeX Checkers)"]
         end
     end
-    
+
     cli --> config
     cli --> parser
     cli --> modifier
@@ -190,7 +192,9 @@ graph TD
 ## 🧪 Testing & Contributor Workflows
 
 ### Local Testing
+
 Tests are designed to verify syntax-safety and programmatic API contracts:
+
 ```bash
 # Install development dependencies
 pip install -e .[dev]
@@ -204,6 +208,7 @@ flake8 src/ tests/
 ```
 
 ### Contribution Integration
+
 New modifications are validated automatically via CI checks:
 
 ```mermaid
@@ -214,7 +219,7 @@ sequenceDiagram
     participant Lint as Linter & Formatter
     participant Test as Pytest Suite
     participant GA as GitHub Actions CI
-    
+
     Dev->>Git: Create branch (feature/name)
     Dev->>Lint: Check formatting (black, flake8)
     Dev->>Test: Run local tests (pytest)
@@ -231,3 +236,9 @@ sequenceDiagram
 - **Milestone Planning**: Upcoming changes are outlined in [docs/roadmap.md](docs/roadmap.md).
 - **Support Directions**: Guidelines are available in [SUPPORT.md](.github/SUPPORT.md).
 - **Security Reporting**: Vulnerabilities should be reported according to [SECURITY.md](.github/SECURITY.md).
+
+---
+
+<p align="center">
+  Created and maintained by <a href="https://github.com/AhmadHassan-BTed"><strong>Ahmad Hassan (B-Ted)</strong></a> 🤓⌨️
+</p>
