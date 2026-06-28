@@ -325,6 +325,32 @@ def main():
         f.write(report_content)
     print(f"  Change report:   {change_report_path}")
 
+    # 6. Generate pre-filled AI Prompt for added citation keys
+    prompt_path = os.path.join(config.OUTPUT_DIR, "ai_prompt.txt")
+    if modifier.used_cite_keys:
+        prompt_lines = []
+        prompt_lines.append("I am using a LaTeX similarity reduction tool. It has generated several dummy placeholder BibTeX citations in my document. I need you to find real, highly-cited, relevant academic papers (journal articles, books, or conference papers) that match these topics, and format them as valid BibTeX entries.\n")
+        prompt_lines.append("For each topic, provide a real academic source. You MUST keep the exact BibTeX key I provide so that it matches my LaTeX file.\n")
+        prompt_lines.append("Here is the list of citation keys and the academic topics they should cover:\n")
+        
+        for idx, key in enumerate(sorted(modifier.used_cite_keys), 1):
+            topic = "Unknown"
+            for kw_tuple, info in config.TOPIC_CITATIONS.items():
+                if info["key"] == key:
+                    topic = info["topic"]
+                    break
+            prompt_lines.append(f"{idx}. Key: {key}")
+            prompt_lines.append(f"   Topic: {topic}\n")
+            
+        prompt_lines.append("Please ensure:")
+        prompt_lines.append("- The BibTeX citation key matches my key EXACTLY (e.g., ref_thermal_modeling).")
+        prompt_lines.append("- The papers are real, published, and highly cited (articles or textbooks).")
+        prompt_lines.append("- The output is strictly formatted as valid BibTeX.")
+        
+        with open(prompt_path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(prompt_lines))
+        print(f"  Generated pre-filled AI Prompt: {prompt_path}")
+
     # -- Summary --
     print(f"\n[7/7] Done!")
     print("\n" + "=" * 65)
@@ -344,9 +370,16 @@ def main():
     print(f"  1. The complete, compile-ready project has been written to:")
     print(f"     {config.OUTPUT_DIR}")
     print(f"  2. Review the change report: {change_report_path}")
-    print(f"  3. Open the output directory and build main.tex using your LaTeX editor.")
-    print(f"  4. Compile with pdflatex and verify.")
-    print(f"  5. Re-submit to Turnitin.")
+    if new_dummies > 0:
+        print(f"  3. Open and copy the pre-filled AI prompt from:")
+        print(f"     {prompt_path}")
+        print("     Paste it into ChatGPT/Claude to generate real BibTeX entries,")
+        print("     and replace the dummy placeholders at the bottom of references.bib.")
+    else:
+        print("  3. (All citations were successfully matched with existing bibliography entries!)")
+    print(f"  4. Open the output directory and build main.tex using your LaTeX editor.")
+    print(f"  5. Compile with pdflatex and verify.")
+    print(f"  6. Re-submit to Turnitin.")
     print("=" * 65)
 
 
