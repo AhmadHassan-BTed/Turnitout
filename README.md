@@ -54,11 +54,9 @@ Turnitout runs out-of-the-box with automatic Python verification and setup. Foll
 
 ---
 
-<details>
-<summary><b>🛠️ Advanced Customization & Parameter Tables (Click to Expand)</b></summary>
+## 🛠️ Advanced Customizations & Configuration
 
-### Configuration Parameters
-Overrides are controlled via environment variables inside a `.env` file placed at the project root:
+Overrides can be configured via environment variables inside a `.env` file placed at the project root:
 
 | Variable | Description | Type | Default |
 | --- | --- | --- | --- |
@@ -66,22 +64,19 @@ Overrides are controlled via environment variables inside a `.env` file placed a
 | `TURNITOUT_MIN_SENTENCE_LEN` | Minimum char length of a sentence to inject citations | Integer | `45` |
 | `TURNITOUT_RANDOM_SEED` | Seed value ensuring output reproducibility | Integer | `42` |
 
-### Configuration File Example
-Copy `.env.example` to `.env` to configure your overrides:
+To override settings, copy `.env.example` to `.env` and set the desired values:
 ```bash
-# Synonym aggressiveness (float value between 0.0 and 1.0)
+# Example .env configuration
 TURNITOUT_AGGRESSIVENESS=0.75
-
-# Minimum sentence length for citation insertion (integer)
 TURNITOUT_MIN_SENTENCE_LEN=45
-
-# Random seed (integer)
 TURNITOUT_RANDOM_SEED=42
 ```
-</details>
 
-<details>
-<summary><b>📂 Project File Directory Structure (Click to Expand)</b></summary>
+---
+
+## 📂 Project Directory Structure
+
+The repository is structured to separate execution files, rules, configs, and documentation:
 
 ```text
 Turnitout/
@@ -120,7 +115,8 @@ Turnitout/
 ├── pyproject.toml            # Python package setup & test configurations
 └── run.py                    # Root launcher wrapper calling CLI module
 ```
-</details>
+
+---
 
 ## 🏗️ Under the Hood: System Architecture & Workflow
 
