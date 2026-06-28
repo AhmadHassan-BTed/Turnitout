@@ -1,6 +1,9 @@
 import re
 import random
-from core.rules import ACADEMIC_SYNONYMS, PHRASE_REWRITES, PROTECTED_TERMS
+from core.rules import (
+    ACADEMIC_SYNONYMS, PHRASE_REWRITES, PROTECTED_TERMS,
+    HEDGE_WORDS, DETERMINER_MAP, SUBORDINATE_CONJUNCTIONS
+)
 
 class TextModifier:
     """
@@ -10,29 +13,9 @@ class TextModifier:
     while protecting LaTeX elements.
     """
 
-    # Academic hedge/qualifier words that can be safely inserted to break n-gram chains
-    HEDGE_WORDS = [
-        "notably", "essentially", "fundamentally", "particularly",
-        "generally", "accordingly", "characteristically", "inherently",
-        "predominantly", "principally", "substantially", "effectively",
-    ]
-
-    # Determiners that can be swapped contextually
-    DETERMINER_MAP = {
-        "the": ["this", "the given", "the aforementioned", "the specified"],
-        "a": ["one", "a given", "a certain", "a particular"],
-        "an": ["one", "a given", "a certain", "a particular"],
-        "this": ["the", "the present", "the current"],
-        "these": ["the", "such", "the aforementioned"],
-        "that": ["the", "this particular", "the given"],
-        "those": ["the", "such", "the aforementioned"],
-    }
-
-    # Common clause-leading subordinate conjunctions
-    SUBORDINATE_CONJUNCTIONS = [
-        "since", "because", "although", "while", "whereas",
-        "when", "if", "unless", "as", "after", "before",
-    ]
+    HEDGE_WORDS = HEDGE_WORDS
+    DETERMINER_MAP = DETERMINER_MAP
+    SUBORDINATE_CONJUNCTIONS = SUBORDINATE_CONJUNCTIONS
 
     def __init__(self, seed=42, aggressiveness=0.55, topic_citations=None, existing_cite_keys=None, min_sentence_length_for_cite=60):
         self.rng = random.Random(seed)

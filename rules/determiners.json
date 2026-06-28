@@ -1,0 +1,9 @@
+{
+  "the": ["this", "the given", "the aforementioned", "the specified"],
+  "a": ["one", "a given", "a certain", "a particular"],
+  "an": ["one", "a given", "a certain", "a particular"],
+  "this": ["the", "the present", "the current"],
+  "these": ["the", "such", "the aforementioned"],
+  "that": ["the", "this particular", "the given"],
+  "those": ["the", "such", "the aforementioned"]
+}
