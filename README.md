@@ -62,6 +62,20 @@ Overrides can be configured via environment variables inside a `.env` file place
 | `TURNITOUT_AGGRESSIVENESS`   | Probability rate of swapping words with synonyms      | Float (`0.0`-`1.0`) | `0.75`  |
 | `TURNITOUT_MIN_SENTENCE_LEN` | Minimum char length of a sentence to inject citations | Integer             | `45`    |
 | `TURNITOUT_RANDOM_SEED`      | Seed value ensuring output reproducibility            | Integer             | `42`    |
+| `TURNITOUT_VOICE_TRANSFORM`  | Enable active <-> passive voice transformations        | Boolean             | `true`  |
+| `TURNITOUT_VOICE_RATE`       | Voice transformation activation rate                  | Float (`0.0`-`1.0`) | `0.30`  |
+| `TURNITOUT_SENTENCE_FUSION`  | Enable fusing short adjacent sentences                 | Boolean             | `true`  |
+| `TURNITOUT_FUSION_RATE`      | Sentence fusion activation rate                       | Float (`0.0`-`1.0`) | `0.25`  |
+| `TURNITOUT_TRANSITION_INJECT`| Enable inserting academic transitions                 | Boolean             | `true`  |
+| `TURNITOUT_TRANSITION_RATE`  | Transition injection activation rate                  | Float (`0.0`-`1.0`) | `0.25`  |
+| `TURNITOUT_WORD_REORDER`     | Enable rearranging prepositional phrases              | Boolean             | `true`  |
+| `TURNITOUT_REORDER_RATE`     | Clause word reordering activation rate                | Float (`0.0`-`1.0`) | `0.20`  |
+| `TURNITOUT_NOMINALIZATION`   | Enable rotating nominalizations                       | Boolean             | `true`  |
+| `TURNITOUT_NOMINAL_RATE`     | Nominalization activation rate                        | Float (`0.0`-`1.0`) | `0.20`  |
+| `TURNITOUT_APPOSITIVE`       | Enable explaining nouns with appositives              | Boolean             | `true`  |
+| `TURNITOUT_APPOSITIVE_RATE`  | Appositive injection activation rate                  | Float (`0.0`-`1.0`) | `0.35`  |
+| `TURNITOUT_DISCOURSE_ROTATE` | Enable rotating sentence-starting discourse markers   | Boolean             | `true`  |
+| `TURNITOUT_DISCOURSE_RATE`   | Discourse marker rotation activation rate             | Float (`0.0`-`1.0`) | `0.50`  |
 
 To override settings, copy `.env.example` to `.env` and set the desired values:
 
@@ -113,7 +127,8 @@ Turnitout/
 ├── LICENSE                   # MIT License
 ├── README.md                 # Project documentation (this file)
 ├── pyproject.toml            # Python package setup & test configurations
-└── run.py                    # Root launcher wrapper calling CLI module
+│── run.py                    # Root launcher wrapper calling CLI module
+└── run.bat                   # Windows batch script launcher
 ```
 
 ---
@@ -139,12 +154,19 @@ flowchart TD
     subgraph Modifier ["3. TextModifier Mutation Engine"]
         PH["Mask LaTeX Commands"]
         PR["Apply Phrase Rewrites"]
-        SR["Apply Synonym Replacements"]
+        SR["Apply Synonym Replacements\n(Morphological Stemmer)"]
         CO["Reorder Clauses"]
         DS["Swap Determiners"]
         CS["Split Compound Sentences"]
         HI["Insert Hedge Words"]
         NB["N-gram Chain Breaker"]
+        VT["Voice Transform"]
+        SF["Sentence Fusion\n(Prose context-filtered)"]
+        TI["Transition Injection"]
+        WR["Clause Word Reorder"]
+        NM["Nominalization"]
+        AP["Appositive Injection"]
+        DR["Discourse Rotate"]
         UN["Unmask LaTeX Commands"]
         CI["Inject Citations"]
     end
