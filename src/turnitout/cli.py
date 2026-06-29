@@ -175,7 +175,7 @@ def main():
             context = []
             for offset in [-2, -1, 1, 2]:
                 ci = i + offset
-                if 0 <= ci < len(zones):
+                if 0 <= ci < len(zones) and zones[ci]['type'] == 'PROSE':
                     context.append(zones[ci]['text'])
 
             modified = modifier.modify_line(line, zone['idx'], context)

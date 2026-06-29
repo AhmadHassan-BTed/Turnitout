@@ -196,19 +196,24 @@ class TextModifier:
         return text
 
     def _apply_phrase_rewrites(self, text, line_num):
-        for pattern, replacement in PHRASE_REWRITES:
-            def case_aware_replace(match):
-                original = match.group(0)
-                if original[0].isupper() and replacement[0].islower():
-                    return replacement[0].upper() + replacement[1:]
-                return replacement
+        # Split text by placeholder keys to prevent matching/modifying placeholder strings
+        parts = re.split(r'(\x00PH\d{4}\x00)', text)
+        for i in range(len(parts)):
+            if not parts[i].startswith('\x00') or not parts[i].endswith('\x00'):
+                for pattern, replacement in PHRASE_REWRITES:
+                    def case_aware_replace(match):
+                        original = match.group(0)
+                        if original[0].isupper() and replacement[0].islower():
+                            return replacement[0].upper() + replacement[1:]
+                        return replacement
 
-            new_text = re.sub(pattern, case_aware_replace, text, flags=re.IGNORECASE, count=1)
-            if new_text != text:
-                self.phrase_rewrite_count += 1
-                text = new_text
+                    new_part = re.sub(pattern, case_aware_replace, parts[i], flags=re.IGNORECASE)
+                    if new_part != parts[i]:
+                        matches = len(re.findall(pattern, parts[i], flags=re.IGNORECASE))
+                        self.phrase_rewrite_count += matches
+                        parts[i] = new_part
 
-        return text
+        return ''.join(parts)
 
     def _apply_synonyms(self, text, line_num):
         tokens = re.split(r'(\s+|[.,;:!?()\[\]{}"\'\\])', text)

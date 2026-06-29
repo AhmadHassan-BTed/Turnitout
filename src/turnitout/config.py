@@ -9,6 +9,80 @@ from dotenv import load_dotenv
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
+def validate_config_contract(data, config_path):
+    """
+    Validates that data contains all required keys with the expected types.
+    """
+    required_keys = {
+        "project_name": str,
+        "input_dir": str,
+        "tex_file": str,
+        "bib_file": str,
+        "output_dir": str,
+        "synonym_aggressiveness": (int, float),
+        "random_seed": int,
+        "min_sentence_length_for_cite": int,
+        "enable_voice_transform": bool,
+        "voice_transform_rate": (int, float),
+        "enable_sentence_fusion": bool,
+        "sentence_fusion_rate": (int, float),
+        "enable_transition_inject": bool,
+        "transition_inject_rate": (int, float),
+        "enable_word_reorder": bool,
+        "word_reorder_rate": (int, float),
+        "enable_nominalization": bool,
+        "nominalization_rate": (int, float),
+        "enable_appositive": bool,
+        "appositive_rate": (int, float),
+        "enable_discourse_rotate": bool,
+        "discourse_rotate_rate": (int, float),
+        "topic_citations": list,
+    }
+
+    errors = []
+
+    for key, expected_type in required_keys.items():
+        if key not in data:
+            errors.append(f"Missing required key: '{key}'")
+            continue
+
+        value = data[key]
+        
+        # Check type
+        if isinstance(expected_type, tuple):
+            if not isinstance(value, expected_type) or isinstance(value, bool):  # bool is subclass of int in Python
+                type_names = " or ".join(t.__name__ for t in expected_type)
+                errors.append(f"Key '{key}' must be of type {type_names}, got {type(value).__name__}")
+        else:
+            if not isinstance(value, expected_type) or (expected_type is not bool and isinstance(value, bool)):
+                errors.append(f"Key '{key}' must be of type {expected_type.__name__}, got {type(value).__name__}")
+
+    # Validate topic_citations items structure if it is a list
+    if "topic_citations" in data and isinstance(data["topic_citations"], list):
+        for idx, item in enumerate(data["topic_citations"]):
+            if not isinstance(item, dict):
+                errors.append(f"topic_citations[{idx}] must be a JSON object (dict), got {type(item).__name__}")
+                continue
+            for subkey in ["keywords", "key", "topic"]:
+                if subkey not in item:
+                    errors.append(f"topic_citations[{idx}] is missing subkey: '{subkey}'")
+            if "keywords" in item and not isinstance(item["keywords"], list):
+                errors.append(f"topic_citations[{idx}]['keywords'] must be a list, got {type(item['keywords']).__name__}")
+            if "key" in item and not isinstance(item["key"], str):
+                errors.append(f"topic_citations[{idx}]['key'] must be a string, got {type(item['key']).__name__}")
+            if "topic" in item and not isinstance(item["topic"], str):
+                errors.append(f"topic_citations[{idx}]['topic'] must be a string, got {type(item['topic']).__name__}")
+
+    if errors:
+        print("=" * 65)
+        print(f"  CONFIGURATION CONTRACT VIOLATED in: {config_path}")
+        print("=" * 65)
+        for err in errors:
+            print(f"  [Error] {err}")
+        print("=" * 65)
+        print("  Processing halted to prevent silent failure.")
+        sys.exit(1)
+
 def load_config_json(config_name):
     """
     Loads config details from configs/{config_name}.json.
@@ -30,6 +104,8 @@ def load_config_json(config_name):
         except json.JSONDecodeError as e:
             print(f"  ERROR: Invalid JSON format in '{config_path}': {e}")
             sys.exit(1)
+
+    validate_config_contract(data, config_path)
 
     # Convert list of dicts to OrderedDict for topic citations
     topic_citations = OrderedDict()

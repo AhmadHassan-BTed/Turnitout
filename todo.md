@@ -821,13 +821,13 @@ Return the COMPLETE, FULL updated `.env` file with all sections documented.
 
 | Step | File(s) | What It Attacks | Status |
 |------|---------|----------------|--------|
-| 1 | `modifier.py` | All Turnitin systems (7 new stages) | ⬜ |
-| 2 | `synonyms.json` | k-gram hashes + token probability | ⬜ |
-| 3 | `phrases.json` | Multi-hash destruction + perplexity | ⬜ |
-| 4 | 4 small JSONs | Entropy + hash destruction + safety | ⬜ |
-| 5 | `config.py` | Per-stage control infrastructure | ⬜ |
-| 6 | `cli.py` | CLI flags + max-aggressiveness mode | ⬜ |
-| 7 | `.env` | Documented environment controls | ⬜ |
+| 1 | `modifier.py` | All Turnitin systems (7 new stages) | [x] |
+| 2 | `synonyms.json` | k-gram hashes + token probability | [x] |
+| 3 | `phrases.json` | Multi-hash destruction + perplexity | [x] |
+| 4 | 4 small JSONs | Entropy + hash destruction + safety | [x] |
+| 5 | `config.py` | Per-stage control infrastructure | [x] |
+| 6 | `cli.py` | CLI flags + max-aggressiveness mode | [x] |
+| 7 | `.env` | Documented environment controls | [x] |
 
 > [!CAUTION]  
 > After extending ALL files, **test**: `python run.py` — verify no crashes, check change report, compile LaTeX output.
