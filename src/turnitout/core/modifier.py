@@ -26,7 +26,8 @@ class TextModifier:
                  enable_word_reorder=True, word_reorder_rate=0.20,
                  enable_nominalization=True, nominalization_rate=0.20,
                  enable_appositive=True, appositive_rate=0.35,
-                 enable_discourse_rotate=True, discourse_rotate_rate=0.50):
+                 enable_discourse_rotate=True, discourse_rotate_rate=0.50,
+                 enable_contraction=True, contraction_rate=0.20):
         self.rng = random.Random(seed)
         self.aggressiveness = aggressiveness
         self.topic_citations = topic_citations or {}
@@ -43,7 +44,7 @@ class TextModifier:
         self.ngram_break_count = 0
         self.sentence_split_count = 0
 
-        # NEW counters (stages 9-15)
+        # NEW counters (stages 9-16)
         self.voice_transform_count = 0
         self.sentence_fusion_count = 0
         self.transition_inject_count = 0
@@ -51,6 +52,7 @@ class TextModifier:
         self.nominalization_count = 0
         self.appositive_count = 0
         self.discourse_rotate_count = 0
+        self.contraction_count = 0
 
         # Configuration flags and rates
         self.enable_voice_transform = enable_voice_transform
@@ -67,6 +69,8 @@ class TextModifier:
         self.appositive_rate = appositive_rate
         self.enable_discourse_rotate = enable_discourse_rotate
         self.discourse_rotate_rate = discourse_rotate_rate
+        self.enable_contraction = enable_contraction
+        self.contraction_rate = contraction_rate
 
         # Tracking sets / dicts for new stages
         self._used_appositives = set()
@@ -128,10 +132,13 @@ class TextModifier:
         # Step 15: Discourse marker rotation
         protected_line = self._rotate_discourse_markers(protected_line)
 
-        # Step 16: Restore LaTeX elements (loop recursively to handle nesting)
+        # Step 16: Contraction conversion
+        protected_line = self._rotate_contractions(protected_line)
+
+        # Step 17: Restore LaTeX elements (loop recursively to handle nesting)
         modified_line = self._restore_latex(protected_line, placeholders)
 
-        # Step 17: Add citation if appropriate
+        # Step 18: Add citation if appropriate
         modified_line = self._maybe_add_citation(modified_line, line_num, context_lines)
 
         if modified_line != original:
@@ -1102,3 +1109,57 @@ class TextModifier:
                 if keyword.lower() in lower:
                     return cite_info["key"]
         return None
+
+    # ==================================================================
+    # NEW STAGE 16: Contraction Converter
+    # ==================================================================
+    def _rotate_contractions(self, text):
+        """Contextually swap formal word groups to contractions and vice-versa.
+        Ensures burstiness variation for AI detectors while preserving a professional academic look.
+        """
+        if not self.enable_contraction:
+            return text
+        if '\x00' in text:
+            return text
+        if self.rng.random() > self.contraction_rate:
+            return text
+
+        # Split text by placeholder keys to prevent matching placeholder strings
+        parts = re.split(r'(\x00PH\d{4}\x00)', text)
+        for i in range(len(parts)):
+            if not parts[i].startswith('\x00') or not parts[i].endswith('\x00'):
+                # Process plain prose parts
+                for pattern, replacement in CONTRACTION_PATTERNS:
+                    def case_aware_replace(match):
+                        original = match.group(0)
+                        if original[0].isupper():
+                            return replacement[0].upper() + replacement[1:]
+                        return replacement
+
+                    new_part = re.sub(pattern, case_aware_replace, parts[i])
+                    if new_part != parts[i]:
+                        self.contraction_count += 1
+                        parts[i] = new_part
+                        break  # Only contract/expand one pair per line to maintain academic look
+
+        return ''.join(parts)
+
+
+CONTRACTION_PATTERNS = [
+    (re.compile(r'\bcannot\b', re.IGNORECASE), "can't"),
+    (re.compile(r"\bcan't\b", re.IGNORECASE), "cannot"),
+    (re.compile(r'\bdo not\b', re.IGNORECASE), "don't"),
+    (re.compile(r"\bdon't\b", re.IGNORECASE), "do not"),
+    (re.compile(r'\bdoes not\b', re.IGNORECASE), "doesn't"),
+    (re.compile(r"\bdoesn't\b", re.IGNORECASE), "does not"),
+    (re.compile(r'\bis not\b', re.IGNORECASE), "isn't"),
+    (re.compile(r"\bisn't\b", re.IGNORECASE), "is not"),
+    (re.compile(r'\bare not\b', re.IGNORECASE), "aren't"),
+    (re.compile(r"\baren't\b", re.IGNORECASE), "are not"),
+    (re.compile(r'\bshould not\b', re.IGNORECASE), "shouldn't"),
+    (re.compile(r"\bshouldn't\b", re.IGNORECASE), "should not"),
+    (re.compile(r'\bwould not\b', re.IGNORECASE), "wouldn't"),
+    (re.compile(r"\bwouldn't\b", re.IGNORECASE), "would not"),
+    (re.compile(r'\bcould not\b', re.IGNORECASE), "couldn't"),
+    (re.compile(r"\bcouldn't\b", re.IGNORECASE), "could not"),
+]

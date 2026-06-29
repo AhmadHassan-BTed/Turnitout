@@ -21,6 +21,8 @@
   "appositive_rate": 0.35,
   "enable_discourse_rotate": true,
   "discourse_rotate_rate": 0.50,
+  "enable_contraction": true,
+  "contraction_rate": 0.20,
   "topic_citations": [
     {
       "keywords": ["heat equation", "thermal", "conduction", "fourier", "diffusion equation", "temperature"],

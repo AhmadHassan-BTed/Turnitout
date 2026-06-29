@@ -83,13 +83,14 @@ def main():
             "nominal": "ENABLE_NOMINALIZATION",
             "appositive": "ENABLE_APPOSITIVE",
             "discourse": "ENABLE_DISCOURSE_ROTATE",
+            "contraction": "ENABLE_CONTRACTION",
         }
         for stage in args.disable_stages.split(","):
             stage = stage.strip().lower()
             if stage in stage_map:
                 setattr(config, stage_map[stage], False)
                 print(f"  [Disabled] {stage} transformation stage")
-
+ 
     if args.max_aggressiveness:
         config.SYNONYM_AGGRESSIVENESS = 0.95
         config.VOICE_TRANSFORM_RATE = 0.90
@@ -99,6 +100,7 @@ def main():
         config.NOMINALIZATION_RATE = 0.70
         config.APPOSITIVE_RATE = 0.85
         config.DISCOURSE_ROTATE_RATE = 0.95
+        config.CONTRACTION_RATE = 0.90
         print("  [MAX AGGRESSIVENESS] All fire rates set to maximum")
 
     # Establish output file paths
@@ -163,7 +165,9 @@ def main():
         enable_appositive=config.ENABLE_APPOSITIVE,
         appositive_rate=config.APPOSITIVE_RATE,
         enable_discourse_rotate=config.ENABLE_DISCOURSE_ROTATE,
-        discourse_rotate_rate=config.DISCOURSE_ROTATE_RATE
+        discourse_rotate_rate=config.DISCOURSE_ROTATE_RATE,
+        enable_contraction=config.ENABLE_CONTRACTION,
+        contraction_rate=config.CONTRACTION_RATE
     )
 
     modified_lines = []
@@ -221,6 +225,7 @@ def main():
     print(f"  Nominalizations:       {modifier.nominalization_count}")
     print(f"  Appositive injections: {modifier.appositive_count}")
     print(f"  Discourse rotations:   {modifier.discourse_rotate_count}")
+    print(f"  Contraction swaps:     {modifier.contraction_count}")
     print(f"  Citations added:       {modifier.citation_count}")
     print(f"  Lines modified:        {len(modifier.changes_log)}")
 
@@ -322,7 +327,7 @@ def main():
                          modifier.voice_transform_count + modifier.sentence_fusion_count +
                          modifier.transition_inject_count + modifier.clause_word_reorder_count +
                          modifier.nominalization_count + modifier.appositive_count +
-                         modifier.discourse_rotate_count)
+                         modifier.discourse_rotate_count + modifier.contraction_count)
     print(f"  Total lines processed:    {total_lines}")
     print(f"  Prose lines modified:     {len(modifier.changes_log)}")
     print(f"  Total transformations:    {total_transforms}")
@@ -340,6 +345,7 @@ def main():
     print(f"    Nominalizations:       {modifier.nominalization_count}")
     print(f"    Appositive injections: {modifier.appositive_count}")
     print(f"    Discourse rotations:   {modifier.discourse_rotate_count}")
+    print(f"    Contraction swaps:     {modifier.contraction_count}")
     print(f"    Citations added:        {modifier.citation_count}")
     
     new_dummies = sum(1 for kw_tuple, info in config.TOPIC_CITATIONS.items() 

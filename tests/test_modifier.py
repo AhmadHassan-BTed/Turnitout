@@ -96,3 +96,20 @@ def test_new_transformation_stages():
     assert "however" not in modified_discourse.lower()
     assert validate_latex(modified_discourse) == []
 
+
+def test_contraction_conversion():
+    """Verify that contraction converter operates correctly and preserves syntax."""
+    modifier = TextModifier(seed=42, enable_contraction=True, contraction_rate=1.0)
+    
+    # 1. Test compression: cannot -> can't
+    line_compress = "We cannot solve this equation analytically."
+    modified_compress = modifier._rotate_contractions(line_compress)
+    assert "can't" in modified_compress.lower()
+    assert validate_latex(modified_compress) == []
+
+    # 2. Test expansion: don't -> do not
+    line_expand = "We don't need to refine the grid further."
+    modified_expand = modifier._rotate_contractions(line_expand)
+    assert "do not" in modified_expand.lower()
+    assert validate_latex(modified_expand) == []
+

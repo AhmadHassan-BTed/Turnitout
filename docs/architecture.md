@@ -26,8 +26,9 @@ flowchart TD
     E12 --> E13[13. Nominalization]
     E13 --> E14[14. Appositive Injection]
     E14 --> E15[15. Discourse Marker Rotation]
-    E15 --> M[16. LaTeX Restorations]
-    M --> N[17. Topic Citation Appender]
+    E15 --> E16[16. Contraction Conversion]
+    E16 --> M[17. LaTeX Restorations]
+    M --> N[18. Topic Citation Appender]
     N --> O[Modified LaTeX main.tex]
     N --> P[ai_prompt.txt Template]
 ```
@@ -67,5 +68,6 @@ flowchart TD
   13. **Nominalization**: Rotates noun and verb variants to decrease stylistic predictability.
   14. **Appositive Injection**: Explains academic nouns using explanatory appositive phrases.
   15. **Discourse Marker Rotation**: Alternatives discourse connectors at sentence starts.
-  16. **Restoration**: Recursively unmasks the placeholder indicators.
-  17. **Citations**: Automatically appends `\cite{...}` if keywords match a configured citation topic.
+  16. **Contraction Conversion**: Swaps formal word groups to contractions and vice versa.
+  17. **Restoration**: Recursively unmasks the placeholder indicators.
+  18. **Citations**: Automatically appends `\cite{...}` if keywords match a configured citation topic.
