@@ -55,7 +55,7 @@ def test_new_transformation_stages():
     # 1. Voice transform
     line_voice = "We analyzed the results of the second-order partial differential equations under various boundary conditions."
     modified_voice = modifier._transform_voice(line_voice)
-    assert "by we" in modified_voice.lower()
+    assert "were analyzed" in modified_voice.lower()
     assert validate_latex(modified_voice) == []
 
     # 2. Sentence fusion

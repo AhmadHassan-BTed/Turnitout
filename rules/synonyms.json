@@ -2625,5 +2625,1317 @@
     "from this point",
     "subsequently",
     "going forward"
+  ],
+  "salient": [
+    "consequential",
+    "prominent",
+    "conspicuous",
+    "outstanding"
+  ],
+  "consequential": [
+    "salient",
+    "significant",
+    "momentous",
+    "vital"
+  ],
+  "paramount": [
+    "vital",
+    "essential",
+    "primary",
+    "supreme"
+  ],
+  "veridical": [
+    "accurate",
+    "truthful",
+    "faithful",
+    "genuine"
+  ],
+  "germane": [
+    "relevant",
+    "pertinent",
+    "apposite",
+    "fitting"
+  ],
+  "pertinent": [
+    "germane",
+    "relevant",
+    "apposite",
+    "appropriate"
+  ],
+  "apposite": [
+    "germane",
+    "pertinent",
+    "fitting",
+    "appropriate"
+  ],
+  "nontrivial": [
+    "significant",
+    "appreciable",
+    "substantial",
+    "consequential"
+  ],
+  "appreciable": [
+    "considerable",
+    "noticeable",
+    "marked",
+    "significant"
+  ],
+  "paucity": [
+    "scarcity",
+    "dearth",
+    "shortage",
+    "lack"
+  ],
+  "myriad": [
+    "innumerable",
+    "countless",
+    "multifarious",
+    "copious"
+  ],
+  "copious": [
+    "abundant",
+    "plentiful",
+    "profuse",
+    "bountiful"
+  ],
+  "sundry": [
+    "various",
+    "diverse",
+    "several",
+    "miscellaneous"
+  ],
+  "ergo": [
+    "therefore",
+    "hence",
+    "thus",
+    "accordingly"
+  ],
+  "ipso facto": [
+    "by that very fact",
+    "thereby",
+    "consequently",
+    "inherently"
+  ],
+  "notwithstanding": [
+    "despite",
+    "regardless of",
+    "although",
+    "nevertheless"
+  ],
+  "anomalous": [
+    "atypical",
+    "irregular",
+    "unusual",
+    "deviant"
+  ],
+  "efficacious": [
+    "effective",
+    "productive",
+    "potent",
+    "successful"
+  ],
+  "ubiquitous": [
+    "pervasive",
+    "omnipresent",
+    "widespread",
+    "common"
+  ],
+  "transient": [
+    "temporary",
+    "fleeting",
+    "ephemeral",
+    "brief"
+  ],
+  "ephemeral": [
+    "temporary",
+    "fleeting",
+    "transient",
+    "short-lived"
+  ],
+  "dearth": [
+    "scarcity",
+    "paucity",
+    "shortage",
+    "lack"
+  ],
+  "conundrum": [
+    "puzzle",
+    "enigma",
+    "riddle",
+    "problem"
+  ],
+  "quandary": [
+    "dilemma",
+    "predicament",
+    "plight",
+    "perplexity"
+  ],
+  "paradigm": [
+    "model",
+    "framework",
+    "exemplar",
+    "archetype"
+  ],
+  "stratagem": [
+    "tactic",
+    "strategy",
+    "scheme",
+    "maneuver"
+  ],
+  "modality": [
+    "method",
+    "procedure",
+    "mode",
+    "way"
+  ],
+  "regimen": [
+    "system",
+    "procedure",
+    "routine",
+    "protocol"
+  ],
+  "upshot": [
+    "outcome",
+    "result",
+    "consequence",
+    "conclusion"
+  ],
+  "extant": [
+    "existing",
+    "surviving",
+    "remaining",
+    "present"
+  ],
+  "scrupulous": [
+    "rigorous",
+    "meticulous",
+    "thorough",
+    "precise"
+  ],
+  "pedantic": [
+    "precise",
+    "exact",
+    "particular",
+    "formal"
+  ],
+  "erratic": [
+    "unpredictable",
+    "inconsistent",
+    "irregular",
+    "unstable"
+  ],
+  "immutable": [
+    "unchangeable",
+    "fixed",
+    "constant",
+    "unalterable"
+  ],
+  "spurious": [
+    "false",
+    "counterfeit",
+    "bogus",
+    "invalid"
+  ],
+  "salubrious": [
+    "beneficial",
+    "healthy",
+    "wholesome",
+    "good"
+  ],
+  "pernicious": [
+    "harmful",
+    "damaging",
+    "destructive",
+    "detrimental"
+  ],
+  "deleterious": [
+    "harmful",
+    "damaging",
+    "detrimental",
+    "adverse"
+  ],
+  "tacit": [
+    "implied",
+    "unspoken",
+    "implicit",
+    "unexpressed"
+  ],
+  "lucid": [
+    "clear",
+    "understandable",
+    "transparent",
+    "coherent"
+  ],
+  "cogent": [
+    "convincing",
+    "compelling",
+    "persuasive",
+    "logical"
+  ],
+  "tenuous": [
+    "weak",
+    "fragile",
+    "shaky",
+    "flimsy"
+  ],
+  "pivotal": [
+    "crucial",
+    "critical",
+    "central",
+    "decisive"
+  ],
+  "marginal": [
+    "slight",
+    "minor",
+    "insignificant",
+    "borderline"
+  ],
+  "nominal": [
+    "minimal",
+    "token",
+    "insignificant",
+    "symbolic"
+  ],
+  "implausible": [
+    "unbelievable",
+    "unlikely",
+    "improbable",
+    "doubtful"
+  ],
+  "scrutinize": [
+    "inspect",
+    "examine",
+    "dissect",
+    "interrogate",
+    "probe"
+  ],
+  "scrutinizes": [
+    "inspects",
+    "examines",
+    "dissects",
+    "interrogates",
+    "probes"
+  ],
+  "scrutinized": [
+    "inspected",
+    "examined",
+    "dissected",
+    "interrogated",
+    "probed"
+  ],
+  "scrutinizing": [
+    "inspecting",
+    "examining",
+    "dissecting",
+    "interrogating",
+    "probing"
+  ],
+  "operationalize": [
+    "implement",
+    "instantiate",
+    "effectuate",
+    "realize"
+  ],
+  "operationalizes": [
+    "implements",
+    "instantiates",
+    "effectuates",
+    "realizes"
+  ],
+  "operationalized": [
+    "implemented",
+    "instantiated",
+    "effectuated",
+    "realized"
+  ],
+  "operationalizing": [
+    "implementing",
+    "instantiating",
+    "effectuating",
+    "realizing"
+  ],
+  "amalgamate": [
+    "integrate",
+    "synthesize",
+    "consolidate",
+    "fuse"
+  ],
+  "amalgamates": [
+    "integrates",
+    "synthesizes",
+    "consolidates",
+    "fuses"
+  ],
+  "amalgamated": [
+    "integrated",
+    "synthesized",
+    "consolidated",
+    "fused"
+  ],
+  "amalgamating": [
+    "integrating",
+    "synthesizing",
+    "consolidating",
+    "fusing"
+  ],
+  "substantiate": [
+    "corroborate",
+    "validate",
+    "authenticate",
+    "verify"
+  ],
+  "substantiates": [
+    "corroborates",
+    "validates",
+    "authenticates",
+    "verifies"
+  ],
+  "substantiated": [
+    "corroborated",
+    "validated",
+    "authenticated",
+    "verified"
+  ],
+  "substantiating": [
+    "corroborating",
+    "validating",
+    "authenticating",
+    "verifying"
+  ],
+  "elucidate": [
+    "explain",
+    "clarify",
+    "explicate",
+    "delineate"
+  ],
+  "elucidates": [
+    "explains",
+    "clarifies",
+    "explicates",
+    "delineates"
+  ],
+  "elucidated": [
+    "explained",
+    "clarified",
+    "explicated",
+    "delineated"
+  ],
+  "elucidating": [
+    "explaining",
+    "clarifying",
+    "explicating",
+    "delineating"
+  ],
+  "enumerate": [
+    "compute",
+    "list",
+    "count",
+    "reckon"
+  ],
+  "enumerates": [
+    "computes",
+    "lists",
+    "counts",
+    "reckons"
+  ],
+  "enumerated": [
+    "computed",
+    "listed",
+    "counted",
+    "reckoned"
+  ],
+  "enumerating": [
+    "computing",
+    "listing",
+    "counting",
+    "reckoning"
+  ],
+  "extrapolate": [
+    "derive",
+    "deduce",
+    "infer",
+    "educe"
+  ],
+  "extrapolates": [
+    "derives",
+    "deduces",
+    "infers",
+    "educes"
+  ],
+  "extrapolated": [
+    "derived",
+    "deduced",
+    "infered",
+    "educed"
+  ],
+  "extrapolating": [
+    "deriving",
+    "deducing",
+    "infering",
+    "educing"
+  ],
+  "calibrate": [
+    "optimize",
+    "adjust",
+    "fine-tune",
+    "align"
+  ],
+  "calibrates": [
+    "optimizes",
+    "adjusts",
+    "fine-tunes",
+    "aligns"
+  ],
+  "calibrated": [
+    "optimized",
+    "adjusted",
+    "fine-tuned",
+    "aligned"
+  ],
+  "calibrating": [
+    "optimizing",
+    "adjusting",
+    "fine-tuning",
+    "aligning"
+  ],
+  "replicate": [
+    "simulate",
+    "emulate",
+    "duplicate",
+    "model"
+  ],
+  "replicates": [
+    "simulates",
+    "emulates",
+    "duplicates",
+    "models"
+  ],
+  "replicated": [
+    "simulated",
+    "emulated",
+    "duplicated",
+    "modelled"
+  ],
+  "replicating": [
+    "simulating",
+    "emulating",
+    "duplicating",
+    "modelling"
+  ],
+  "delineate": [
+    "characterize",
+    "elucidate",
+    "explicate",
+    "depict"
+  ],
+  "delineates": [
+    "characterizes",
+    "elucidates",
+    "explicates",
+    "depicts"
+  ],
+  "delineated": [
+    "characterized",
+    "elucidated",
+    "explicated",
+    "depicted"
+  ],
+  "delineating": [
+    "characterizing",
+    "elucidating",
+    "explicating",
+    "depicting"
+  ],
+  "conjecture": [
+    "hypothesize",
+    "surmise",
+    "speculate",
+    "posit"
+  ],
+  "conjectures": [
+    "hypothesizes",
+    "surmises",
+    "speculates",
+    "posits"
+  ],
+  "conjectured": [
+    "hypothesized",
+    "surmised",
+    "speculated",
+    "posited"
+  ],
+  "conjecturing": [
+    "hypothesizing",
+    "surmising",
+    "speculating",
+    "positing"
+  ],
+  "augment": [
+    "increase",
+    "enhance",
+    "supplement",
+    "extend"
+  ],
+  "augments": [
+    "increases",
+    "enhances",
+    "supplements",
+    "extends"
+  ],
+  "augmented": [
+    "increased",
+    "enhanced",
+    "supplemented",
+    "extended"
+  ],
+  "augmenting": [
+    "increasing",
+    "enhancing",
+    "supplementing",
+    "extending"
+  ],
+  "diminish": [
+    "decrease",
+    "reduce",
+    "lessen",
+    "dwindle"
+  ],
+  "diminises": [
+    "decreases",
+    "reduces",
+    "lessens",
+    "dwindles"
+  ],
+  "diminished": [
+    "decreased",
+    "reduced",
+    "lessened",
+    "dwindled"
+  ],
+  "diminishing": [
+    "decreasing",
+    "reducing",
+    "lessening",
+    "dwindling"
+  ],
+  "postulate": [
+    "hypothesize",
+    "assume",
+    "posit",
+    "premise"
+  ],
+  "postulates": [
+    "hypothesizes",
+    "assumes",
+    "posits",
+    "premises"
+  ],
+  "postulated": [
+    "hypothesized",
+    "assumed",
+    "posited",
+    "premised"
+  ],
+  "postulating": [
+    "hypothesizing",
+    "assuming",
+    "positing",
+    "premising"
+  ],
+  "corroborate": [
+    "substantiate",
+    "verify",
+    "validate",
+    "authenticate"
+  ],
+  "corroborates": [
+    "substantiates",
+    "verifies",
+    "validates",
+    "authenticates"
+  ],
+  "corroborated": [
+    "substantiated",
+    "verified",
+    "validated",
+    "authenticated"
+  ],
+  "corroborating": [
+    "substantiating",
+    "verifying",
+    "validating",
+    "authenticating"
+  ],
+  "authenticate": [
+    "verify",
+    "validate",
+    "corroborate",
+    "substantiate"
+  ],
+  "authenticates": [
+    "verifies",
+    "validates",
+    "corroborates",
+    "substantiates"
+  ],
+  "authenticated": [
+    "verified",
+    "validated",
+    "corroborated",
+    "substantiated"
+  ],
+  "authenticating": [
+    "verifying",
+    "validating",
+    "corroborating",
+    "substantiating"
+  ],
+  "elicit": [
+    "derive",
+    "draw out",
+    "evoke",
+    "extract"
+  ],
+  "elicits": [
+    "derives",
+    "draw outs",
+    "evokes",
+    "extracts"
+  ],
+  "elicited": [
+    "derived",
+    "draw outed",
+    "evoked",
+    "extracted"
+  ],
+  "eliciting": [
+    "deriving",
+    "draw outing",
+    "evoking",
+    "extracting"
+  ],
+  "explicate": [
+    "elucidate",
+    "explain",
+    "analyze",
+    "interpret"
+  ],
+  "explicates": [
+    "elucidates",
+    "explains",
+    "analyzes",
+    "interprets"
+  ],
+  "explicated": [
+    "elucidated",
+    "explained",
+    "analyzed",
+    "interpreted"
+  ],
+  "explicating": [
+    "elucidating",
+    "explaining",
+    "analyzing",
+    "interpreting"
+  ],
+  "rectify": [
+    "correct",
+    "remedy",
+    "resolve",
+    "amend"
+  ],
+  "rectifys": [
+    "corrects",
+    "remedies",
+    "resolves",
+    "amends"
+  ],
+  "rectifyed": [
+    "corrected",
+    "remedied",
+    "resolved",
+    "amended"
+  ],
+  "rectifying": [
+    "correcting",
+    "remedying",
+    "resolving",
+    "amending"
+  ],
+  "obviate": [
+    "prevent",
+    "preclude",
+    "forestall",
+    "eliminate"
+  ],
+  "obviates": [
+    "prevents",
+    "precludes",
+    "forestalls",
+    "eliminates"
+  ],
+  "obviated": [
+    "prevented",
+    "precluded",
+    "forestalled",
+    "eliminated"
+  ],
+  "obviating": [
+    "preventing",
+    "precluding",
+    "forestalling",
+    "eliminating"
+  ],
+  "proffer": [
+    "offer",
+    "propose",
+    "suggest",
+    "tender"
+  ],
+  "proffers": [
+    "offers",
+    "proposes",
+    "suggests",
+    "tenders"
+  ],
+  "proffered": [
+    "offered",
+    "proposed",
+    "suggested",
+    "tendered"
+  ],
+  "proffering": [
+    "offering",
+    "proposing",
+    "suggesting",
+    "tendering"
+  ],
+  "mitigate": [
+    "alleviate",
+    "reduce",
+    "lessen",
+    "moderate"
+  ],
+  "mitigates": [
+    "alleviates",
+    "reduces",
+    "lessens",
+    "moderates"
+  ],
+  "mitigated": [
+    "alleviated",
+    "reduced",
+    "lessened",
+    "moderated"
+  ],
+  "mitigating": [
+    "alleviating",
+    "reducing",
+    "lessening",
+    "moderating"
+  ],
+  "attenuate": [
+    "weaken",
+    "reduce",
+    "diminish",
+    "dampen"
+  ],
+  "attenuates": [
+    "weakens",
+    "reduces",
+    "diminishes",
+    "dampens"
+  ],
+  "attenuated": [
+    "weakened",
+    "reduced",
+    "diminished",
+    "dampened"
+  ],
+  "attenuating": [
+    "weakening",
+    "reducing",
+    "diminishing",
+    "dampening"
+  ],
+  "bifurcate": [
+    "split",
+    "divide",
+    "fork",
+    "diverge"
+  ],
+  "bifurcates": [
+    "splits",
+    "divides",
+    "forks",
+    "diverges"
+  ],
+  "bifurcated": [
+    "splited",
+    "divided",
+    "forked",
+    "diverged"
+  ],
+  "bifurcating": [
+    "spliting",
+    "dividing",
+    "forking",
+    "diverging"
+  ],
+  "aggregate": [
+    "accumulate",
+    "amass",
+    "combine",
+    "cluster"
+  ],
+  "aggregates": [
+    "accumulates",
+    "amasss",
+    "combines",
+    "clusters"
+  ],
+  "aggregated": [
+    "accumulated",
+    "amassed",
+    "combined",
+    "clustered"
+  ],
+  "aggregating": [
+    "accumulating",
+    "amassing",
+    "combining",
+    "clustering"
+  ],
+  "fluctuate": [
+    "oscillate",
+    "vary",
+    "waver",
+    "vacillate"
+  ],
+  "fluctuates": [
+    "oscillates",
+    "varies",
+    "wavers",
+    "vacillates"
+  ],
+  "fluctuated": [
+    "oscillated",
+    "varied",
+    "wavered",
+    "vacillated"
+  ],
+  "fluctuating": [
+    "oscillating",
+    "varying",
+    "wavering",
+    "vacillating"
+  ],
+  "diverge": [
+    "deviate",
+    "branch",
+    "bifurcate",
+    "stray"
+  ],
+  "diverges": [
+    "deviates",
+    "branches",
+    "bifurcates",
+    "straies"
+  ],
+  "diverged": [
+    "deviated",
+    "branched",
+    "bifurcated",
+    "straied"
+  ],
+  "diverging": [
+    "deviating",
+    "branching",
+    "bifurcating",
+    "straying"
+  ],
+  "propound": [
+    "propose",
+    "suggest",
+    "posit",
+    "advise"
+  ],
+  "propounds": [
+    "proposes",
+    "suggests",
+    "posits",
+    "advises"
+  ],
+  "propounded": [
+    "proposed",
+    "suggested",
+    "posited",
+    "advised"
+  ],
+  "propounding": [
+    "proposing",
+    "suggesting",
+    "positing",
+    "advising"
+  ],
+  "disseminate": [
+    "distribute",
+    "circulate",
+    "spread",
+    "disperse"
+  ],
+  "disseminates": [
+    "distributes",
+    "circulates",
+    "spreads",
+    "disperses"
+  ],
+  "disseminated": [
+    "distributed",
+    "circulated",
+    "spreaded",
+    "dispersed"
+  ],
+  "disseminating": [
+    "distributing",
+    "circulating",
+    "spreading",
+    "dispersing"
+  ],
+  "constrain": [
+    "restrict",
+    "limit",
+    "curb",
+    "shackle"
+  ],
+  "constrains": [
+    "restricts",
+    "limits",
+    "curbs",
+    "shackles"
+  ],
+  "constrained": [
+    "restricted",
+    "limited",
+    "curbed",
+    "shackled"
+  ],
+  "constraining": [
+    "restricting",
+    "limiting",
+    "curbing",
+    "shackling"
+  ],
+  "perturb": [
+    "disturb",
+    "alter",
+    "deflect",
+    "disrupt"
+  ],
+  "perturbs": [
+    "disturbs",
+    "alters",
+    "deflects",
+    "disrupts"
+  ],
+  "perturbed": [
+    "disturbed",
+    "altered",
+    "deflected",
+    "disrupted"
+  ],
+  "perturbing": [
+    "disturbing",
+    "altering",
+    "deflecting",
+    "disrupting"
+  ],
+  "ascertain": [
+    "determine",
+    "establish",
+    "verify",
+    "discover"
+  ],
+  "ascertains": [
+    "determines",
+    "establishes",
+    "verifies",
+    "discovers"
+  ],
+  "ascertained": [
+    "determined",
+    "established",
+    "verified",
+    "discovered"
+  ],
+  "ascertaining": [
+    "determining",
+    "establishing",
+    "verifying",
+    "discovering"
+  ],
+  "preclude": [
+    "prevent",
+    "preclude",
+    "forestall",
+    "exclude"
+  ],
+  "precludes": [
+    "prevents",
+    "precludes",
+    "forestalls",
+    "excludes"
+  ],
+  "precluded": [
+    "prevented",
+    "precluded",
+    "forestalled",
+    "excluded"
+  ],
+  "precluding": [
+    "preventing",
+    "precluding",
+    "forestalling",
+    "excluding"
+  ],
+  "instantiate": [
+    "exemplify",
+    "represent",
+    "embody",
+    "illustrate"
+  ],
+  "instantiates": [
+    "exemplifies",
+    "represents",
+    "embodies",
+    "illustrates"
+  ],
+  "instantiated": [
+    "exemplified",
+    "represented",
+    "embodied",
+    "illustrated"
+  ],
+  "instantiating": [
+    "exemplifying",
+    "representing",
+    "embodying",
+    "illustrating"
+  ],
+  "juxtapose": [
+    "compare",
+    "collocate",
+    "contrast",
+    "pair"
+  ],
+  "juxtaposes": [
+    "compares",
+    "collocates",
+    "contrasts",
+    "pairs"
+  ],
+  "juxtaposed": [
+    "compared",
+    "collocated",
+    "contrasted",
+    "paired"
+  ],
+  "juxtaposing": [
+    "comparing",
+    "collocating",
+    "contrasting",
+    "pairing"
+  ],
+  "demarcate": [
+    "differentiate",
+    "distinguish",
+    "delimit",
+    "separate"
+  ],
+  "demarcates": [
+    "differentiates",
+    "distinguishes",
+    "delimits",
+    "separates"
+  ],
+  "demarcated": [
+    "differentiated",
+    "distinguished",
+    "delimited",
+    "separated"
+  ],
+  "demarcating": [
+    "differentiating",
+    "distinguishing",
+    "delimiting",
+    "separating"
+  ],
+  "amplify": [
+    "magnify",
+    "augment",
+    "enhance",
+    "intensify"
+  ],
+  "amplifys": [
+    "magnifies",
+    "augments",
+    "enhances",
+    "intensifies"
+  ],
+  "amplifyed": [
+    "magnified",
+    "augmented",
+    "enhanced",
+    "intensified"
+  ],
+  "amplifying": [
+    "magnifying",
+    "augmenting",
+    "enhancing",
+    "intensifying"
+  ],
+  "deviate": [
+    "diverge",
+    "stray",
+    "differ",
+    "veer"
+  ],
+  "deviates": [
+    "diverges",
+    "straies",
+    "differs",
+    "veers"
+  ],
+  "deviated": [
+    "diverged",
+    "straied",
+    "differed",
+    "veered"
+  ],
+  "deviating": [
+    "diverging",
+    "straying",
+    "differing",
+    "veering"
+  ],
+  "reconcile": [
+    "harmonize",
+    "resolve",
+    "adjust",
+    "align"
+  ],
+  "reconciles": [
+    "harmonizes",
+    "resolves",
+    "adjusts",
+    "aligns"
+  ],
+  "reconciled": [
+    "harmonized",
+    "resolved",
+    "adjusted",
+    "aligned"
+  ],
+  "reconciling": [
+    "harmonizing",
+    "resolving",
+    "adjusting",
+    "aligning"
+  ],
+  "obfuscate": [
+    "obscure",
+    "confuse",
+    "cloud",
+    "blur"
+  ],
+  "obfuscates": [
+    "obscures",
+    "confuses",
+    "clouds",
+    "blurs"
+  ],
+  "obfuscated": [
+    "obscured",
+    "confused",
+    "clouded",
+    "blured"
+  ],
+  "obfuscating": [
+    "obscuring",
+    "confusing",
+    "clouding",
+    "bluring"
+  ],
+  "culminate": [
+    "conclude",
+    "climax",
+    "terminate",
+    "end"
+  ],
+  "culminates": [
+    "concludes",
+    "climaxes",
+    "terminates",
+    "ends"
+  ],
+  "culminated": [
+    "concluded",
+    "climaxed",
+    "terminated",
+    "ended"
+  ],
+  "culminating": [
+    "concluding",
+    "climaxing",
+    "terminating",
+    "ending"
+  ],
+  "supplant": [
+    "replace",
+    "supersede",
+    "displace",
+    "override"
+  ],
+  "supplants": [
+    "replaces",
+    "supersedes",
+    "displaces",
+    "overrides"
+  ],
+  "supplanted": [
+    "replaced",
+    "superseded",
+    "displaced",
+    "overrided"
+  ],
+  "supplanting": [
+    "replacing",
+    "superseding",
+    "displacing",
+    "overriding"
+  ],
+  "dampen": [
+    "attenuate",
+    "mitigate",
+    "weaken",
+    "decrease"
+  ],
+  "dampens": [
+    "attenuates",
+    "mitigates",
+    "weakens",
+    "decreases"
+  ],
+  "dampened": [
+    "attenuated",
+    "mitigated",
+    "weakened",
+    "decreased"
+  ],
+  "dampening": [
+    "attenuating",
+    "mitigating",
+    "weakening",
+    "decreasing"
   ]
 }

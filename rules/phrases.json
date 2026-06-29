@@ -674,5 +674,657 @@
   [
     "\\bmore generally\\b",
     "in a broader sense"
+  ],
+  [
+    "\\bprevious studies have shown\\b",
+    "prior investigations have substantiated"
+  ],
+  [
+    "\\bhas been widely studied\\b",
+    "has been the subject of extensive inquiry"
+  ],
+  [
+    "\\bit has been reported that\\b",
+    "extant literature attests that"
+  ],
+  [
+    "\\baccording to recent research\\b",
+    "as corroborated by contemporary scholarship"
+  ],
+  [
+    "\\bis well documented\\b",
+    "has been amply chronicled in the literature"
+  ],
+  [
+    "\\bthe existing literature\\b",
+    "the prevailing body of scholarship"
+  ],
+  [
+    "\\bseveral authors have suggested\\b",
+    "numerous researchers have posited"
+  ],
+  [
+    "\\brecent studies indicate\\b",
+    "contemporary investigations suggest"
+  ],
+  [
+    "\\bit is generally agreed that\\b",
+    "there exists a broad consensus that"
+  ],
+  [
+    "\\bmany researchers have argued\\b",
+    "a multitude of scholars have contended"
+  ],
+  [
+    "\\bit has been long established that\\b",
+    "it has long been recognized that"
+  ],
+  [
+    "\\bas shown by previous research\\b",
+    "as demonstrated by prior inquiry"
+  ],
+  [
+    "\\bmuch attention has been focused on\\b",
+    "considerable scholarly interest has centered upon"
+  ],
+  [
+    "\\bboth theoretical and empirical studies\\b",
+    "both conceptual and observational investigations"
+  ],
+  [
+    "\\brecent advancements in\\b",
+    "contemporary developments within"
+  ],
+  [
+    "\\bthe classic work of\\b",
+    "the seminal publication by"
+  ],
+  [
+    "\\bthere is a growing body of literature\\b",
+    "there exists an expanding volume of scholarship"
+  ],
+  [
+    "\\bto the best of our knowledge\\b",
+    "so far as can be ascertained"
+  ],
+  [
+    "\\bmost studies have focused on\\b",
+    "the preponderance of investigations has centered on"
+  ],
+  [
+    "\\ba review of the literature reveals\\b",
+    "an examination of the extant literature indicates"
+  ],
+  [
+    "\\bhave drawn attention to\\b",
+    "have directed scholarly focus toward"
+  ],
+  [
+    "\\bdifferent scholars have proposed\\b",
+    "various investigators have advanced"
+  ],
+  [
+    "\\bhas attracted much interest\\b",
+    "has garnered significant attention"
+  ],
+  [
+    "\\bthis viewpoint is supported by\\b",
+    "this perspective is corroborated by"
+  ],
+  [
+    "\\ba clear distinction between\\b",
+    "a pronounced demarcation between"
+  ],
+  [
+    "\\bhas received considerable attention\\b",
+    "has been the recipient of significant interest"
+  ],
+  [
+    "\\bis beyond the scope of this\\b",
+    "falls outside the purview of the present"
+  ],
+  [
+    "\\bwas carried out\\b",
+    "was undertaken"
+  ],
+  [
+    "\\bwas conducted\\b",
+    "was effectuated"
+  ],
+  [
+    "\\bis based on\\b",
+    "draws its foundations from"
+  ],
+  [
+    "\\bthe primary data\\b",
+    "the raw empirical material"
+  ],
+  [
+    "\\bcan be classified into\\b",
+    "may be categorized as"
+  ],
+  [
+    "\\ba standard approach to\\b",
+    "a conventional paradigm for"
+  ],
+  [
+    "\\bto simplify the calculations\\b",
+    "to facilitate mathematical tractability"
+  ],
+  [
+    "\\bthe experimental setup\\b",
+    "the observational configuration"
+  ],
+  [
+    "\\bwas simulated using\\b",
+    "was emulated through"
+  ],
+  [
+    "\\bunder different conditions\\b",
+    "subject to varying parameters"
+  ],
+  [
+    "\\bwas verified by\\b",
+    "was corroborated through"
+  ],
+  [
+    "\\ba crucial step in\\b",
+    "a pivotal phase within"
+  ],
+  [
+    "\\bthe main drawback of\\b",
+    "the primary limitation associated with"
+  ],
+  [
+    "\\bthe calculation is performed\\b",
+    "the computation is effectuated"
+  ],
+  [
+    "\\bwas assumed to be\\b",
+    "was postulated to represent"
+  ],
+  [
+    "\\bto validate the model\\b",
+    "to substantiate the conceptual framework"
+  ],
+  [
+    "\\bthe boundary conditions are\\b",
+    "the constraints imposed on the boundary represent"
+  ],
+  [
+    "\\bto ensure the accuracy\\b",
+    "to guarantee the fidelity"
+  ],
+  [
+    "\\bis derived from\\b",
+    "is extrapolated from"
+  ],
+  [
+    "\\bthe parameters used in\\b",
+    "the coefficients employed within"
+  ],
+  [
+    "\\bwas implemented in\\b",
+    "was operationalized within"
+  ],
+  [
+    "\\bis defined as follows\\b",
+    "is characterized in the following manner"
+  ],
+  [
+    "\\bthe general framework of\\b",
+    "the overarching paradigm of"
+  ],
+  [
+    "\\bas shown in\\b",
+    "as rendered visible in"
+  ],
+  [
+    "\\bit was found that\\b",
+    "it was ascertained that"
+  ],
+  [
+    "\\ba significant increase\\b",
+    "an appreciable escalation"
+  ],
+  [
+    "\\bis proportional to\\b",
+    "scales commensurately with"
+  ],
+  [
+    "\\bthe data shows that\\b",
+    "the empirical evidence reveals that"
+  ],
+  [
+    "\\bno significant difference was observed\\b",
+    "no discernible variation was detected"
+  ],
+  [
+    "\\bindicates a correlation between\\b",
+    "suggests an association linking"
+  ],
+  [
+    "\\bthe results are summarized in\\b",
+    "the findings are encapsulated within"
+  ],
+  [
+    "\\ba positive correlation\\b",
+    "a direct association"
+  ],
+  [
+    "\\ba negative correlation\\b",
+    "an inverse association"
+  ],
+  [
+    "\\bshows a strong agreement\\b",
+    "exhibits high concordance"
+  ],
+  [
+    "\\bthe results confirm\\b",
+    "the findings substantiate"
+  ],
+  [
+    "\\bthe differences are statistically\\b",
+    "the variations exhibit statistical"
+  ],
+  [
+    "\\bwe obtained the following results\\b",
+    "the following outcomes were realized"
+  ],
+  [
+    "\\bthe trends are consistent\\b",
+    "the trajectories run parallel"
+  ],
+  [
+    "\\bthe highest value was\\b",
+    "the maximum magnitude represented"
+  ],
+  [
+    "\\bthe lowest value was\\b",
+    "the minimum magnitude represented"
+  ],
+  [
+    "\\ba sharp contrast\\b",
+    "a pronounced divergence"
+  ],
+  [
+    "\\ba major finding of\\b",
+    "a salient discovery from"
+  ],
+  [
+    "\\bthe evidence suggests\\b",
+    "the empirical data points to"
+  ],
+  [
+    "\\bthe results are presented in\\b",
+    "the findings are set forth in"
+  ],
+  [
+    "\\ba clear indication of\\b",
+    "a manifest demonstration of"
+  ],
+  [
+    "\\bthe values are listed in\\b",
+    "the magnitudes are tabulated within"
+  ],
+  [
+    "\\bthis pattern is consistent with\\b",
+    "this distribution accords with"
+  ],
+  [
+    "\\bthe results are of interest\\b",
+    "the findings merit attention"
+  ],
+  [
+    "\\bshows a similar behavior\\b",
+    "exhibits analogous characteristics"
+  ],
+  [
+    "\\bthis can be attributed to\\b",
+    "this may be imputed to"
+  ],
+  [
+    "\\bis consistent with\\b",
+    "accords harmoniously with"
+  ],
+  [
+    "\\bin good agreement with\\b",
+    "in satisfactory concordance with"
+  ],
+  [
+    "\\bthese findings suggest that\\b",
+    "these observations imply that"
+  ],
+  [
+    "\\bit is interesting to note that\\b",
+    "it is noteworthy that"
+  ],
+  [
+    "\\ba possible explanation for\\b",
+    "a potential rationale accounting for"
+  ],
+  [
+    "\\blends support to the hypothesis\\b",
+    "corroborates the proposition"
+  ],
+  [
+    "\\bcontrary to expectations\\b",
+    "diverging from anticipated outcomes"
+  ],
+  [
+    "\\bdoes not necessarily mean\\b",
+    "does not automatically imply"
+  ],
+  [
+    "\\bthis interpretation is supported by\\b",
+    "this reading is substantiated by"
+  ],
+  [
+    "\\bplays a key part in\\b",
+    "serves as a primary driver for"
+  ],
+  [
+    "\\bshould be interpreted with caution\\b",
+    "must be approached with care"
+  ],
+  [
+    "\\ba direct consequence of\\b",
+    "an immediate outcome of"
+  ],
+  [
+    "\\bis in line with\\b",
+    "aligns closely with"
+  ],
+  [
+    "\\bsheds light on\\b",
+    "elucidates the nature of"
+  ],
+  [
+    "\\bprovides a new perspective on\\b",
+    "offers a novel framework for"
+  ],
+  [
+    "\\bthis finding has implications for\\b",
+    "this observation bears significance for"
+  ],
+  [
+    "\\bthese results conflict with\\b",
+    "these findings diverge from"
+  ],
+  [
+    "\\bdoes not play a role in\\b",
+    "does not exert an influence upon"
+  ],
+  [
+    "\\bis of fundamental importance\\b",
+    "is of paramount significance"
+  ],
+  [
+    "\\bto explore this possibility\\b",
+    "to investigate this potentiality"
+  ],
+  [
+    "\\bunder these circumstances\\b",
+    "given these conditions"
+  ],
+  [
+    "\\bthis explanation is consistent with\\b",
+    "this hypothesis is congruent with"
+  ],
+  [
+    "\\bis closely related to\\b",
+    "is intimately linked with"
+  ],
+  [
+    "\\bis a well-known phenomenon\\b",
+    "represents a widely recognized occurrence"
+  ],
+  [
+    "\\ba logical explanation is\\b",
+    "a coherent rationale represents"
+  ],
+  [
+    "\\bin conclusion\\b",
+    "to encapsulate"
+  ],
+  [
+    "\\bfurther research is needed\\b",
+    "subsequent investigation is warranted"
+  ],
+  [
+    "\\bfuture work should\\b",
+    "prospective endeavors ought to"
+  ],
+  [
+    "\\bto summarize the main findings\\b",
+    "to encapsulate the primary conclusions"
+  ],
+  [
+    "\\bin light of these results\\b",
+    "given these observations"
+  ],
+  [
+    "\\bit can be concluded that\\b",
+    "one may reasonably deduce that"
+  ],
+  [
+    "\\bthe main conclusion drawn is\\b",
+    "the principal inference derived represents"
+  ],
+  [
+    "\\bthis study has shown that\\b",
+    "the present investigation has demonstrated that"
+  ],
+  [
+    "\\bour findings indicate that\\b",
+    "our observations suggest that"
+  ],
+  [
+    "\\bcontributes to the understanding of\\b",
+    "adds to the scholarly knowledge regarding"
+  ],
+  [
+    "[\\\\bprovides a solid foundation for\\\\b]",
+    "establishes a robust basis for"
+  ],
+  [
+    "\\bprovides a solid foundation for\\b",
+    "establishes a robust basis for"
+  ],
+  [
+    "\\badditional studies are required\\b",
+    "further inquiries are essential"
+  ],
+  [
+    "\\bto wrap up the discussion\\b",
+    "to conclude this analysis"
+  ],
+  [
+    "\\bthis investigation has shed light on\\b",
+    "the present work has elucidated"
+  ],
+  [
+    "\\bthe primary takeaway is\\b",
+    "the central lesson represents"
+  ],
+  [
+    "\\bin summary, we have\\b",
+    "to summarize, the authors have"
+  ],
+  [
+    "\\bit appears that\\b",
+    "it would seem plausible that"
+  ],
+  [
+    "\\bit is possible that\\b",
+    "one may reasonably conjecture that"
+  ],
+  [
+    "\\bit is likely that\\b",
+    "there is a high probability that"
+  ],
+  [
+    "\\bwould suggest that\\b",
+    "tends to indicate that"
+  ],
+  [
+    "\\bit is reasonable to assume\\b",
+    "one may plausibly postulate"
+  ],
+  [
+    "\\bcould be interpreted as\\b",
+    "might be characterized as"
+  ],
+  [
+    "\\bthere is some evidence that\\b",
+    "extant data suggests that"
+  ],
+  [
+    "\\bmight have been caused by\\b",
+    "could potentially be imputed to"
+  ],
+  [
+    "\\bdoes not prove that\\b",
+    "does not definitively establish that"
+  ],
+  [
+    "\\bis generally believed to\\b",
+    "is widely considered to"
+  ],
+  [
+    "\\bmay lead to\\b",
+    "has the potential to yield"
+  ],
+  [
+    "\\bit is conceivable that\\b",
+    "it is within the realms of possibility that"
+  ],
+  [
+    "\\bperhaps the most important\\b",
+    "arguably the most significant"
+  ],
+  [
+    "\\bmay not be suitable for\\b",
+    "might prove inappropriate for"
+  ],
+  [
+    "\\bseems to support\\b",
+    "appears to corroborate"
+  ],
+  [
+    "\\bthe vast majority of\\b",
+    "the overwhelming preponderance of"
+  ],
+  [
+    "\\bin contrast to\\b",
+    "vis-à-vis"
+  ],
+  [
+    "\\bthe same as\\b",
+    "identical to"
+  ],
+  [
+    "\\bdifferent from\\b",
+    "divergent from"
+  ],
+  [
+    "\\bmore than\\b",
+    "in excess of"
+  ],
+  [
+    "\\bless than\\b",
+    "sub-threshold to"
+  ],
+  [
+    "\\ba significant number of\\b",
+    "an appreciable quantity of"
+  ],
+  [
+    "\\ba substantial amount of\\b",
+    "a considerable volume of"
+  ],
+  [
+    "\\bcompared with\\b",
+    "in comparison to"
+  ],
+  [
+    "\\bon a large scale\\b",
+    "on an extensive scale"
+  ],
+  [
+    "\\ba continuous increase\\b",
+    "a monotonic rise"
+  ],
+  [
+    "\\ba considerable number of\\b",
+    "an appreciable quantity of"
+  ],
+  [
+    "\\ba set of rules\\b",
+    "a collection of protocols"
+  ],
+  [
+    "\\ba primary source of\\b",
+    "a major generator of"
+  ],
+  [
+    "\\bwith the purpose of\\b",
+    "with the explicit intention of"
+  ],
+  [
+    "\\bin an effort to\\b",
+    "with the aim of"
+  ],
+  [
+    "\\bat this stage of the\\b",
+    "at this juncture of the"
+  ],
+  [
+    "\\bboth of these methods\\b",
+    "each of these respective approaches"
+  ],
+  [
+    "\\bthe main disadvantage of\\b",
+    "the principal drawback associated with"
+  ],
+  [
+    "\\bthe primary advantage of\\b",
+    "the foremost benefit of"
+  ],
+  [
+    "\\bthe first step is to\\b",
+    "the initial phase involves"
+  ],
+  [
+    "\\bthe second step is to\\b",
+    "the subsequent phase involves"
+  ],
+  [
+    "\\bplays an important role in\\b",
+    "occupies a significant position in"
+  ],
+  [
+    "\\bgives a good description of\\b",
+    "provides a faithful characterization of"
+  ],
+  [
+    "\\bit is worth pointing out that\\b",
+    "it is pertinent to mention that"
+  ],
+  [
+    "\\bbrings to light\\b",
+    "elucidates the nature of"
+  ],
+  [
+    "\\bin a systematic way\\b",
+    "in a rigorous manner"
+  ],
+  [
+    "\\bour main objective is to\\b",
+    "our primary aim is to"
+  ],
+  [
+    "\\bbased on the assumption that\\b",
+    "premised upon the hypothesis that"
   ]
 ]

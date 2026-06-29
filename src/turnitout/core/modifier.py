@@ -183,7 +183,7 @@ class TextModifier:
                        make_placeholder, text)
 
         # 8. Remaining backslash commands
-        text = re.sub(r'\/[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*', make_placeholder, text)
+        text = re.sub(r'\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*', make_placeholder, text)
 
         return text, placeholders
 
@@ -224,6 +224,8 @@ class TextModifier:
                 continue
 
             lower = token.lower()
+            
+            # 1. Direct match
             if lower in ACADEMIC_SYNONYMS:
                 if self.rng.random() < self.aggressiveness:
                     candidates = ACADEMIC_SYNONYMS[lower]
@@ -243,8 +245,161 @@ class TextModifier:
                     modified_tokens.append(replacement)
                     self.replacement_count += 1
                     continue
+            
+            # 2. Inflection fallback match (plural, past, present participle, adverb)
+            # This makes the synonym replacement engine infinitely more robust.
+            replaced = False
+            if self.rng.random() < self.aggressiveness:
+                # Plural/Third-person singular (-s, -es, -ies)
+                if lower.endswith('s') and len(lower) > 3:
+                    base = None
+                    suffix = ''
+                    if lower.endswith('ies'):
+                        base = lower[:-3] + 'y'
+                        suffix = 'ies'
+                    elif lower.endswith('es') and any(lower.endswith(x) for x in ['ses', 'shes', 'ches', 'xes', 'zes']):
+                        base = lower[:-2]
+                        suffix = 'es'
+                    else:
+                        base = lower[:-1]
+                        suffix = 's'
+                    
+                    if base in ACADEMIC_SYNONYMS:
+                        candidates = ACADEMIC_SYNONYMS[base]
+                        last_used = self._last_used_synonyms.get(base, None)
+                        filtered = [c for c in candidates if c != last_used]
+                        if not filtered: filtered = candidates
+                        base_rep = self.rng.choice(filtered)
+                        self._last_used_synonyms[base] = base_rep
+                        
+                        # Conjugate synonym to plural/s-form
+                        if suffix == 'ies':
+                            rep = base_rep[:-1] + 'ies' if base_rep.endswith('y') else base_rep + 's'
+                        elif suffix == 'es':
+                            rep = base_rep + 'es' if any(base_rep.endswith(x) for x in ['s', 'sh', 'ch', 'x', 'z']) else base_rep + 's'
+                        else:
+                            if base_rep.endswith('y') and not any(base_rep.endswith(x) for x in ['ay', 'ey', 'oy', 'uy']):
+                                rep = base_rep[:-1] + 'ies'
+                            elif any(base_rep.endswith(x) for x in ['s', 'sh', 'ch', 'x', 'z']):
+                                rep = base_rep + 'es'
+                            else:
+                                rep = base_rep + 's'
+                        
+                        if token[0].isupper(): rep = rep[0].upper() + rep[1:]
+                        if token.isupper() and len(token) > 1: rep = rep.upper()
+                        modified_tokens.append(rep)
+                        self.replacement_count += 1
+                        replaced = True
+                        
+                # Past tense/participle (-ed, -ied, -d)
+                elif not replaced and lower.endswith('ed') and len(lower) > 4:
+                    base = None
+                    suffix = ''
+                    if lower.endswith('ied'):
+                        base = lower[:-3] + 'y'
+                        suffix = 'ied'
+                    elif lower.endswith('ed'):
+                        if (lower[:-1]) in ACADEMIC_SYNONYMS:
+                            base = lower[:-1]
+                            suffix = 'd'
+                        else:
+                            base = lower[:-2]
+                            suffix = 'ed'
+                    
+                    if base in ACADEMIC_SYNONYMS:
+                        candidates = ACADEMIC_SYNONYMS[base]
+                        last_used = self._last_used_synonyms.get(base, None)
+                        filtered = [c for c in candidates if c != last_used]
+                        if not filtered: filtered = candidates
+                        base_rep = self.rng.choice(filtered)
+                        self._last_used_synonyms[base] = base_rep
+                        
+                        # Conjugate synonym to past form
+                        if suffix == 'ied':
+                            rep = base_rep[:-1] + 'ied' if base_rep.endswith('y') else base_rep + 'ed'
+                        elif suffix == 'd':
+                            rep = base_rep + 'd' if base_rep.endswith('e') else base_rep + 'ed'
+                        else:
+                            if base_rep.endswith('y') and not any(base_rep.endswith(x) for x in ['ay', 'ey', 'oy', 'uy']):
+                                rep = base_rep[:-1] + 'ied'
+                            elif base_rep.endswith('e'):
+                                rep = base_rep + 'd'
+                            else:
+                                rep = base_rep + 'ed'
+                                
+                        if token[0].isupper(): rep = rep[0].upper() + rep[1:]
+                        if token.isupper() and len(token) > 1: rep = rep.upper()
+                        modified_tokens.append(rep)
+                        self.replacement_count += 1
+                        replaced = True
+                        
+                # Present participle/gerund (-ing)
+                elif not replaced and lower.endswith('ing') and len(lower) > 5:
+                    base = None
+                    suffix = ''
+                    if (lower[:-3]) in ACADEMIC_SYNONYMS:
+                        base = lower[:-3]
+                        suffix = 'ing'
+                    elif (lower[:-3] + 'e') in ACADEMIC_SYNONYMS:
+                        base = lower[:-3] + 'e'
+                        suffix = 'eing'
+                    
+                    if base in ACADEMIC_SYNONYMS:
+                        candidates = ACADEMIC_SYNONYMS[base]
+                        last_used = self._last_used_synonyms.get(base, None)
+                        filtered = [c for c in candidates if c != last_used]
+                        if not filtered: filtered = candidates
+                        base_rep = self.rng.choice(filtered)
+                        self._last_used_synonyms[base] = base_rep
+                        
+                        # Conjugate synonym to ing form
+                        if base_rep.endswith('e') and not base_rep.endswith('ee'):
+                            rep = base_rep[:-1] + 'ing'
+                        else:
+                            rep = base_rep + 'ing'
+                            
+                        if token[0].isupper(): rep = rep[0].upper() + rep[1:]
+                        if token.isupper() and len(token) > 1: rep = rep.upper()
+                        modified_tokens.append(rep)
+                        self.replacement_count += 1
+                        replaced = True
+                        
+                # Adverb (-ly, -ily)
+                elif not replaced and lower.endswith('ly') and len(lower) > 4:
+                    base = None
+                    suffix = ''
+                    if lower.endswith('ily'):
+                        base = lower[:-3] + 'y'
+                        suffix = 'ily'
+                    else:
+                        base = lower[:-2]
+                        suffix = 'ly'
+                        
+                    if base in ACADEMIC_SYNONYMS:
+                        candidates = ACADEMIC_SYNONYMS[base]
+                        last_used = self._last_used_synonyms.get(base, None)
+                        filtered = [c for c in candidates if c != last_used]
+                        if not filtered: filtered = candidates
+                        base_rep = self.rng.choice(filtered)
+                        self._last_used_synonyms[base] = base_rep
+                        
+                        # Conjugate synonym to adverb form
+                        if suffix == 'ily':
+                            rep = base_rep[:-1] + 'ily' if base_rep.endswith('y') else base_rep + 'ly'
+                        else:
+                            if base_rep.endswith('y') and not any(base_rep.endswith(x) for x in ['ay', 'ey', 'oy', 'uy']):
+                                rep = base_rep[:-1] + 'ily'
+                            else:
+                                rep = base_rep + 'ly'
+                                
+                        if token[0].isupper(): rep = rep[0].upper() + rep[1:]
+                        if token.isupper() and len(token) > 1: rep = rep.upper()
+                        modified_tokens.append(rep)
+                        self.replacement_count += 1
+                        replaced = True
 
-            modified_tokens.append(token)
+            if not replaced:
+                modified_tokens.append(token)
 
         return ''.join(modified_tokens)
 
@@ -447,31 +602,63 @@ class TextModifier:
         if self.rng.random() > self.voice_transform_rate:
             return text
 
+        # Helper to get the correct past participle form of any verb
+        def _get_past_participle(verb):
+            vl = verb.lower()
+            if vl in PASSIVE_VERB_MAP:
+                return PASSIVE_VERB_MAP[vl]
+            if vl.endswith('ed'):
+                return vl
+            if vl.endswith('es'):
+                base = vl[:-2]
+                if base in PASSIVE_VERB_MAP:
+                    return PASSIVE_VERB_MAP[base]
+                if base.endswith('e'):
+                    return base + 'd'
+                return base + 'ed'
+            if vl.endswith('s'):
+                base = vl[:-1]
+                if base in PASSIVE_VERB_MAP:
+                    return PASSIVE_VERB_MAP[base]
+                if base.endswith('e'):
+                    return base + 'd'
+                return base + 'ed'
+            if vl.endswith('e'):
+                return vl + 'd'
+            return vl + 'ed'
+
         # ── Active → Passive ──────────────────────────────────────────
         pattern_a = re.compile(
-            r'\b(We|The authors|Researchers)\s+(?:then\s+|also\s+|here\s+|thus\s+|now\s+|further\s+|subsequently\s+)?(\w+)\s+the\s+(.+?)([.,]|$)',
+            r'\b(We|The authors|Researchers|Scientists|Investigators|The study|The paper|This work|This research|The investigation|The analysis)\s+(?:then\s+|also\s+|here\s+|thus\s+|now\s+|further\s+|subsequently\s+)?(\w+)\s+the\s+(.+?)([.,]|$)',
             re.IGNORECASE,
         )
         pattern_b = re.compile(
-            r'\b(We|The authors|Researchers)\s+(?:then\s+|also\s+|here\s+|thus\s+|now\s+|further\s+|subsequently\s+)?(\w+)\s+a\s+(.+?)([.,]|$)',
+            r'\b(We|The authors|Researchers|Scientists|Investigators|The study|The paper|This work|This research|The investigation|The analysis)\s+(?:then\s+|also\s+|here\s+|thus\s+|now\s+|further\s+|subsequently\s+)?(\w+)\s+a\s+(.+?)([.,]|$)',
             re.IGNORECASE,
         )
 
         def _active_to_passive(match, article):
             agent = match.group(1)
-            verb = match.group(2).lower()
+            verb = match.group(2)
             obj = match.group(3)
             end_punct = match.group(4)
-            if verb in PASSIVE_VERB_MAP:
-                passive_form = PASSIVE_VERB_MAP[verb]
-            elif verb.endswith('e'):
-                passive_form = verb + 'd'
+            
+            passive_form = _get_past_participle(verb)
+            
+            # Determine if the verb is past or present
+            is_past = verb.lower().endswith('ed') or verb.lower().endswith('d') or verb.lower() in ["solved", "analyzed", "investigated", "evaluated", "derived", "computed", "simulated", "applied", "developed", "improved", "validated", "implemented", "formulated", "transformed", "determined", "measured", "observed", "optimized", "constructed"]
+            is_plural = obj.strip().lower().endswith('s') or " and " in obj.lower()
+            
+            if is_past:
+                aux = "were" if is_plural else "was"
             else:
-                passive_form = verb + 'ed'
-            return (
-                f"{article.capitalize()} {obj} {passive_form} "
-                f"by {agent.lower()}{end_punct}"
-            )
+                aux = "are" if is_plural else "is"
+
+            if agent.lower() in ["we", "the authors"]:
+                return f"{article.capitalize()} {obj} {aux} {passive_form}{end_punct}"
+            else:
+                prep = "in" if agent.lower() in ["the study", "the paper", "this work", "this research", "the investigation", "the analysis"] else "by"
+                return f"{article.capitalize()} {obj} {aux} {passive_form} {prep} {agent.lower()}{end_punct}"
 
         for pat, art in [(pattern_a, 'the'), (pattern_b, 'a')]:
             m = pat.search(text)
@@ -481,10 +668,33 @@ class TextModifier:
                     self.voice_transform_count += 1
                     return new_text
 
+        # ── Pattern C: "Scientists have demonstrated that..." ─────────
+        pattern_c = re.compile(
+            r'\b(We|The authors|Researchers|Scientists|Investigators)\s+(?:have\s+|has\s+|had\s+)?(\w+)\s+that\s+(.+?)([.,]|$)',
+            re.IGNORECASE,
+        )
+        m = pattern_c.search(text)
+        if m:
+            agent = m.group(1)
+            verb = m.group(2)
+            clause = m.group(3)
+            end_punct = m.group(4)
+            
+            passive_form = _get_past_participle(verb)
+
+            if agent.lower() in ["we", "the authors"]:
+                new_text = pattern_c.sub(f"It has been {passive_form} that {clause}{end_punct}", text, count=1)
+            else:
+                new_text = pattern_c.sub(f"It has been {passive_form} by {agent.lower()} that {clause}{end_punct}", text, count=1)
+            
+            if new_text != text:
+                self.voice_transform_count += 1
+                return new_text
+
         # ── Passive → Active ──────────────────────────────────────────
         passive_pat = re.compile(
             r'\b(The|A)\s+(.+?)\s+(was|were)\s+(\w+(?:ed|en)?)\s+by\s+'
-            r'(we|the authors|researchers)([.,]|$)',
+            r'(we|the authors|researchers|scientists|investigators)([.,]|$)',
             re.IGNORECASE,
         )
         m = passive_pat.search(text)
@@ -651,9 +861,26 @@ class TextModifier:
             prep = m.group(1)
             modifier = m.group(2).strip()
             main = m.group(3).strip()
-            if main and main[0].islower():
-                main = main[0].upper() + main[1:]
-            result = f"{main}, {prep.lower()} {modifier}"
+            
+            # Check if main clause starts with subject + verb to inject modifier in middle
+            mid_match = re.match(
+                r'\b(We|The authors|Researchers|Scientists|Investigators)\s+(\w+)\s+(the|a|an)\s+(.+)',
+                main,
+                re.IGNORECASE
+            )
+            if mid_match:
+                subj = mid_match.group(1)
+                verb = mid_match.group(2)
+                art = mid_match.group(3)
+                rest = mid_match.group(4)
+                result = f"{subj} {verb}, {prep.lower()} {modifier}, {art} {rest}"
+            else:
+                # Fallback: append at the end
+                if prep.lower() in ["using", "by", "with", "through", "for"]:
+                    result = f"{main} {prep.lower()} {modifier}"
+                else:
+                    result = f"{main}, {prep.lower()} {modifier}"
+                    
             if not result.rstrip().endswith(('.', ',', ';', ':')):
                 if stripped.rstrip().endswith('.'):
                     result = result.rstrip() + '.'
@@ -698,7 +925,7 @@ class TextModifier:
                 verb_pattern = re.escape(verb) + r'(?:ed|s|ing)?'
                 
             pat = re.compile(
-                r'\b(We|The authors|Researchers)\s+(?:then\s+|also\s+|here\s+|thus\s+|now\s+|further\s+|subsequently\s+)?'
+                r'\b(We|The authors|Researchers|Scientists|Investigators)\s+(?:then\s+|also\s+|here\s+|thus\s+|now\s+|further\s+|subsequently\s+)?'
                 + verb_pattern
                 + r'\s+the\s+(.+?)([.,]|$)',
                 re.IGNORECASE,
@@ -710,8 +937,7 @@ class TextModifier:
                 end_punct = m.group(3)
                 article = 'An' if noun[0] in 'aeiouAEIOU' else 'A'
                 new_text = pat.sub(
-                    f"{article} {noun} of the {obj} was conducted "
-                    f"by {agent.lower()}{end_punct}",
+                    f"{article} {noun} of the {obj} was conducted{end_punct}",
                     text, count=1,
                 )
                 if new_text != text:
@@ -727,9 +953,13 @@ class TextModifier:
             if m:
                 obj = m.group(1).strip()
                 end_punct = m.group(2)
-                capitalized_verb = verb.capitalize()
+                if verb.endswith('e'):
+                    gerund = verb[:-1] + 'ing'
+                else:
+                    gerund = verb + 'ing'
+                gerund_capitalized = gerund.capitalize()
                 new_text = pat.sub(
-                    f"{capitalized_verb} the {obj}{end_punct}",
+                    f"{gerund_capitalized} the {obj}{end_punct}",
                     text, count=1,
                 )
                 if new_text != text:
