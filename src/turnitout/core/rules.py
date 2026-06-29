@@ -23,13 +23,15 @@ def load_rules():
     verb_noun_pairs_path = os.path.join(RULES_DIR, "verb_noun_pairs.json")
     appositives_path = os.path.join(RULES_DIR, "appositives.json")
     discourse_markers_path = os.path.join(RULES_DIR, "discourse_markers.json")
+    contractions_path = os.path.join(RULES_DIR, "contractions.json")
 
     # Verify that files exist
     required_paths = [
         synonyms_path, phrases_path, protected_path,
         hedge_path, determiners_path, conjunctions_path,
         passive_verbs_path, transition_phrases_path,
-        verb_noun_pairs_path, appositives_path, discourse_markers_path
+        verb_noun_pairs_path, appositives_path, discourse_markers_path,
+        contractions_path
     ]
     for path in required_paths:
         if not os.path.exists(path):
@@ -81,9 +83,12 @@ def load_rules():
     # 11. Discourse Markers
     discourse_markers = load_json_file(discourse_markers_path)
 
+    # 12. Contractions
+    contractions = load_json_file(contractions_path)
+
     return (synonyms, phrases, protected_terms, hedge_words, determiner_map, conjunctions,
-            passive_verbs, transition_phrases, verb_noun_pairs, appositive_map, discourse_markers)
+            passive_verbs, transition_phrases, verb_noun_pairs, appositive_map, discourse_markers, contractions)
 
 # Load rules dynamically on import
 (ACADEMIC_SYNONYMS, PHRASE_REWRITES, PROTECTED_TERMS, HEDGE_WORDS, DETERMINER_MAP, SUBORDINATE_CONJUNCTIONS,
- PASSIVE_VERB_MAP, TRANSITION_PHRASES, VERB_NOUN_PAIRS, APPOSITIVE_MAP, DISCOURSE_MARKER_VARIANTS) = load_rules()
+ PASSIVE_VERB_MAP, TRANSITION_PHRASES, VERB_NOUN_PAIRS, APPOSITIVE_MAP, DISCOURSE_MARKER_VARIANTS, CONTRACTIONS) = load_rules()

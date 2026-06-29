@@ -4,7 +4,7 @@ from turnitout.core.rules import (
     ACADEMIC_SYNONYMS, PHRASE_REWRITES, PROTECTED_TERMS,
     HEDGE_WORDS, DETERMINER_MAP, SUBORDINATE_CONJUNCTIONS,
     PASSIVE_VERB_MAP, TRANSITION_PHRASES, VERB_NOUN_PAIRS,
-    APPOSITIVE_MAP, DISCOURSE_MARKER_VARIANTS
+    APPOSITIVE_MAP, DISCOURSE_MARKER_VARIANTS, CONTRACTIONS
 )
 
 class TextModifier:
@@ -1146,20 +1146,6 @@ class TextModifier:
 
 
 CONTRACTION_PATTERNS = [
-    (re.compile(r'\bcannot\b', re.IGNORECASE), "can't"),
-    (re.compile(r"\bcan't\b", re.IGNORECASE), "cannot"),
-    (re.compile(r'\bdo not\b', re.IGNORECASE), "don't"),
-    (re.compile(r"\bdon't\b", re.IGNORECASE), "do not"),
-    (re.compile(r'\bdoes not\b', re.IGNORECASE), "doesn't"),
-    (re.compile(r"\bdoesn't\b", re.IGNORECASE), "does not"),
-    (re.compile(r'\bis not\b', re.IGNORECASE), "isn't"),
-    (re.compile(r"\bisn't\b", re.IGNORECASE), "is not"),
-    (re.compile(r'\bare not\b', re.IGNORECASE), "aren't"),
-    (re.compile(r"\baren't\b", re.IGNORECASE), "are not"),
-    (re.compile(r'\bshould not\b', re.IGNORECASE), "shouldn't"),
-    (re.compile(r"\bshouldn't\b", re.IGNORECASE), "should not"),
-    (re.compile(r'\bwould not\b', re.IGNORECASE), "wouldn't"),
-    (re.compile(r"\bwouldn't\b", re.IGNORECASE), "would not"),
-    (re.compile(r'\bcould not\b', re.IGNORECASE), "couldn't"),
-    (re.compile(r"\bcouldn't\b", re.IGNORECASE), "could not"),
+    (re.compile(r'\b' + re.escape(item[0]) + r'\b', re.IGNORECASE), item[1])
+    for item in CONTRACTIONS
 ]

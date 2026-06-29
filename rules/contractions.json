@@ -1,0 +1,18 @@
+[
+  ["cannot", "can't"],
+  ["can't", "cannot"],
+  ["do not", "don't"],
+  ["don't", "do not"],
+  ["does not", "doesn't"],
+  ["doesn't", "does not"],
+  ["is not", "isn't"],
+  ["isn't", "is not"],
+  ["are not", "aren't"],
+  ["aren't", "are not"],
+  ["should not", "shouldn't"],
+  ["shouldn't", "should not"],
+  ["would not", "wouldn't"],
+  ["wouldn't", "would not"],
+  ["could not", "couldn't"],
+  ["couldn't", "could not"]
+]
