@@ -1,0 +1,106 @@
+{
+  "however": [
+    "nevertheless",
+    "nonetheless",
+    "on the other hand",
+    "that said",
+    "be that as it may"
+  ],
+  "therefore": [
+    "consequently",
+    "hence",
+    "as a result",
+    "it follows that",
+    "accordingly"
+  ],
+  "moreover": [
+    "furthermore",
+    "in addition",
+    "additionally",
+    "what is more",
+    "beyond this"
+  ],
+  "although": [
+    "even though",
+    "despite the fact that",
+    "notwithstanding",
+    "while it is true that",
+    "granted that"
+  ],
+  "thus": [
+    "hence",
+    "accordingly",
+    "as such",
+    "in this manner",
+    "by this means"
+  ],
+  "indeed": [
+    "in fact",
+    "certainly",
+    "as a matter of fact",
+    "to be sure",
+    "without question"
+  ],
+  "similarly": [
+    "likewise",
+    "in a similar manner",
+    "comparably",
+    "by the same token",
+    "along these lines"
+  ],
+  "specifically": [
+    "in particular",
+    "more precisely",
+    "to be specific",
+    "namely",
+    "that is"
+  ],
+  "notably": [
+    "remarkably",
+    "significantly",
+    "importantly",
+    "strikingly",
+    "conspicuously"
+  ],
+  "meanwhile": [
+    "in the interim",
+    "concurrently",
+    "at the same time",
+    "simultaneously",
+    "during this period"
+  ],
+  "conversely": [
+    "on the contrary",
+    "in contrast",
+    "by contrast",
+    "contrastingly",
+    "on the flip side"
+  ],
+  "ultimately": [
+    "in the final analysis",
+    "at the end of the day",
+    "when all is considered",
+    "in the last analysis"
+  ],
+  "evidently": [
+    "apparently",
+    "as it turns out",
+    "it appears that",
+    "seemingly",
+    "ostensibly"
+  ],
+  "essentially": [
+    "fundamentally",
+    "at its core",
+    "in essence",
+    "basically",
+    "at the heart of it"
+  ],
+  "typically": [
+    "generally",
+    "ordinarily",
+    "as a rule",
+    "in most cases",
+    "under normal circumstances"
+  ]
+}

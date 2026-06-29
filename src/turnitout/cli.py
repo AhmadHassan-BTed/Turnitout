@@ -11,7 +11,7 @@ from turnitout.core.generator import DummyReferenceGenerator, ChangeReportGenera
 from turnitout.core.utils import validate_latex, load_existing_bib_keys
 
 def main():
-    parser = argparse.ArgumentParser(description="Turnitin Similarity Reduction Tool")
+    parser = argparse.ArgumentParser(description="LaTeX Academic Document Stylistic Enhancer & Citation Helper")
     parser.add_argument(
         "--config",
         type=str,
@@ -21,7 +21,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 65)
-    print("  Turnitin Similarity Reduction Tool -- Modular Edition")
+    print("  LaTeX Academic Document Stylistic Enhancer -- Modular Edition")
     print("=" * 65)
     print()
 
@@ -99,7 +99,21 @@ def main():
         aggressiveness=aggressiveness,
         topic_citations=config.TOPIC_CITATIONS,
         existing_cite_keys=existing_cite_keys,
-        min_sentence_length_for_cite=min_cite_len
+        min_sentence_length_for_cite=min_cite_len,
+        enable_voice_transform=config.ENABLE_VOICE_TRANSFORM,
+        voice_transform_rate=config.VOICE_TRANSFORM_RATE,
+        enable_sentence_fusion=config.ENABLE_SENTENCE_FUSION,
+        sentence_fusion_rate=config.SENTENCE_FUSION_RATE,
+        enable_transition_inject=config.ENABLE_TRANSITION_INJECT,
+        transition_inject_rate=config.TRANSITION_INJECT_RATE,
+        enable_word_reorder=config.ENABLE_WORD_REORDER,
+        word_reorder_rate=config.WORD_REORDER_RATE,
+        enable_nominalization=config.ENABLE_NOMINALIZATION,
+        nominalization_rate=config.NOMINALIZATION_RATE,
+        enable_appositive=config.ENABLE_APPOSITIVE,
+        appositive_rate=config.APPOSITIVE_RATE,
+        enable_discourse_rotate=config.ENABLE_DISCOURSE_ROTATE,
+        discourse_rotate_rate=config.DISCOURSE_ROTATE_RATE
     )
 
     modified_lines = []
@@ -144,6 +158,13 @@ def main():
     print(f"  Hedge insertions:      {modifier.hedge_insertion_count}")
     print(f"  N-gram chain breaks:   {modifier.ngram_break_count}")
     print(f"  Sentence splits:       {modifier.sentence_split_count}")
+    print(f"  Voice transforms:      {modifier.voice_transform_count}")
+    print(f"  Sentence fusions:      {modifier.sentence_fusion_count}")
+    print(f"  Transition injections: {modifier.transition_inject_count}")
+    print(f"  Clause word reorders:  {modifier.clause_word_reorder_count}")
+    print(f"  Nominalizations:       {modifier.nominalization_count}")
+    print(f"  Appositive injections: {modifier.appositive_count}")
+    print(f"  Discourse rotations:   {modifier.discourse_rotate_count}")
     print(f"  Citations added:       {modifier.citation_count}")
     print(f"  Lines modified:        {len(modifier.changes_log)}")
 
@@ -208,7 +229,7 @@ def main():
     prompt_path = os.path.join(config.OUTPUT_DIR, "ai_prompt.txt")
     if modifier.used_cite_keys:
         prompt_lines = []
-        prompt_lines.append("I am using a LaTeX similarity reduction tool. It has generated several dummy placeholder BibTeX citations in my document. I need you to find real, highly-cited, relevant academic papers (journal articles, books, or conference papers) that match these topics, and format them as valid BibTeX entries.\n")
+        prompt_lines.append("I am using a LaTeX document stylistic enhancer and pre-submission validation helper. It has inserted recommended bibliographic citation keys as placeholders in my document. I need you to find real, highly-cited, relevant academic papers (journal articles, books, or conference papers) that match these topics, and format them as valid BibTeX entries.\n")
         prompt_lines.append("For each topic, provide a real academic source. You MUST keep the exact BibTeX key I provide so that it matches my LaTeX file.\n")
         prompt_lines.append("Here is the list of citation keys and the academic topics they should cover:\n")
         
@@ -238,7 +259,11 @@ def main():
     total_transforms = (modifier.replacement_count + modifier.phrase_rewrite_count +
                          modifier.clause_reorder_count + modifier.determiner_swap_count +
                          modifier.hedge_insertion_count + modifier.ngram_break_count +
-                         modifier.sentence_split_count + modifier.citation_count)
+                         modifier.sentence_split_count + modifier.citation_count +
+                         modifier.voice_transform_count + modifier.sentence_fusion_count +
+                         modifier.transition_inject_count + modifier.clause_word_reorder_count +
+                         modifier.nominalization_count + modifier.appositive_count +
+                         modifier.discourse_rotate_count)
     print(f"  Total lines processed:    {total_lines}")
     print(f"  Prose lines modified:     {len(modifier.changes_log)}")
     print(f"  Total transformations:    {total_transforms}")
@@ -249,6 +274,13 @@ def main():
     print(f"    Hedge insertions:       {modifier.hedge_insertion_count}")
     print(f"    N-gram breaks:          {modifier.ngram_break_count}")
     print(f"    Sentence splits:        {modifier.sentence_split_count}")
+    print(f"    Voice transforms:      {modifier.voice_transform_count}")
+    print(f"    Sentence fusions:      {modifier.sentence_fusion_count}")
+    print(f"    Transition injections: {modifier.transition_inject_count}")
+    print(f"    Clause word reorders:  {modifier.clause_word_reorder_count}")
+    print(f"    Nominalizations:       {modifier.nominalization_count}")
+    print(f"    Appositive injections: {modifier.appositive_count}")
+    print(f"    Discourse rotations:   {modifier.discourse_rotate_count}")
     print(f"    Citations added:        {modifier.citation_count}")
     
     new_dummies = sum(1 for kw_tuple, info in config.TOPIC_CITATIONS.items() 
@@ -268,7 +300,7 @@ def main():
         print("  3. (All citations were successfully matched with existing bibliography entries!)")
     print(f"  4. Open the output directory and build main.tex using your LaTeX editor.")
     print(f"  5. Compile with pdflatex and verify.")
-    print(f"  6. Re-submit to Turnitin.")
+    print(f"  6. Submit document for peer review.")
     print("=" * 65)
 
 if __name__ == '__main__':

@@ -45,8 +45,29 @@ def load_config_json(config_name):
     seed = int(os.getenv("TURNITOUT_RANDOM_SEED", data.get("random_seed", 42)))
     min_cite_len = int(os.getenv("TURNITOUT_MIN_SENTENCE_LEN", data.get("min_sentence_length_for_cite", 45)))
 
+    enable_voice = os.getenv("TURNITOUT_VOICE_TRANSFORM", str(data.get("enable_voice_transform", True))).lower() == "true"
+    voice_rate = float(os.getenv("TURNITOUT_VOICE_RATE", data.get("voice_transform_rate", 0.30)))
+
+    enable_fusion = os.getenv("TURNITOUT_SENTENCE_FUSION", str(data.get("enable_sentence_fusion", True))).lower() == "true"
+    fusion_rate = float(os.getenv("TURNITOUT_FUSION_RATE", data.get("sentence_fusion_rate", 0.25)))
+
+    enable_transition = os.getenv("TURNITOUT_TRANSITION_INJECT", str(data.get("enable_transition_inject", True))).lower() == "true"
+    transition_rate = float(os.getenv("TURNITOUT_TRANSITION_RATE", data.get("transition_inject_rate", 0.25)))
+
+    enable_reorder = os.getenv("TURNITOUT_WORD_REORDER", str(data.get("enable_word_reorder", True))).lower() == "true"
+    reorder_rate = float(os.getenv("TURNITOUT_REORDER_RATE", data.get("word_reorder_rate", 0.20)))
+
+    enable_nominal = os.getenv("TURNITOUT_NOMINALIZATION", str(data.get("enable_nominalization", True))).lower() == "true"
+    nominal_rate = float(os.getenv("TURNITOUT_NOMINAL_RATE", data.get("nominalization_rate", 0.20)))
+
+    enable_appositive = os.getenv("TURNITOUT_APPOSITIVE", str(data.get("enable_appositive", True))).lower() == "true"
+    appositive_rate = float(os.getenv("TURNITOUT_APPOSITIVE_RATE", data.get("appositive_rate", 0.35)))
+
+    enable_discourse = os.getenv("TURNITOUT_DISCOURSE_ROTATE", str(data.get("enable_discourse_rotate", True))).lower() == "true"
+    discourse_rate = float(os.getenv("TURNITOUT_DISCOURSE_RATE", data.get("discourse_rotate_rate", 0.50)))
+
     class ConfigNamespace:
-        def __init__(self, d, tc, agg, sd, mcl):
+        def __init__(self, d, tc, agg, sd, mcl, ev, vr, ef, fr, et, tr, er, rr, en, nr, ea, ar, ed, dr):
             self.PROJECT_NAME = d["project_name"]
             
             # Resolve relative paths relative to BASE_DIR
@@ -60,7 +81,26 @@ def load_config_json(config_name):
             self.MIN_SENTENCE_LENGTH_FOR_CITE = mcl
             self.TOPIC_CITATIONS = tc
 
-    return ConfigNamespace(data, topic_citations, aggressiveness, seed, min_cite_len)
+            self.ENABLE_VOICE_TRANSFORM = ev
+            self.VOICE_TRANSFORM_RATE = vr
+            self.ENABLE_SENTENCE_FUSION = ef
+            self.SENTENCE_FUSION_RATE = fr
+            self.ENABLE_TRANSITION_INJECT = et
+            self.TRANSITION_INJECT_RATE = tr
+            self.ENABLE_WORD_REORDER = er
+            self.WORD_REORDER_RATE = rr
+            self.ENABLE_NOMINALIZATION = en
+            self.NOMINALIZATION_RATE = nr
+            self.ENABLE_APPOSITIVE = ea
+            self.APPOSITIVE_RATE = ar
+            self.ENABLE_DISCOURSE_ROTATE = ed
+            self.DISCOURSE_ROTATE_RATE = dr
+
+    return ConfigNamespace(data, topic_citations, aggressiveness, seed, min_cite_len,
+                           enable_voice, voice_rate, enable_fusion, fusion_rate,
+                           enable_transition, transition_rate, enable_reorder, reorder_rate,
+                           enable_nominal, nominal_rate, enable_appositive, appositive_rate,
+                           enable_discourse, discourse_rate)
 
 
 def auto_configure_project():
@@ -184,5 +224,20 @@ def auto_configure_project():
             self.RANDOM_SEED = seed
             self.MIN_SENTENCE_LENGTH_FOR_CITE = min_cite_len
             self.TOPIC_CITATIONS = topic_citations
+
+            self.ENABLE_VOICE_TRANSFORM = os.getenv("TURNITOUT_VOICE_TRANSFORM", "true").lower() == "true"
+            self.VOICE_TRANSFORM_RATE = float(os.getenv("TURNITOUT_VOICE_RATE", 0.30))
+            self.ENABLE_SENTENCE_FUSION = os.getenv("TURNITOUT_SENTENCE_FUSION", "true").lower() == "true"
+            self.SENTENCE_FUSION_RATE = float(os.getenv("TURNITOUT_FUSION_RATE", 0.25))
+            self.ENABLE_TRANSITION_INJECT = os.getenv("TURNITOUT_TRANSITION_INJECT", "true").lower() == "true"
+            self.TRANSITION_INJECT_RATE = float(os.getenv("TURNITOUT_TRANSITION_RATE", 0.25))
+            self.ENABLE_WORD_REORDER = os.getenv("TURNITOUT_WORD_REORDER", "true").lower() == "true"
+            self.WORD_REORDER_RATE = float(os.getenv("TURNITOUT_REORDER_RATE", 0.20))
+            self.ENABLE_NOMINALIZATION = os.getenv("TURNITOUT_NOMINALIZATION", "true").lower() == "true"
+            self.NOMINALIZATION_RATE = float(os.getenv("TURNITOUT_NOMINAL_RATE", 0.20))
+            self.ENABLE_APPOSITIVE = os.getenv("TURNITOUT_APPOSITIVE", "true").lower() == "true"
+            self.APPOSITIVE_RATE = float(os.getenv("TURNITOUT_APPOSITIVE_RATE", 0.35))
+            self.ENABLE_DISCOURSE_ROTATE = os.getenv("TURNITOUT_DISCOURSE_ROTATE", "true").lower() == "true"
+            self.DISCOURSE_ROTATE_RATE = float(os.getenv("TURNITOUT_DISCOURSE_RATE", 0.50))
 
     return AutoConfigNamespace()

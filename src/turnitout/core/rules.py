@@ -7,7 +7,7 @@ RULES_DIR = os.path.join(BASE_DIR, "rules")
 
 def load_rules():
     """
-    Loads synonyms, phrase rewrites, and protected terms from rules/ folder.
+    Loads synonyms, phrase rewrites, protected terms, and helper tables from rules/ folder.
     Fails with a clean error if rules files are missing or corrupted.
     """
     synonyms_path = os.path.join(RULES_DIR, "synonyms.json")
@@ -16,11 +16,20 @@ def load_rules():
     hedge_path = os.path.join(RULES_DIR, "hedge_words.json")
     determiners_path = os.path.join(RULES_DIR, "determiners.json")
     conjunctions_path = os.path.join(RULES_DIR, "conjunctions.json")
+    
+    # New stage tables
+    passive_verbs_path = os.path.join(RULES_DIR, "passive_verbs.json")
+    transition_phrases_path = os.path.join(RULES_DIR, "transition_phrases.json")
+    verb_noun_pairs_path = os.path.join(RULES_DIR, "verb_noun_pairs.json")
+    appositives_path = os.path.join(RULES_DIR, "appositives.json")
+    discourse_markers_path = os.path.join(RULES_DIR, "discourse_markers.json")
 
     # Verify that files exist
     required_paths = [
         synonyms_path, phrases_path, protected_path,
-        hedge_path, determiners_path, conjunctions_path
+        hedge_path, determiners_path, conjunctions_path,
+        passive_verbs_path, transition_phrases_path,
+        verb_noun_pairs_path, appositives_path, discourse_markers_path
     ]
     for path in required_paths:
         if not os.path.exists(path):
@@ -28,58 +37,53 @@ def load_rules():
             print("  Please make sure you have checked out the 'rules/' directory.")
             sys.exit(1)
 
+    # Helper function to load JSON safely
+    def load_json_file(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError as e:
+                print(f"  ERROR: Invalid JSON format in '{file_path}': {e}")
+                sys.exit(1)
+
     # 1. Academic Synonyms
-    with open(synonyms_path, 'r', encoding='utf-8') as f:
-        try:
-            synonyms = json.load(f)
-        except json.JSONDecodeError as e:
-            print(f"  ERROR: Invalid JSON format in '{synonyms_path}': {e}")
-            sys.exit(1)
+    synonyms = load_json_file(synonyms_path)
 
     # 2. Phrase Rewrites
-    with open(phrases_path, 'r', encoding='utf-8') as f:
-        try:
-            phrases = json.load(f)
-        except json.JSONDecodeError as e:
-            print(f"  ERROR: Invalid JSON format in '{phrases_path}': {e}")
-            sys.exit(1)
-    # Convert list of lists back to list of tuples for the regex engine
-    phrases = [(item[0], item[1]) for item in phrases]
+    phrases_list = load_json_file(phrases_path)
+    phrases = [(item[0], item[1]) for item in phrases_list]
 
     # 3. Protected Terms
-    with open(protected_path, 'r', encoding='utf-8') as f:
-        try:
-            protected_list = json.load(f)
-        except json.JSONDecodeError as e:
-            print(f"  ERROR: Invalid JSON format in '{protected_path}': {e}")
-            sys.exit(1)
+    protected_list = load_json_file(protected_path)
     protected_terms = set(protected_list)
 
     # 4. Hedge Words
-    with open(hedge_path, 'r', encoding='utf-8') as f:
-        try:
-            hedge_words = json.load(f)
-        except json.JSONDecodeError as e:
-            print(f"  ERROR: Invalid JSON format in '{hedge_path}': {e}")
-            sys.exit(1)
+    hedge_words = load_json_file(hedge_path)
 
     # 5. Determiners Map
-    with open(determiners_path, 'r', encoding='utf-8') as f:
-        try:
-            determiner_map = json.load(f)
-        except json.JSONDecodeError as e:
-            print(f"  ERROR: Invalid JSON format in '{determiners_path}': {e}")
-            sys.exit(1)
+    determiner_map = load_json_file(determiners_path)
 
     # 6. Conjunctions List
-    with open(conjunctions_path, 'r', encoding='utf-8') as f:
-        try:
-            conjunctions = json.load(f)
-        except json.JSONDecodeError as e:
-            print(f"  ERROR: Invalid JSON format in '{conjunctions_path}': {e}")
-            sys.exit(1)
+    conjunctions = load_json_file(conjunctions_path)
 
-    return synonyms, phrases, protected_terms, hedge_words, determiner_map, conjunctions
+    # 7. Passive Verbs Map
+    passive_verbs = load_json_file(passive_verbs_path)
+
+    # 8. Transition Phrases
+    transition_phrases = load_json_file(transition_phrases_path)
+
+    # 9. Verb Noun Pairs
+    verb_noun_pairs = load_json_file(verb_noun_pairs_path)
+
+    # 10. Appositive Map
+    appositive_map = load_json_file(appositives_path)
+
+    # 11. Discourse Markers
+    discourse_markers = load_json_file(discourse_markers_path)
+
+    return (synonyms, phrases, protected_terms, hedge_words, determiner_map, conjunctions,
+            passive_verbs, transition_phrases, verb_noun_pairs, appositive_map, discourse_markers)
 
 # Load rules dynamically on import
-ACADEMIC_SYNONYMS, PHRASE_REWRITES, PROTECTED_TERMS, HEDGE_WORDS, DETERMINER_MAP, SUBORDINATE_CONJUNCTIONS = load_rules()
+(ACADEMIC_SYNONYMS, PHRASE_REWRITES, PROTECTED_TERMS, HEDGE_WORDS, DETERMINER_MAP, SUBORDINATE_CONJUNCTIONS,
+ PASSIVE_VERB_MAP, TRANSITION_PHRASES, VERB_NOUN_PAIRS, APPOSITIVE_MAP, DISCOURSE_MARKER_VARIANTS) = load_rules()

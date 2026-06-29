@@ -2,7 +2,9 @@ import re
 import random
 from turnitout.core.rules import (
     ACADEMIC_SYNONYMS, PHRASE_REWRITES, PROTECTED_TERMS,
-    HEDGE_WORDS, DETERMINER_MAP, SUBORDINATE_CONJUNCTIONS
+    HEDGE_WORDS, DETERMINER_MAP, SUBORDINATE_CONJUNCTIONS,
+    PASSIVE_VERB_MAP, TRANSITION_PHRASES, VERB_NOUN_PAIRS,
+    APPOSITIVE_MAP, DISCOURSE_MARKER_VARIANTS
 )
 
 class TextModifier:
@@ -17,13 +19,21 @@ class TextModifier:
     DETERMINER_MAP = DETERMINER_MAP
     SUBORDINATE_CONJUNCTIONS = SUBORDINATE_CONJUNCTIONS
 
-    def __init__(self, seed=42, aggressiveness=0.55, topic_citations=None, existing_cite_keys=None, min_sentence_length_for_cite=60):
+    def __init__(self, seed=42, aggressiveness=0.55, topic_citations=None, existing_cite_keys=None, min_sentence_length_for_cite=60,
+                 enable_voice_transform=True, voice_transform_rate=0.30,
+                 enable_sentence_fusion=True, sentence_fusion_rate=0.25,
+                 enable_transition_inject=True, transition_inject_rate=0.25,
+                 enable_word_reorder=True, word_reorder_rate=0.20,
+                 enable_nominalization=True, nominalization_rate=0.20,
+                 enable_appositive=True, appositive_rate=0.35,
+                 enable_discourse_rotate=True, discourse_rotate_rate=0.50):
         self.rng = random.Random(seed)
         self.aggressiveness = aggressiveness
         self.topic_citations = topic_citations or {}
         self.existing_cite_keys = existing_cite_keys or set()
         self.min_sentence_length_for_cite = min_sentence_length_for_cite
         
+        # Counters for existing stages
         self.replacement_count = 0
         self.phrase_rewrite_count = 0
         self.citation_count = 0
@@ -32,6 +42,37 @@ class TextModifier:
         self.hedge_insertion_count = 0
         self.ngram_break_count = 0
         self.sentence_split_count = 0
+
+        # NEW counters (stages 9-15)
+        self.voice_transform_count = 0
+        self.sentence_fusion_count = 0
+        self.transition_inject_count = 0
+        self.clause_word_reorder_count = 0
+        self.nominalization_count = 0
+        self.appositive_count = 0
+        self.discourse_rotate_count = 0
+
+        # Configuration flags and rates
+        self.enable_voice_transform = enable_voice_transform
+        self.voice_transform_rate = voice_transform_rate
+        self.enable_sentence_fusion = enable_sentence_fusion
+        self.sentence_fusion_rate = sentence_fusion_rate
+        self.enable_transition_inject = enable_transition_inject
+        self.transition_inject_rate = transition_inject_rate
+        self.enable_word_reorder = enable_word_reorder
+        self.word_reorder_rate = word_reorder_rate
+        self.enable_nominalization = enable_nominalization
+        self.nominalization_rate = nominalization_rate
+        self.enable_appositive = enable_appositive
+        self.appositive_rate = appositive_rate
+        self.enable_discourse_rotate = enable_discourse_rotate
+        self.discourse_rotate_rate = discourse_rotate_rate
+
+        # Tracking sets / dicts for new stages
+        self._used_appositives = set()
+        self._used_discourse_replacements = {}  # marker -> [list of already-used replacements]
+        self._last_used_transitions = []         # rolling window, max 10 entries
+
         self.changes_log = []
         self.used_cite_keys = set()
         self._last_used_synonyms = {}
@@ -66,10 +107,31 @@ class TextModifier:
         # Step 8: Final n-gram chain breaker (last resort for surviving chains)
         protected_line = self._break_ngram_chains(protected_line)
 
-        # Step 9: Restore LaTeX elements (loop recursively to handle nesting)
+        # Step 9: Active/passive voice rotation
+        protected_line = self._transform_voice(protected_line)
+
+        # Step 10: Sentence fusion
+        protected_line = self._fuse_sentences(protected_line, context_lines)
+
+        # Step 11: Transition phrase injection
+        protected_line = self._inject_transitions(protected_line)
+
+        # Step 12: Clause-level prepositional reordering
+        protected_line = self._reorder_within_clause(protected_line)
+
+        # Step 13: Nominalization / de-nominalization
+        protected_line = self._nominalize(protected_line)
+
+        # Step 14: Appositive injection for technical terms
+        protected_line = self._inject_appositives(protected_line)
+
+        # Step 15: Discourse marker rotation
+        protected_line = self._rotate_discourse_markers(protected_line)
+
+        # Step 16: Restore LaTeX elements (loop recursively to handle nesting)
         modified_line = self._restore_latex(protected_line, placeholders)
 
-        # Step 10: Add citation if appropriate
+        # Step 17: Add citation if appropriate
         modified_line = self._maybe_add_citation(modified_line, line_num, context_lines)
 
         if modified_line != original:
@@ -121,7 +183,7 @@ class TextModifier:
                        make_placeholder, text)
 
         # 8. Remaining backslash commands
-        text = re.sub(r'\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*', make_placeholder, text)
+        text = re.sub(r'\/[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*', make_placeholder, text)
 
         return text, placeholders
 
@@ -186,10 +248,6 @@ class TextModifier:
 
         return ''.join(modified_tokens)
 
-    # ================================================================
-    # NEW TRANSFORMATION PASSES
-    # ================================================================
-
     def _reorder_clauses(self, text):
         """
         Move trailing subordinate clauses to the front of the sentence.
@@ -197,15 +255,12 @@ class TextModifier:
         Only fires on sentences long enough to have meaningful clauses,
         and only when a subordinate conjunction is found after a comma.
         """
-        # Skip lines with placeholders (complex LaTeX) or very short lines
         if '\x00' in text or len(text.strip()) < 80:
             return text
 
-        # Only reorder with a probability to avoid over-transforming
         if self.rng.random() > 0.30:
             return text
 
-        # Match: "Main clause, <conjunction> subordinate clause."
         for conj in self.SUBORDINATE_CONJUNCTIONS:
             pattern = re.compile(
                 r'^(\s*)([A-Z][^,]+),\s+(' + re.escape(conj) + r'\s+[^.]+)\.\s*$',
@@ -216,7 +271,6 @@ class TextModifier:
                 indent = m.group(1)
                 main_clause = m.group(2)
                 sub_clause = m.group(3)
-                # Capitalize subordinate, lowercase main
                 reordered = (indent +
                              sub_clause[0].upper() + sub_clause[1:] + ', ' +
                              main_clause[0].lower() + main_clause[1:] + '.')
@@ -232,10 +286,6 @@ class TextModifier:
         breaking phrases like 'the $x$' or 'a \\\\cite{...}'.
         Fires conservatively (25% chance per eligible determiner).
         """
-        if '\x00' in text:
-            # Still process, but only swap determiners not adjacent to placeholders
-            pass
-
         tokens = text.split()
         modified = []
         i = 0
@@ -243,7 +293,6 @@ class TextModifier:
             token = tokens[i]
             lower = token.lower().rstrip('.,;:')
 
-            # Check: is this a determiner followed by a plain word (not a placeholder)?
             if (lower in self.DETERMINER_MAP
                     and i + 1 < len(tokens)
                     and '\x00' not in tokens[i + 1]
@@ -254,11 +303,9 @@ class TextModifier:
                 candidates = self.DETERMINER_MAP[lower]
                 replacement = self.rng.choice(candidates)
 
-                # Preserve case
                 if token[0].isupper():
                     replacement = replacement[0].upper() + replacement[1:]
 
-                # Preserve trailing punctuation
                 trailing = token[len(lower):]
                 modified.append(replacement + trailing)
                 self.determiner_swap_count += 1
@@ -278,12 +325,9 @@ class TextModifier:
         if len(stripped) < 120 or '\x00' in text:
             return text
 
-        # Only split with 20% probability to avoid over-fragmentation
         if self.rng.random() > 0.20:
             return text
 
-        # Find a conjunction preceded by a comma near the middle of the sentence
-        # Pattern: "..., and ..." or "..., but ..." or "...; however, ..."
         split_patterns = [
             (r',\s+and\s+', '. '),
             (r',\s+but\s+', '. However, '),
@@ -296,14 +340,11 @@ class TextModifier:
             match = re.search(pattern, stripped, re.IGNORECASE)
             if match:
                 pos = match.start()
-                # Only split if both halves would be 40+ chars
                 before = stripped[:pos]
                 after = stripped[match.end():]
                 if len(before) >= 40 and len(after) >= 40:
-                    # Ensure the second part starts with uppercase
                     if after and after[0].islower():
                         after = after[0].upper() + after[1:]
-                    # Preserve leading whitespace
                     indent = text[:len(text) - len(text.lstrip())]
                     result = indent + before + '.' + joiner.rstrip() + ' ' + after
                     self.sentence_split_count += 1
@@ -321,22 +362,18 @@ class TextModifier:
         if len(stripped) < 80 or '\x00' in text:
             return text
 
-        # Only insert with 20% probability to keep text natural
         if self.rng.random() > 0.20:
             return text
 
         hedge = self.rng.choice(self.HEDGE_WORDS)
 
-        # Strategy 1: Insert after an existing comma (most natural position)
         comma_positions = [m.start() for m in re.finditer(r',\s+', stripped)]
         if comma_positions:
-            # Pick a comma roughly in the middle of the sentence
             mid = len(stripped) // 2
             best_pos = min(comma_positions, key=lambda p: abs(p - mid))
             match = re.search(r',\s+', stripped[best_pos:])
             if match:
                 insert_at = best_pos + match.end()
-                # Make sure we're not inserting before a placeholder or uppercase proper noun
                 if insert_at < len(stripped) and stripped[insert_at:insert_at + 1].islower():
                     indent = text[:len(text) - len(text.lstrip())]
                     result = indent + stripped[:insert_at] + hedge + ' ' + stripped[insert_at:]
@@ -350,28 +387,21 @@ class TextModifier:
         Final-pass n-gram chain breaker. Scans the text for any surviving 
         5+ word chains of plain English words (no placeholders, no LaTeX).
         If found, inserts a brief parenthetical or qualifier to break the chain.
-        
-        This is the LAST RESORT pass — it only fires on chains that survived
-        all previous transformations.
         """
         stripped = text.strip()
         if len(stripped) < 60 or '\x00' in text:
             return text
 
-        # Only attempt with 15% probability per line to keep output natural
         if self.rng.random() > 0.15:
             return text
 
-        # Extract sequences of plain words (no placeholders)
         words = stripped.split()
         plain_indices = []
         for i, w in enumerate(words):
-            # A "plain" word is one that's all alphabetic, 3+ chars, not a placeholder
             cleaned = w.strip('.,;:!?()')
             if cleaned.isalpha() and len(cleaned) >= 3 and '\x00' not in w:
                 plain_indices.append(i)
 
-        # Find runs of 5+ consecutive plain-word indices
         if len(plain_indices) < 5:
             return text
 
@@ -390,30 +420,415 @@ class TextModifier:
         if not runs:
             return text
 
-        # Pick the longest run and break it roughly in the middle
         longest = max(runs, key=len)
         break_point = longest[len(longest) // 2]
 
-        # Choose a natural-sounding parenthetical insert
         inserts = [
             "(i.e.,)", "(that is,)", "(in essence,)", "(specifically,)",
         ]
         insert = self.rng.choice(inserts)
 
-        # Reconstruct the line with the insert
         words_list = stripped.split()
         indent = text[:len(text) - len(text.lstrip())]
         result = indent + ' '.join(words_list[:break_point]) + ' ' + insert + ' ' + ' '.join(words_list[break_point:])
         self.ngram_break_count += 1
         return result
 
-    # ================================================================
-    # CITATION INSERTION (unchanged, robust)
-    # ================================================================
+    # ==================================================================
+    # NEW STAGE 9: Active/Passive Voice Rotation
+    # ==================================================================
+    def _transform_voice(self, text):
+        """Alternate active/passive constructions to prevent voice monotony.
+        """
+        if not self.enable_voice_transform:
+            return text
+        if '\x00' in text or len(text.strip()) < 60:
+            return text
+        if self.rng.random() > self.voice_transform_rate:
+            return text
 
+        # ── Active → Passive ──────────────────────────────────────────
+        pattern_a = re.compile(
+            r'\b(We|The authors|Researchers)\s+(?:then\s+|also\s+|here\s+|thus\s+|now\s+|further\s+|subsequently\s+)?(\w+)\s+the\s+(.+?)([.,]|$)',
+            re.IGNORECASE,
+        )
+        pattern_b = re.compile(
+            r'\b(We|The authors|Researchers)\s+(?:then\s+|also\s+|here\s+|thus\s+|now\s+|further\s+|subsequently\s+)?(\w+)\s+a\s+(.+?)([.,]|$)',
+            re.IGNORECASE,
+        )
+
+        def _active_to_passive(match, article):
+            agent = match.group(1)
+            verb = match.group(2).lower()
+            obj = match.group(3)
+            end_punct = match.group(4)
+            if verb in PASSIVE_VERB_MAP:
+                passive_form = PASSIVE_VERB_MAP[verb]
+            elif verb.endswith('e'):
+                passive_form = verb + 'd'
+            else:
+                passive_form = verb + 'ed'
+            return (
+                f"{article.capitalize()} {obj} {passive_form} "
+                f"by {agent.lower()}{end_punct}"
+            )
+
+        for pat, art in [(pattern_a, 'the'), (pattern_b, 'a')]:
+            m = pat.search(text)
+            if m:
+                new_text = pat.sub(lambda mo, a=art: _active_to_passive(mo, a), text, count=1)
+                if new_text != text:
+                    self.voice_transform_count += 1
+                    return new_text
+
+        # ── Passive → Active ──────────────────────────────────────────
+        passive_pat = re.compile(
+            r'\b(The|A)\s+(.+?)\s+(was|were)\s+(\w+(?:ed|en)?)\s+by\s+'
+            r'(we|the authors|researchers)([.,]|$)',
+            re.IGNORECASE,
+        )
+        m = passive_pat.search(text)
+        if m:
+            article = m.group(1)
+            obj = m.group(2)
+            verb_past = m.group(4)
+            agent = m.group(5)
+            end_punct = m.group(6)
+            if verb_past.endswith('ed'):
+                base_verb = verb_past[:-2]
+                if (
+                    len(base_verb) >= 2
+                    and base_verb[-1] == base_verb[-2]
+                    and base_verb[-1] not in 'aeiou'
+                ):
+                    base_verb = base_verb[:-1]
+            elif verb_past.endswith('en'):
+                base_verb = verb_past[:-2]
+            else:
+                base_verb = verb_past
+
+            new_text = passive_pat.sub(
+                f"{agent.capitalize()} {base_verb} "
+                f"{article.lower()} {obj}{end_punct}",
+                text, count=1,
+            )
+            if new_text != text:
+                self.voice_transform_count += 1
+                return new_text
+
+        return text
+
+    # ==================================================================
+    # NEW STAGE 10: Sentence Fusion
+    # ==================================================================
+    def _fuse_sentences(self, text, context_lines):
+        """Combine two short adjacent sentences to vary rhythmic length.
+        """
+        if not self.enable_sentence_fusion:
+            return text
+        if '\x00' in text:
+            return text
+        if self.rng.random() > self.sentence_fusion_rate:
+            return text
+
+        current = text.strip()
+        if len(current) >= 80:
+            return text
+
+        next_line = None
+        if context_lines:
+            for candidate in context_lines:
+                candidate_stripped = candidate.strip()
+                if candidate_stripped and candidate_stripped != current:
+                    next_line = candidate_stripped
+                    break
+
+        if not next_line or len(next_line) >= 80:
+            return text
+
+        if next_line.startswith('\\') or '\x00' in next_line:
+            return text
+
+        connectors = [
+            "which",
+            "thereby",
+            "consequently",
+            "thus leading to",
+            "and as a result",
+        ]
+        connector = self.rng.choice(connectors)
+
+        if current.endswith('.'):
+            fused = (
+                current[:-1]
+                + ', '
+                + connector
+                + ' '
+                + next_line[0].lower()
+                + next_line[1:]
+            )
+            indent = text[:len(text) - len(current)]
+            self.sentence_fusion_count += 1
+            return indent + fused
+
+        return text
+
+    # ==================================================================
+    # NEW STAGE 11: Transition Phrase Injection
+    # ==================================================================
+    def _inject_transitions(self, text):
+        """Enrich logical connectors to add coherence and avoid repetition.
+        """
+        if not self.enable_transition_inject:
+            return text
+        if '\x00' in text or len(text.strip()) < 70:
+            return text
+        if self.rng.random() > self.transition_inject_rate:
+            return text
+
+        category = self.rng.choice(list(TRANSITION_PHRASES.keys()))
+        candidates = [
+            t for t in TRANSITION_PHRASES[category]
+            if t not in self._last_used_transitions
+        ]
+        if not candidates:
+            candidates = TRANSITION_PHRASES[category]
+        transition = self.rng.choice(candidates)
+
+        self._last_used_transitions.append(transition)
+        if len(self._last_used_transitions) > 10:
+            self._last_used_transitions.pop(0)
+
+        stripped = text.strip()
+        indent = text[:len(text) - len(stripped)]
+
+        comma_match = re.search(r',\s+', stripped)
+        if comma_match and comma_match.start() > 20:
+            insert_at = comma_match.end()
+            if insert_at < len(stripped) and stripped[insert_at].islower():
+                result = (
+                    indent
+                    + stripped[:insert_at]
+                    + transition
+                    + ' '
+                    + stripped[insert_at:]
+                )
+                self.transition_inject_count += 1
+                return result
+
+        result = (
+            indent
+            + transition.capitalize()
+            + ', '
+            + stripped[0].lower()
+            + stripped[1:]
+        )
+        self.transition_inject_count += 1
+        return result
+
+    # ==================================================================
+    # NEW STAGE 12: Clause-Level Reordering
+    # ==================================================================
+    def _reorder_within_clause(self, text):
+        """Shift prepositional/adverbial phrases to vary sentence openings.
+        """
+        if not self.enable_word_reorder:
+            return text
+        if '\x00' in text or len(text.strip()) < 80:
+            return text
+        if self.rng.random() > self.word_reorder_rate:
+            return text
+
+        stripped = text.strip()
+        indent = text[:len(text) - len(stripped)]
+
+        leading_pat = re.compile(
+            r'^(In|For|Using|By|With|Through)\s+([^,]+),\s+(.+)',
+            re.IGNORECASE,
+        )
+        m = leading_pat.match(stripped)
+        if m:
+            prep = m.group(1)
+            modifier = m.group(2).strip()
+            main = m.group(3).strip()
+            if main and main[0].islower():
+                main = main[0].upper() + main[1:]
+            result = f"{main}, {prep.lower()} {modifier}"
+            if not result.rstrip().endswith(('.', ',', ';', ':')):
+                if stripped.rstrip().endswith('.'):
+                    result = result.rstrip() + '.'
+            self.clause_word_reorder_count += 1
+            return indent + result
+
+        end_pat = re.compile(
+            r'(.+?),\s+by means of\s+(.+?)([.;,]?)$',
+            re.IGNORECASE,
+        )
+        m = end_pat.search(stripped)
+        if m:
+            main = m.group(1).strip()
+            means = m.group(2).strip()
+            end_punct = m.group(3)
+            result = f"By means of {means}, {main[0].lower()}{main[1:]}{end_punct}"
+            self.clause_word_reorder_count += 1
+            return indent + result
+
+        return text
+
+    # ==================================================================
+    # NEW STAGE 13: Nominalization / De-Nominalization
+    # ==================================================================
+    def _nominalize(self, text):
+        """Alternate verbal and nominal forms to modulate stylistic register.
+        """
+        if not self.enable_nominalization:
+            return text
+        if '\x00' in text or len(text.strip()) < 70:
+            return text
+        if self.rng.random() > self.nominalization_rate:
+            return text
+
+        stripped = text.strip()
+        indent = text[:len(text) - len(stripped)]
+
+        for verb, noun in VERB_NOUN_PAIRS.items():
+            if verb.endswith('e'):
+                verb_pattern = re.escape(verb) + r'(?:d|s|ing)?'
+            else:
+                verb_pattern = re.escape(verb) + r'(?:ed|s|ing)?'
+                
+            pat = re.compile(
+                r'\b(We|The authors|Researchers)\s+(?:then\s+|also\s+|here\s+|thus\s+|now\s+|further\s+|subsequently\s+)?'
+                + verb_pattern
+                + r'\s+the\s+(.+?)([.,]|$)',
+                re.IGNORECASE,
+            )
+            m = pat.search(text)
+            if m:
+                agent = m.group(1)
+                obj = m.group(2).strip()
+                end_punct = m.group(3)
+                article = 'An' if noun[0] in 'aeiouAEIOU' else 'A'
+                new_text = pat.sub(
+                    f"{article} {noun} of the {obj} was conducted "
+                    f"by {agent.lower()}{end_punct}",
+                    text, count=1,
+                )
+                if new_text != text:
+                    self.nominalization_count += 1
+                    return new_text
+
+        for verb, noun in VERB_NOUN_PAIRS.items():
+            pat = re.compile(
+                r'\bThe\s+' + re.escape(noun) + r'\s+of\s+the\s+(.+?)([.,]|$)',
+                re.IGNORECASE,
+            )
+            m = pat.search(text)
+            if m:
+                obj = m.group(1).strip()
+                end_punct = m.group(2)
+                capitalized_verb = verb.capitalize()
+                new_text = pat.sub(
+                    f"{capitalized_verb} the {obj}{end_punct}",
+                    text, count=1,
+                )
+                if new_text != text:
+                    self.nominalization_count += 1
+                    return new_text
+
+        return text
+
+    # ==================================================================
+    # NEW STAGE 14: Appositive Injection
+    # ==================================================================
+    def _inject_appositives(self, text):
+        """Insert brief parenthetical definitions after technical terms.
+        """
+        if not self.enable_appositive:
+            return text
+        if '\x00' in text:
+            return text
+        if self.rng.random() > self.appositive_rate:
+            return text
+
+        stripped = text.strip()
+        indent = text[:len(text) - len(stripped)]
+
+        for term in sorted(APPOSITIVE_MAP.keys(), key=len, reverse=True):
+            appositive = APPOSITIVE_MAP[term]
+
+            if term in self._used_appositives:
+                continue
+
+            if not re.search(r'\b' + re.escape(term) + r'\b', stripped, re.IGNORECASE):
+                continue
+
+            new_stripped = re.sub(
+                r'\b(' + re.escape(term) + r')\b',
+                r'\1, ' + appositive + ',',
+                stripped,
+                count=1,
+                flags=re.IGNORECASE,
+            )
+            if new_stripped != stripped:
+                self._used_appositives.add(term)
+                self.appositive_count += 1
+                return indent + new_stripped
+
+        return text
+
+    # ==================================================================
+    # NEW STAGE 15: Discourse Marker Rotation
+    # ==================================================================
+    def _rotate_discourse_markers(self, text):
+        """Replace overused linking words with varied equivalents.
+        """
+        if not self.enable_discourse_rotate:
+            return text
+        if '\x00' in text:
+            return text
+        if self.rng.random() > self.discourse_rotate_rate:
+            return text
+
+        stripped = text.strip()
+        indent = text[:len(text) - len(stripped)]
+
+        for marker, variants in DISCOURSE_MARKER_VARIANTS.items():
+            pattern = re.compile(
+                r'^(' + re.escape(marker) + r')(\s*[,;]\s*|\s+)',
+                re.IGNORECASE,
+            )
+            m = pattern.match(stripped)
+            if not m:
+                continue
+
+            used = self._used_discourse_replacements.get(marker, [])
+            available = [v for v in variants if v not in used]
+            if not available:
+                available = variants
+
+            replacement = self.rng.choice(available)
+            self._used_discourse_replacements.setdefault(marker, []).append(replacement)
+
+            original_word = m.group(1)
+            if original_word[0].isupper():
+                replacement = replacement[0].upper() + replacement[1:]
+            else:
+                replacement = replacement[0].lower() + replacement[1:]
+
+            separator = m.group(2)
+            rest = stripped[m.end():]
+            new_stripped = replacement + separator + rest
+            self.discourse_rotate_count += 1
+            return indent + new_stripped
+
+        return text
+
+    # ==================================================================
+    # Citation insertion (existing)
+    # ==================================================================
     def _maybe_add_citation(self, line, line_num, context_lines=None):
         stripped = line.strip()
-
         if len(stripped) < self.min_sentence_length_for_cite:
             return line
         if '\\cite{' in line:
@@ -422,20 +837,14 @@ class TextModifier:
             return line
         if stripped.startswith(('\\noindent', '\\vspace', '\\hspace')):
             return line
-
-        # Check nearby lines for existing citations
         if context_lines:
             for ctx_line in context_lines:
                 if '\\cite{' in ctx_line:
                     return line
-
         cite_key = self._determine_topic_citation(line)
         if not cite_key:
             return line
-
         insertion = ' \\cite{' + cite_key + '}'
-
-        # Insert before the last period
         period_match = re.search(r'\.\s*$', stripped)
         if period_match:
             insert_pos = line.rstrip().rfind('.')
@@ -444,14 +853,11 @@ class TextModifier:
                 self.citation_count += 1
                 self.used_cite_keys.add(cite_key)
                 return modified
-
-        # For long lines without period, add at end
         if len(stripped) > 100 and not stripped.endswith((',', ':', '\\\\', '{')):
             modified = line.rstrip() + insertion
             self.citation_count += 1
             self.used_cite_keys.add(cite_key)
             return modified
-
         return line
 
     def _determine_topic_citation(self, line):

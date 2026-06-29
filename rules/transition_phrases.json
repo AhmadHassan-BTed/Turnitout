@@ -1,0 +1,60 @@
+{
+  "addition": [
+    "furthermore",
+    "in addition",
+    "moreover",
+    "additionally",
+    "also of note",
+    "equally important",
+    "by the same token",
+    "coupled with this"
+  ],
+  "contrast": [
+    "conversely",
+    "on the other hand",
+    "in contrast",
+    "by comparison",
+    "paradoxically",
+    "counterintuitively"
+  ],
+  "cause_effect": [
+    "consequently",
+    "as a result",
+    "therefore",
+    "thus",
+    "accordingly",
+    "for this reason",
+    "on account of this"
+  ],
+  "clarification": [
+    "in other words",
+    "that is to say",
+    "specifically",
+    "to clarify",
+    "put differently",
+    "stated another way"
+  ],
+  "sequence": [
+    "subsequently",
+    "following this",
+    "in the next stage",
+    "thereafter",
+    "in turn",
+    "proceeding further"
+  ],
+  "emphasis": [
+    "indeed",
+    "in fact",
+    "notably",
+    "remarkably",
+    "crucially",
+    "most importantly"
+  ],
+  "concession": [
+    "admittedly",
+    "granted",
+    "to be sure",
+    "it must be acknowledged",
+    "notwithstanding this"
+  ]
+}

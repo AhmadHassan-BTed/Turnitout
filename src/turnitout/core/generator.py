@@ -39,7 +39,7 @@ class ChangeReportGenerator:
 
     def generate(self, modifier, output_path, topic_citations):
         lines = []
-        lines.append("# Similarity Reduction -- Change Report\n")
+        lines.append("# LaTeX Stylistic Enhancement -- Change Report\n")
         lines.append("## Summary Statistics\n")
         lines.append("| Metric | Count |")
         lines.append("|---|---|")
