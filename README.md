@@ -17,7 +17,7 @@
 
 ---
 
-## 💡 Preserving the Academic Voice
+##  Preserving the Academic Voice
 
 Writing is a deeply personal, human craft. Yet under the rigid constraints of similarity scanners like Turnitin, authors are often forced to rewrite their natural voice or break their formatting simply to bypass automated string matching.
 
@@ -25,7 +25,7 @@ Turnitout resolves this friction. By automating the process of breaking matching
 
 ---
 
-## ⚡ Getting Started (3-Minute Setup)
+##  Getting Started (3-Minute Setup)
 
 Turnitout runs out-of-the-box with automatic Python verification and setup. Follow these simple steps:
 
@@ -53,7 +53,7 @@ Turnitout runs out-of-the-box with automatic Python verification and setup. Foll
 
 ---
 
-## 🛠️ Advanced Customizations & Configuration
+##  Advanced Customizations & Configuration
 
 Overrides can be configured via environment variables inside a `.env` file placed at the project root:
 
@@ -88,7 +88,7 @@ TURNITOUT_RANDOM_SEED=42
 
 ---
 
-## 📂 Project Directory Structure
+##  Project Directory Structure
 
 The repository is structured to separate execution files, rules, configs, and documentation:
 
@@ -133,7 +133,7 @@ Turnitout/
 
 ---
 
-## 🏗️ Under the Hood: System Architecture & Workflow
+##  Under the Hood: System Architecture & Workflow
 
 ### 1. Processing Pipeline
 
@@ -212,7 +212,7 @@ graph TD
 
 ---
 
-## 🧪 Testing & Contributor Workflows
+##  Testing & Contributor Workflows
 
 ### Local Testing
 
@@ -253,7 +253,7 @@ sequenceDiagram
 
 ---
 
-## 🛡️ Release, Support & Security
+##  Release, Support & Security
 
 - **Release Changes**: History logs are available in [docs/changelog.md](docs/changelog.md).
 - **Milestone Planning**: Upcoming changes are outlined in [docs/roadmap.md](docs/roadmap.md).
@@ -263,5 +263,5 @@ sequenceDiagram
 ---
 
 <p align="center">
-  Created and maintained by <a href="https://github.com/AhmadHassan-BTed"><strong>Ahmad Hassan (B-Ted)</strong></a> 🤓⌨️
+  Created and maintained by <a href="https://github.com/AhmadHassan-BTed"><strong>Ahmad Hassan (B-Ted)</strong></a> ⌨
 </p>

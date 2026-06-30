@@ -4,7 +4,7 @@ This guide outlines the steps required to process a brand-new paper from scratch
 
 ---
 
-## 🚀 The 3-Step Workflow (No Config Needed!)
+##  The 3-Step Workflow (No Config Needed!)
 
 You don't need to write any configuration files or set up keyword lists. The tool automatically detects your files and performs frequency analysis on your text to extract keywords on-the-fly.
 
@@ -23,7 +23,7 @@ Open your command prompt or terminal in the project root directory, and simply r
 python run.py
 ```
 
-#### 🔍 What happens in this step:
+####  What happens in this step:
 1. **Auto-Detection**: Python scans `paper_input/` and auto-detects your paper folder, your main `.tex` file, and your `.bib` bibliography database.
 2. **Frequency Analysis**: Python reads your LaTeX document, ignores LaTeX commands and equations, and automatically extracts the top 10 most frequent scientific keywords.
 3. **Paraphrasing & Citation**: The script parphrases your text, inserts `\cite{...}` commands near sentences containing those high-frequency keywords, and copies all image folders to the output folder.
@@ -40,7 +40,7 @@ When the run finishes:
 
 ---
 
-## 🛠️ Advanced Customization (Optional JSON Config)
+##  Advanced Customization (Optional JSON Config)
 
 If you want to override the automatic settings (for example, to target specific keywords, adjust paraphrasing aggressiveness, or define custom keys), you can create an optional configuration file:
 

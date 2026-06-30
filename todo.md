@@ -1,4 +1,4 @@
-# 🔓 Turnitout Extension — Cracking Turnitin's Algorithm
+#  Turnitout Extension — Cracking Turnitin's Algorithm
 
 > **How to use this guide:**  
 > For each section below:  
@@ -14,7 +14,7 @@
 ---
 ---
 
-## 📁 SECTION 1 — modifier.py (THE CORE ENGINE)
+##  SECTION 1 — modifier.py (THE CORE ENGINE)
 
 **File to paste first:** [modifier.py](file:///c:/Users/PMLS/Downloads/Plagerism%20Similarity%20Remove/src/turnitout/core/modifier.py)  
 **Path:** `src/turnitout/core/modifier.py`
@@ -311,7 +311,7 @@ Return the COMPLETE, FULL, UNTRUNCATED `modifier.py` with all 7 new stages. Ever
 ---
 ---
 
-## 📁 SECTION 2 — synonyms.json (WORD SYNONYM DICTIONARY)
+##  SECTION 2 — synonyms.json (WORD SYNONYM DICTIONARY)
 
 **File to paste first:** [synonyms.json](file:///c:/Users/PMLS/Downloads/Plagerism%20Similarity%20Remove/rules/synonyms.json)  
 **Path:** `rules/synonyms.json`
@@ -405,7 +405,7 @@ Return ONLY the new entries as a valid JSON object.
 ---
 ---
 
-## 📁 SECTION 3 — phrases.json (MULTI-WORD PHRASE REWRITES)
+##  SECTION 3 — phrases.json (MULTI-WORD PHRASE REWRITES)
 
 **File to paste first:** [phrases.json](file:///c:/Users/PMLS/Downloads/Plagerism%20Similarity%20Remove/rules/phrases.json)  
 **Path:** `rules/phrases.json`
@@ -516,7 +516,7 @@ Return ONLY the new entries as a valid JSON array.
 ---
 ---
 
-## 📁 SECTION 4 — Small Rule Files Bundle (4 files)
+##  SECTION 4 — Small Rule Files Bundle (4 files)
 
 **Files to paste first:**
 - [hedge_words.json](file:///c:/Users/PMLS/Downloads/Plagerism%20Similarity%20Remove/rules/hedge_words.json)
@@ -596,7 +596,7 @@ Each file must contain ALL original entries PLUS all new entries.
 ---
 ---
 
-## 📁 SECTION 5 — config.py (CONFIGURATION SYSTEM)
+##  SECTION 5 — config.py (CONFIGURATION SYSTEM)
 
 **File to paste first:** [config.py](file:///c:/Users/PMLS/Downloads/Plagerism%20Similarity%20Remove/src/turnitout/config.py)  
 **Path:** `src/turnitout/config.py`
@@ -660,7 +660,7 @@ Return the COMPLETE, FULL modified `config.py`. Do not truncate.
 ---
 ---
 
-## 📁 SECTION 6 — cli.py (COMMAND-LINE INTERFACE)
+##  SECTION 6 — cli.py (COMMAND-LINE INTERFACE)
 
 **File to paste first:** [cli.py](file:///c:/Users/PMLS/Downloads/Plagerism%20Similarity%20Remove/src/turnitout/cli.py)  
 **Path:** `src/turnitout/cli.py`
@@ -756,7 +756,7 @@ Return the COMPLETE, FULL modified `cli.py`. Do not truncate.
 ---
 ---
 
-## 📁 SECTION 7 — .env (ENVIRONMENT CONFIG)
+##  SECTION 7 — .env (ENVIRONMENT CONFIG)
 
 **File to paste first:** [.env](file:///c:/Users/PMLS/Downloads/Plagerism%20Similarity%20Remove/.env)  
 **Path:** `.env`
