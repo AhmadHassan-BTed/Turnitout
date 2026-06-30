@@ -141,11 +141,18 @@ def main():
     # -- Apply modifications --
     print(f"\n[4/7] Applying intelligent modifications...")
     
-    # Instantiate Modifier with config settings
     aggressiveness = getattr(config, "SYNONYM_AGGRESSIVENESS", 0.75)
     seed = getattr(config, "RANDOM_SEED", 42)
     min_cite_len = getattr(config, "MIN_SENTENCE_LENGTH_FOR_CITE", 45)
-    
+
+    # Pre-extract all normalized 5-grams from the original document PROSE zones for auditing
+    source_grams = set()
+    temp_modifier = TextModifier(seed=42, enable_ngram_audit=False, enable_risk_citation=False)
+    for zone in zones:
+        if zone['type'] == 'PROSE':
+            source_grams.update(temp_modifier._get_kgrams(zone['text'], k=5))
+    print(f"  Extracted {len(source_grams)} unique 5-grams from original prose for source-aware auditing.")
+
     modifier = TextModifier(
         seed=seed,
         aggressiveness=aggressiveness,
@@ -167,7 +174,10 @@ def main():
         enable_discourse_rotate=config.ENABLE_DISCOURSE_ROTATE,
         discourse_rotate_rate=config.DISCOURSE_ROTATE_RATE,
         enable_contraction=config.ENABLE_CONTRACTION,
-        contraction_rate=config.CONTRACTION_RATE
+        contraction_rate=config.CONTRACTION_RATE,
+        enable_ngram_audit=config.ENABLE_NGRAM_AUDIT,
+        enable_risk_citation=config.ENABLE_RISK_CITATION,
+        source_grams=source_grams
     )
 
     modified_lines = []
@@ -226,6 +236,9 @@ def main():
     print(f"  Appositive injections: {modifier.appositive_count}")
     print(f"  Discourse rotations:   {modifier.discourse_rotate_count}")
     print(f"  Contraction swaps:     {modifier.contraction_count}")
+    print(f"  N-gram audits:         {modifier.ngram_audit_count}")
+    print(f"  Risk citation shields: {modifier.risk_citation_count}")
+    print(f"  Structural guarantees: {modifier.structural_guarantee_count}")
     print(f"  Citations added:       {modifier.citation_count}")
     print(f"  Lines modified:        {len(modifier.changes_log)}")
 
@@ -327,7 +340,9 @@ def main():
                          modifier.voice_transform_count + modifier.sentence_fusion_count +
                          modifier.transition_inject_count + modifier.clause_word_reorder_count +
                          modifier.nominalization_count + modifier.appositive_count +
-                         modifier.discourse_rotate_count + modifier.contraction_count)
+                         modifier.discourse_rotate_count + modifier.contraction_count +
+                         modifier.ngram_audit_count + modifier.risk_citation_count +
+                         modifier.structural_guarantee_count)
     print(f"  Total lines processed:    {total_lines}")
     print(f"  Prose lines modified:     {len(modifier.changes_log)}")
     print(f"  Total transformations:    {total_transforms}")
@@ -346,6 +361,9 @@ def main():
     print(f"    Appositive injections: {modifier.appositive_count}")
     print(f"    Discourse rotations:   {modifier.discourse_rotate_count}")
     print(f"    Contraction swaps:     {modifier.contraction_count}")
+    print(f"    N-gram audits:         {modifier.ngram_audit_count}")
+    print(f"    Risk citation shields: {modifier.risk_citation_count}")
+    print(f"    Structural guarantees: {modifier.structural_guarantee_count}")
     print(f"    Citations added:        {modifier.citation_count}")
     
     new_dummies = sum(1 for kw_tuple, info in config.TOPIC_CITATIONS.items() 

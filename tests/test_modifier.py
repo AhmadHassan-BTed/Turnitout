@@ -113,3 +113,44 @@ def test_contraction_conversion():
     assert "do not" in modified_expand.lower()
     assert validate_latex(modified_expand) == []
 
+
+def test_ngram_audit():
+    """Verify that surviving n-grams matching the source document are forcefully broken."""
+    source_grams = {("solve", "this", "equation", "analytically", "now")}
+    modifier = TextModifier(seed=42, enable_ngram_audit=True, source_grams=source_grams)
+    
+    line = "We solve this equation analytically now using custom methods."
+    audited = modifier._source_aware_ngram_audit(line)
+    
+    # Verify that the matching 5-gram is broken (does not exist in audited tokens)
+    audited_grams = modifier._get_kgrams(audited, k=5)
+    for gram in audited_grams:
+        assert gram != ("solve", "this", "equation", "analytically", "now")
+        
+    assert validate_latex(audited) == []
+
+
+def test_structural_diversity():
+    """Verify that sentences > 60 chars receive at least 2 structural transformations under guarantee."""
+    modifier = TextModifier(
+        seed=42,
+        enable_voice_transform=True, voice_transform_rate=0.0, # disabled normally
+        enable_word_reorder=True, word_reorder_rate=0.0,
+        enable_nominalization=True, nominalization_rate=0.0,
+        enable_appositive=True, appositive_rate=0.0,
+        enable_discourse_rotate=True, discourse_rotate_rate=0.0
+    )
+    
+    # A long sentence that matches multiple structural rules
+    line = "In this study, we analyzed the results of the second-order partial differential equations under various boundary conditions."
+    modified = modifier.modify_line(line, 0)
+    
+    # The guarantee should have forced at least two structural adjustments, changing the line
+    assert modified != line
+    total_struct = (modifier.voice_transform_count + modifier.clause_word_reorder_count + 
+                    modifier.nominalization_count + modifier.appositive_count + 
+                    modifier.discourse_rotate_count + modifier.clause_reorder_count + 
+                    modifier.determiner_swap_count)
+    assert total_struct >= 2
+    assert validate_latex(modified) == []
+

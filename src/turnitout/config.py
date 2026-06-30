@@ -38,6 +38,8 @@ def validate_config_contract(data, config_path):
         "discourse_rotate_rate": (int, float),
         "enable_contraction": bool,
         "contraction_rate": (int, float),
+        "enable_ngram_audit": bool,
+        "enable_risk_citation": bool,
         "topic_citations": list,
     }
 
@@ -147,8 +149,11 @@ def load_config_json(config_name):
     enable_contraction = os.getenv("TURNITOUT_CONTRACTION", str(data.get("enable_contraction", True))).lower() in ("true", "1", "yes")
     contraction_rate = float(os.getenv("TURNITOUT_CONTRACTION_RATE", data.get("contraction_rate", 0.20)))
 
+    enable_ngram_audit = os.getenv("TURNITOUT_NGRAM_AUDIT", str(data.get("enable_ngram_audit", True))).lower() in ("true", "1", "yes")
+    enable_risk_citation = os.getenv("TURNITOUT_RISK_CITATION", str(data.get("enable_risk_citation", True))).lower() in ("true", "1", "yes")
+
     class ConfigNamespace:
-        def __init__(self, d, tc, agg, sd, mcl, ev, vr, ef, fr, et, tr, er, rr, en, nr, ea, ar, ed, dr, ec, cr):
+        def __init__(self, d, tc, agg, sd, mcl, ev, vr, ef, fr, et, tr, er, rr, en, nr, ea, ar, ed, dr, ec, cr, ena, erc):
             self.PROJECT_NAME = d["project_name"]
             
             # Resolve relative paths relative to BASE_DIR
@@ -178,12 +183,15 @@ def load_config_json(config_name):
             self.DISCOURSE_ROTATE_RATE = dr
             self.ENABLE_CONTRACTION = ec
             self.CONTRACTION_RATE = cr
+            self.ENABLE_NGRAM_AUDIT = ena
+            self.ENABLE_RISK_CITATION = erc
 
     return ConfigNamespace(data, topic_citations, aggressiveness, seed, min_cite_len,
                            enable_voice, voice_rate, enable_fusion, fusion_rate,
                            enable_transition, transition_rate, enable_reorder, reorder_rate,
                            enable_nominal, nominal_rate, enable_appositive, appositive_rate,
-                           enable_discourse, discourse_rate, enable_contraction, contraction_rate)
+                           enable_discourse, discourse_rate, enable_contraction, contraction_rate,
+                           enable_ngram_audit, enable_risk_citation)
 
 
 def auto_configure_project():
@@ -324,5 +332,7 @@ def auto_configure_project():
             self.DISCOURSE_ROTATE_RATE = float(os.getenv("TURNITOUT_DISCOURSE_RATE", 0.50))
             self.ENABLE_CONTRACTION = os.getenv("TURNITOUT_CONTRACTION", "true").lower() in ("true", "1", "yes")
             self.CONTRACTION_RATE = float(os.getenv("TURNITOUT_CONTRACTION_RATE", 0.20))
+            self.ENABLE_NGRAM_AUDIT = os.getenv("TURNITOUT_NGRAM_AUDIT", "true").lower() in ("true", "1", "yes")
+            self.ENABLE_RISK_CITATION = os.getenv("TURNITOUT_RISK_CITATION", "true").lower() in ("true", "1", "yes")
 
     return AutoConfigNamespace()

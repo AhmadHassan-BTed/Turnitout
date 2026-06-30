@@ -27,12 +27,15 @@ class TextModifier:
                  enable_nominalization=True, nominalization_rate=0.20,
                  enable_appositive=True, appositive_rate=0.35,
                  enable_discourse_rotate=True, discourse_rotate_rate=0.50,
-                 enable_contraction=True, contraction_rate=0.20):
+                 enable_contraction=True, contraction_rate=0.20,
+                 enable_ngram_audit=True, enable_risk_citation=True,
+                 source_grams=None):
         self.rng = random.Random(seed)
         self.aggressiveness = aggressiveness
         self.topic_citations = topic_citations or {}
         self.existing_cite_keys = existing_cite_keys or set()
         self.min_sentence_length_for_cite = min_sentence_length_for_cite
+        self.source_grams = source_grams or set()
         
         # Counters for existing stages
         self.replacement_count = 0
@@ -53,6 +56,9 @@ class TextModifier:
         self.appositive_count = 0
         self.discourse_rotate_count = 0
         self.contraction_count = 0
+        self.ngram_audit_count = 0
+        self.risk_citation_count = 0
+        self.structural_guarantee_count = 0
 
         # Configuration flags and rates
         self.enable_voice_transform = enable_voice_transform
@@ -71,6 +77,8 @@ class TextModifier:
         self.discourse_rotate_rate = discourse_rotate_rate
         self.enable_contraction = enable_contraction
         self.contraction_rate = contraction_rate
+        self.enable_ngram_audit = enable_ngram_audit
+        self.enable_risk_citation = enable_risk_citation
 
         # Tracking sets / dicts for new stages
         self._used_appositives = set()
@@ -96,11 +104,19 @@ class TextModifier:
         # Step 3: Apply word-level synonym replacement
         protected_line = self._apply_synonyms(protected_line, line_num)
 
+        struct_changes = 0
+
         # Step 4: Reorder clauses (move trailing subordinate clauses to front)
+        prev_text = protected_line
         protected_line = self._reorder_clauses(protected_line)
+        if protected_line != prev_text:
+            struct_changes += 1
 
         # Step 5: Swap determiners
+        prev_text = protected_line
         protected_line = self._swap_determiners(protected_line)
+        if protected_line != prev_text:
+            struct_changes += 1
 
         # Step 6: Split compound sentences at conjunctions
         protected_line = self._split_compound_sentences(protected_line)
@@ -112,7 +128,10 @@ class TextModifier:
         protected_line = self._break_ngram_chains(protected_line)
 
         # Step 9: Active/passive voice rotation
+        prev_text = protected_line
         protected_line = self._transform_voice(protected_line)
+        if protected_line != prev_text:
+            struct_changes += 1
 
         # Step 10: Sentence fusion
         protected_line = self._fuse_sentences(protected_line, context_lines)
@@ -121,24 +140,59 @@ class TextModifier:
         protected_line = self._inject_transitions(protected_line)
 
         # Step 12: Clause-level prepositional reordering
+        prev_text = protected_line
         protected_line = self._reorder_within_clause(protected_line)
+        if protected_line != prev_text:
+            struct_changes += 1
 
         # Step 13: Nominalization / de-nominalization
+        prev_text = protected_line
         protected_line = self._nominalize(protected_line)
+        if protected_line != prev_text:
+            struct_changes += 1
 
         # Step 14: Appositive injection for technical terms
+        prev_text = protected_line
         protected_line = self._inject_appositives(protected_line)
+        if protected_line != prev_text:
+            struct_changes += 1
 
         # Step 15: Discourse marker rotation
+        prev_text = protected_line
         protected_line = self._rotate_discourse_markers(protected_line)
+        if protected_line != prev_text:
+            struct_changes += 1
+
+        # Structural Diversity Guarantee: For sentences > 60 chars, ensure at least 2 structural transformations are applied.
+        if len(stripped) > 60 and struct_changes < 2:
+            fallbacks = [
+                ('_swap_determiners', self._swap_determiners),
+                ('_transform_voice', self._transform_voice),
+                ('_reorder_within_clause', self._reorder_within_clause),
+                ('_nominalize', self._nominalize),
+                ('_inject_appositives', self._inject_appositives),
+                ('_rotate_discourse_markers', self._rotate_discourse_markers)
+            ]
+            self.rng.shuffle(fallbacks)
+            for name, func in fallbacks:
+                if struct_changes >= 2:
+                    break
+                prev_text = protected_line
+                protected_line = func(protected_line, force=True)
+                if protected_line != prev_text:
+                    struct_changes += 1
+                    self.structural_guarantee_count += 1
 
         # Step 16: Contraction conversion
         protected_line = self._rotate_contractions(protected_line)
 
-        # Step 17: Restore LaTeX elements (loop recursively to handle nesting)
+        # Step 17: Post-Pass Source-Aware N-gram Audit
+        protected_line = self._source_aware_ngram_audit(protected_line)
+
+        # Step 18: Restore LaTeX elements (loop recursively to handle nesting)
         modified_line = self._restore_latex(protected_line, placeholders)
 
-        # Step 18: Add citation if appropriate
+        # Step 19: Add citation if appropriate
         modified_line = self._maybe_add_citation(modified_line, line_num, context_lines)
 
         if modified_line != original:
@@ -446,9 +500,9 @@ class TextModifier:
 
         return text
 
-    def _swap_determiners(self, text):
+    def _swap_determiners(self, text, force=False):
         """
-        Contextually swap determiners like 'the' -> 'this', 'a' -> 'a given', etc.
+        Contextually swap determiners (e.g. 'the' <-> 'this', 'a' <-> 'another').
         Only swaps determiners followed by a noun-like word (4+ chars) to avoid
         breaking phrases like 'the $x$' or 'a \\\\cite{...}'.
         Fires conservatively (25% chance per eligible determiner).
@@ -465,7 +519,7 @@ class TextModifier:
                     and '\x00' not in tokens[i + 1]
                     and len(tokens[i + 1]) >= 4
                     and tokens[i + 1][0].isalpha()
-                    and self.rng.random() < 0.25):
+                    and (force or self.rng.random() < 0.25)):
 
                 candidates = self.DETERMINER_MAP[lower]
                 replacement = self.rng.choice(candidates)
@@ -604,14 +658,14 @@ class TextModifier:
     # ==================================================================
     # NEW STAGE 9: Active/Passive Voice Rotation
     # ==================================================================
-    def _transform_voice(self, text):
+    def _transform_voice(self, text, force=False):
         """Alternate active/passive constructions to prevent voice monotony.
         """
         if not self.enable_voice_transform:
             return text
         if '\x00' in text or len(text.strip()) < 60:
             return text
-        if self.rng.random() > self.voice_transform_rate:
+        if not force and self.rng.random() > self.voice_transform_rate:
             return text
 
         # Helper to get the correct past participle form of any verb
@@ -851,14 +905,14 @@ class TextModifier:
     # ==================================================================
     # NEW STAGE 12: Clause-Level Reordering
     # ==================================================================
-    def _reorder_within_clause(self, text):
+    def _reorder_within_clause(self, text, force=False):
         """Shift prepositional/adverbial phrases to vary sentence openings.
         """
         if not self.enable_word_reorder:
             return text
         if '\x00' in text or len(text.strip()) < 80:
             return text
-        if self.rng.random() > self.word_reorder_rate:
+        if not force and self.rng.random() > self.word_reorder_rate:
             return text
 
         stripped = text.strip()
@@ -917,14 +971,14 @@ class TextModifier:
     # ==================================================================
     # NEW STAGE 13: Nominalization / De-Nominalization
     # ==================================================================
-    def _nominalize(self, text):
+    def _nominalize(self, text, force=False):
         """Alternate verbal and nominal forms to modulate stylistic register.
         """
         if not self.enable_nominalization:
             return text
         if '\x00' in text or len(text.strip()) < 70:
             return text
-        if self.rng.random() > self.nominalization_rate:
+        if not force and self.rng.random() > self.nominalization_rate:
             return text
 
         stripped = text.strip()
@@ -983,14 +1037,14 @@ class TextModifier:
     # ==================================================================
     # NEW STAGE 14: Appositive Injection
     # ==================================================================
-    def _inject_appositives(self, text):
+    def _inject_appositives(self, text, force=False):
         """Insert brief parenthetical definitions after technical terms.
         """
         if not self.enable_appositive:
             return text
         if '\x00' in text:
             return text
-        if self.rng.random() > self.appositive_rate:
+        if not force and self.rng.random() > self.appositive_rate:
             return text
 
         stripped = text.strip()
@@ -1022,14 +1076,14 @@ class TextModifier:
     # ==================================================================
     # NEW STAGE 15: Discourse Marker Rotation
     # ==================================================================
-    def _rotate_discourse_markers(self, text):
+    def _rotate_discourse_markers(self, text, force=False):
         """Replace overused linking words with varied equivalents.
         """
         if not self.enable_discourse_rotate:
             return text
         if '\x00' in text:
             return text
-        if self.rng.random() > self.discourse_rotate_rate:
+        if not force and self.rng.random() > self.discourse_rotate_rate:
             return text
 
         stripped = text.strip()
@@ -1086,6 +1140,24 @@ class TextModifier:
         cite_key = self._determine_topic_citation(line)
         if not cite_key:
             return line
+
+        # Risk-Driven Citation Shielding: Place citation at the boundary of a matching 5-gram
+        if self.enable_risk_citation and self.source_grams:
+            parts = re.split(r'(\s+)', line)
+            word_indices = [i for i, part in enumerate(parts) if part.strip() and not part.startswith('\x00')]
+            k = 5
+            for idx in range(len(word_indices) - k + 1):
+                window_parts = [parts[word_indices[idx + j]] for j in range(k)]
+                cleaned_window = [re.sub(r'[^a-zA-Z]', '', w).lower() for w in window_parts]
+                if all(cleaned_window) and tuple(cleaned_window) in self.source_grams:
+                    # Found matching 5-gram! Inject citation right after the second word of the matching sequence.
+                    w_idx = word_indices[idx + 1] # Index of second word
+                    parts[w_idx] = parts[w_idx] + '\\cite{' + cite_key + '}'
+                    self.risk_citation_count += 1
+                    self.citation_count += 1
+                    self.used_cite_keys.add(cite_key)
+                    return ''.join(parts)
+
         insertion = ' \\cite{' + cite_key + '}'
         period_match = re.search(r'\.\s*$', stripped)
         if period_match:
@@ -1143,6 +1215,92 @@ class TextModifier:
                         break  # Only contract/expand one pair per line to maintain academic look
 
         return ''.join(parts)
+
+    def _normalize_tokens(self, text):
+        # Remove placeholders
+        clean = re.sub(r'\x00PH\d{4}\x00', ' ', text)
+        # Remove LaTeX commands
+        clean = re.sub(r'\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*', ' ', clean)
+        # Remove non-alpha chars, convert to lowercase
+        clean = re.sub(r'[^a-zA-Z\s]', ' ', clean)
+        return [w.lower() for w in clean.split() if len(w) > 0]
+
+    def _get_kgrams(self, text, k=5):
+        tokens = self._normalize_tokens(text)
+        if len(tokens) < k:
+            return []
+        return [tuple(tokens[i:i+k]) for i in range(len(tokens) - k + 1)]
+
+    def _source_aware_ngram_audit(self, text):
+        """Deterministic post-pass to scan for and eliminate remaining overlapping 5-grams."""
+        if not self.enable_ngram_audit or not self.source_grams:
+            return text
+
+        # Split text by whitespace to preserve spacing and formatting
+        parts = re.split(r'(\s+)', text)
+        # Identify word token indices (excluding spaces, punctuation-only, and LaTeX placeholders)
+        word_indices = [i for i, part in enumerate(parts) if part.strip() and not part.startswith('\x00')]
+
+        if len(word_indices) < 5:
+            return text
+
+        modified = False
+        k = 5
+
+        idx = 0
+        while idx <= len(word_indices) - k:
+            window_parts = [parts[word_indices[idx + j]] for j in range(k)]
+            cleaned_window = [re.sub(r'[^a-zA-Z]', '', w).lower() for w in window_parts]
+
+            # Check if we have 5 valid alphabetical words that match a source 5-gram
+            if all(cleaned_window) and tuple(cleaned_window) in self.source_grams:
+                broken = False
+                
+                # Option A: Try synonym replacement on one of the words
+                for j in range(k):
+                    w_idx = word_indices[idx + j]
+                    w = parts[w_idx]
+                    match = re.match(r'^([^a-zA-Z]*)([a-zA-Z]+)([^a-zA-Z]*)$', w)
+                    if match:
+                        prefix, word_core, suffix = match.groups()
+                        lower_core = word_core.lower()
+                        if lower_core in ACADEMIC_SYNONYMS:
+                            candidates = ACADEMIC_SYNONYMS[lower_core]
+                            replacement = self.rng.choice(candidates)
+                            if word_core[0].isupper():
+                                replacement = replacement.capitalize()
+                            parts[w_idx] = prefix + replacement + suffix
+                            self.ngram_audit_count += 1
+                            broken = True
+                            modified = True
+                            break
+
+                # Option B: Insert a natural adverbial qualifier if no synonym was found
+                if not broken:
+                    w_idx_1 = word_indices[idx + 1]  # after the second word
+                    w_idx_2 = word_indices[idx + 2]
+                    
+                    qualifiers = ["notably", "indeed", "essentially", "specifically", "particularly", "clearly"]
+                    qualifier = self.rng.choice(qualifiers)
+
+                    if w_idx_2 == w_idx_1 + 2:
+                        parts[w_idx_1 + 1] = f" {qualifier} "
+                        self.ngram_audit_count += 1
+                        broken = True
+                        modified = True
+
+                # Re-parse if broken to avoid index misalignment on updated spacing/words
+                if broken:
+                    text_rebuilt = ''.join(parts)
+                    parts = re.split(r'(\s+)', text_rebuilt)
+                    word_indices = [i for i, part in enumerate(parts) if part.strip() and not part.startswith('\x00')]
+                    continue
+
+            idx += 1
+
+        return ''.join(parts)
+
+
 
 
 CONTRACTION_PATTERNS = [
