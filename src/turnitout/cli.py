@@ -201,7 +201,13 @@ def main():
 
         if zone['type'] == 'PROSE':
             context = []
-            for offset in [-2, -1, 1, 2]:
+            if config.MAX_CITATIONS_TO_INSERT > 150:
+                context_offsets = []
+            elif config.MAX_CITATIONS_TO_INSERT > 50:
+                context_offsets = [-1, 1]
+            else:
+                context_offsets = [-2, -1, 1, 2]
+            for offset in context_offsets:
                 ci = i + offset
                 if 0 <= ci < len(zones) and zones[ci]['type'] == 'PROSE':
                     context.append(zones[ci]['text'])

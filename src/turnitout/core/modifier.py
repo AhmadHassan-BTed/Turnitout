@@ -1185,7 +1185,7 @@ class TextModifier:
                 self.citation_count += 1
                 self.used_cite_keys.add(cite_key)
                 return modified
-        if len(stripped) > 100 and not stripped.endswith((',', ':', '\\\\', '{')):
+        if len(stripped) >= self.min_sentence_length_for_cite and not stripped.endswith((',', ':', '\\\\', '{', '%')):
             modified = line.rstrip() + insertion
             self.citation_count += 1
             self.used_cite_keys.add(cite_key)
