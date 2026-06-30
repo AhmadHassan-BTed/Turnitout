@@ -10,10 +10,10 @@ readme = "README.md"
 authors = [
     { name = "Ahmad Hassan" }
 ]
-license = { text = "MIT" }
+license = { text = "Proprietary" }
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary License",
     "Operating System :: OS Independent",
     "Topic :: Text Processing :: Markup :: LaTeX",
 ]

@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/AhmadHassan-BTed/Turnitout/actions"><img src="https://github.com/AhmadHassan-BTed/Turnitout/workflows/CI/badge.svg" alt="CI Build Status"/></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Proprietary-red.svg" alt="License: Proprietary"/></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg" alt="Python Support"/></a>
   <a href="https://semver.org/"><img src="https://img.shields.io/badge/version-1.0.0--beta-orange.svg" alt="Semantic Versioning"/></a>
 </p>
@@ -124,7 +124,7 @@ Turnitout/
 ├── .env.example              # Environment variable overrides template
 ├── .gitattributes            # Line normalization rules (eol=lf)
 ├── .gitignore                # Target directories exclusion definitions
-├── LICENSE                   # MIT License
+├── LICENSE                   # Proprietary License
 ├── README.md                 # Project documentation (this file)
 ├── pyproject.toml            # Python package setup & test configurations
 │── run.py                    # Root launcher wrapper calling CLI module
