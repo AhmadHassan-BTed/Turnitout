@@ -7,6 +7,7 @@
   "synonym_aggressiveness": 0.55,
   "random_seed": 42,
   "min_sentence_length_for_cite": 60,
+  "max_citations_to_insert": 30,
   "enable_voice_transform": true,
   "voice_transform_rate": 0.30,
   "enable_sentence_fusion": true,

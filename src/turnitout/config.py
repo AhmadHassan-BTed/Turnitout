@@ -22,6 +22,7 @@ def validate_config_contract(data, config_path):
         "synonym_aggressiveness": (int, float),
         "random_seed": int,
         "min_sentence_length_for_cite": int,
+        "max_citations_to_insert": int,
         "enable_voice_transform": bool,
         "voice_transform_rate": (int, float),
         "enable_sentence_fusion": bool,
@@ -128,6 +129,7 @@ def load_config_json(config_name):
     aggressiveness = float(os.getenv("TURNITOUT_AGGRESSIVENESS", data.get("synonym_aggressiveness", 0.75)))
     seed = int(os.getenv("TURNITOUT_RANDOM_SEED", data.get("random_seed", 42)))
     min_cite_len = int(os.getenv("TURNITOUT_MIN_SENTENCE_LEN", data.get("min_sentence_length_for_cite", 45)))
+    max_citations = int(os.getenv("TURNITOUT_MAX_CITATIONS", data.get("max_citations_to_insert", 30)))
 
     enable_voice = os.getenv("TURNITOUT_VOICE_TRANSFORM", str(data.get("enable_voice_transform", True))).lower() in ("true", "1", "yes")
     voice_rate = float(os.getenv("TURNITOUT_VOICE_RATE", data.get("voice_transform_rate", 0.30)))
@@ -162,7 +164,7 @@ def load_config_json(config_name):
     conceptual_bridge_rate = float(os.getenv("TURNITOUT_CONCEPTUAL_BRIDGE_RATE", data.get("conceptual_bridge_rate", 0.20)))
 
     class ConfigNamespace:
-        def __init__(self, d, tc, agg, sd, mcl, ev, vr, ef, fr, et, tr, er, rr, en, nr, ea, ar, ed, dr, ec, cr, ena, erc, eir, irr, ecb, cbr):
+        def __init__(self, d, tc, agg, sd, mcl, mc, ev, vr, ef, fr, et, tr, er, rr, en, nr, ea, ar, ed, dr, ec, cr, ena, erc, eir, irr, ecb, cbr):
             self.PROJECT_NAME = d["project_name"]
             
             # Resolve relative paths relative to BASE_DIR
@@ -174,6 +176,7 @@ def load_config_json(config_name):
             self.SYNONYM_AGGRESSIVENESS = agg
             self.RANDOM_SEED = sd
             self.MIN_SENTENCE_LENGTH_FOR_CITE = mcl
+            self.MAX_CITATIONS_TO_INSERT = mc
             self.TOPIC_CITATIONS = tc
  
             self.ENABLE_VOICE_TRANSFORM = ev
@@ -199,7 +202,7 @@ def load_config_json(config_name):
             self.ENABLE_CONCEPTUAL_BRIDGE = ecb
             self.CONCEPTUAL_BRIDGE_RATE = cbr
 
-    return ConfigNamespace(data, topic_citations, aggressiveness, seed, min_cite_len,
+    return ConfigNamespace(data, topic_citations, aggressiveness, seed, min_cite_len, max_citations,
                            enable_voice, voice_rate, enable_fusion, fusion_rate,
                            enable_transition, transition_rate, enable_reorder, reorder_rate,
                            enable_nominal, nominal_rate, enable_appositive, appositive_rate,
@@ -317,6 +320,7 @@ def auto_configure_project():
     aggressiveness = float(os.getenv("TURNITOUT_AGGRESSIVENESS", 0.75))
     seed = int(os.getenv("TURNITOUT_RANDOM_SEED", 42))
     min_cite_len = int(os.getenv("TURNITOUT_MIN_SENTENCE_LEN", 45))
+    max_citations = int(os.getenv("TURNITOUT_MAX_CITATIONS", 30))
 
     class AutoConfigNamespace:
         def __init__(self):
@@ -328,6 +332,7 @@ def auto_configure_project():
             self.SYNONYM_AGGRESSIVENESS = aggressiveness
             self.RANDOM_SEED = seed
             self.MIN_SENTENCE_LENGTH_FOR_CITE = min_cite_len
+            self.MAX_CITATIONS_TO_INSERT = max_citations
             self.TOPIC_CITATIONS = topic_citations
 
             self.ENABLE_VOICE_TRANSFORM = os.getenv("TURNITOUT_VOICE_TRANSFORM", "true").lower() in ("true", "1", "yes")

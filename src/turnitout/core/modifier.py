@@ -20,6 +20,7 @@ class TextModifier:
     SUBORDINATE_CONJUNCTIONS = SUBORDINATE_CONJUNCTIONS
 
     def __init__(self, seed=42, aggressiveness=0.55, topic_citations=None, existing_cite_keys=None, min_sentence_length_for_cite=60,
+                 max_citations_to_insert=30,
                  enable_voice_transform=True, voice_transform_rate=0.30,
                  enable_sentence_fusion=True, sentence_fusion_rate=0.25,
                  enable_transition_inject=True, transition_inject_rate=0.25,
@@ -37,6 +38,7 @@ class TextModifier:
         self.topic_citations = topic_citations or {}
         self.existing_cite_keys = existing_cite_keys or set()
         self.min_sentence_length_for_cite = min_sentence_length_for_cite
+        self.max_citations_to_insert = max_citations_to_insert
         self.source_grams = source_grams or set()
         
         # Counters for existing stages
@@ -1139,6 +1141,8 @@ class TextModifier:
     # ==================================================================
     def _maybe_add_citation(self, line, line_num, context_lines=None):
         stripped = line.strip()
+        if self.citation_count >= self.max_citations_to_insert:
+            return line
         if len(stripped) < self.min_sentence_length_for_cite:
             return line
         if '\\cite{' in line:

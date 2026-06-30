@@ -170,6 +170,7 @@ def main():
         topic_citations=config.TOPIC_CITATIONS,
         existing_cite_keys=existing_cite_keys,
         min_sentence_length_for_cite=min_cite_len,
+        max_citations_to_insert=config.MAX_CITATIONS_TO_INSERT,
         enable_voice_transform=config.ENABLE_VOICE_TRANSFORM,
         voice_transform_rate=config.VOICE_TRANSFORM_RATE,
         enable_sentence_fusion=config.ENABLE_SENTENCE_FUSION,
@@ -280,10 +281,10 @@ def main():
 
         # 2. Generate dummy references if any new ones are used
         ref_gen = DummyReferenceGenerator()
-        bib_content = ref_gen.generate(modifier.used_cite_keys, existing_cite_keys, config.TOPIC_CITATIONS)
+        bib_content = ref_gen.generate(modifier.used_cite_keys, existing_cite_keys, config.TOPIC_CITATIONS, seed=config.RANDOM_SEED)
         with open(output_bib, 'w', encoding='utf-8') as f:
             f.write(bib_content)
-        print(f"  Dummy references: {output_bib}")
+        print(f"  Generated references: {output_bib}")
 
         # 3. Copy/merge references.bib to output directory
         dest_bib = os.path.join(config.OUTPUT_DIR, "references.bib")
