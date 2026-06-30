@@ -225,7 +225,20 @@ def main():
                 aggressiveness=0.0,
                 topic_citations=config.TOPIC_CITATIONS,
                 existing_cite_keys=existing_cite_keys,
-                min_sentence_length_for_cite=min_cite_len
+                min_sentence_length_for_cite=min_cite_len,
+                max_citations_to_insert=0,
+                enable_voice_transform=False,
+                enable_sentence_fusion=False,
+                enable_transition_inject=False,
+                enable_word_reorder=False,
+                enable_nominalization=False,
+                enable_appositive=False,
+                enable_discourse_rotate=False,
+                enable_contraction=False,
+                enable_ngram_audit=False,
+                enable_risk_citation=False,
+                enable_info_reorder=False,
+                enable_conceptual_bridge=False
             )
             modified = light_modifier.modify_line(line, zone['idx'])
             if args.verbose and modified != line:

@@ -125,4 +125,4 @@ class LaTeXZoneParser:
         return False
 
     def _is_heading(self, line):
-        return bool(re.match(r'\\(chapter|section|subsection|subsubsection|subhead)\*?\{', line))
+        return bool(re.match(r'\\(chapter|section|subsection|subsubsection|subhead|paragraph|subparagraph)\*?\{', line))
