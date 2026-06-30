@@ -281,10 +281,25 @@ def main():
 
         # 2. Generate dummy references if any new ones are used
         ref_gen = DummyReferenceGenerator()
-        bib_content = ref_gen.generate(modifier.used_cite_keys, existing_cite_keys, config.TOPIC_CITATIONS, seed=config.RANDOM_SEED)
+        bib_content = ref_gen.generate(modifier.used_cite_keys, existing_cite_keys, modifier.topic_citations, seed=config.RANDOM_SEED)
         with open(output_bib, 'w', encoding='utf-8') as f:
             f.write(bib_content)
         print(f"  Generated references: {output_bib}")
+
+        # 2b. Write the matched topic citations to a separate JSON file
+        generated_json_path = os.path.join(config.OUTPUT_DIR, "dummy_topic_citations.json")
+        json_output_list = []
+        for kw_tuple, info in modifier.topic_citations.items():
+            if info["key"] in modifier.used_cite_keys:
+                json_output_list.append({
+                    "keywords": list(kw_tuple),
+                    "key": info["key"],
+                    "topic": info["topic"]
+                })
+        import json
+        with open(generated_json_path, 'w', encoding='utf-8') as f:
+            json.dump(json_output_list, f, indent=2)
+        print(f"  Generated dummy topic citations JSON: {generated_json_path}")
 
         # 3. Copy/merge references.bib to output directory
         dest_bib = os.path.join(config.OUTPUT_DIR, "references.bib")
@@ -312,7 +327,7 @@ def main():
 
         # 5. Write Change Report
         report_gen = ChangeReportGenerator()
-        report_content = report_gen.generate(modifier, change_report_path, config.TOPIC_CITATIONS)
+        report_content = report_gen.generate(modifier, change_report_path, modifier.topic_citations)
         with open(change_report_path, 'w', encoding='utf-8') as f:
             f.write(report_content)
         print(f"  Change report:   {change_report_path}")
@@ -327,7 +342,7 @@ def main():
             
             for idx, key in enumerate(sorted(modifier.used_cite_keys), 1):
                 topic = "Unknown"
-                for kw_tuple, info in config.TOPIC_CITATIONS.items():
+                for kw_tuple, info in modifier.topic_citations.items():
                     if info["key"] == key:
                         topic = info["topic"]
                         break
@@ -384,7 +399,7 @@ def main():
     print(f"    Conceptual bridges:    {modifier.conceptual_bridge_count}")
     print(f"    Citations added:        {modifier.citation_count}")
     
-    new_dummies = sum(1 for kw_tuple, info in config.TOPIC_CITATIONS.items() 
+    new_dummies = sum(1 for kw_tuple, info in modifier.topic_citations.items() 
                       if info["key"] in modifier.used_cite_keys and info["key"] not in existing_cite_keys)
     print(f"  New dummy references:     {new_dummies}")
     print(f"  Validation issues:        {len(issues)}")

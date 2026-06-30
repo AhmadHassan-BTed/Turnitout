@@ -1192,13 +1192,75 @@ class TextModifier:
             return modified
         return line
 
+    FILLER_WORDS = {
+        'the', 'a', 'an', 'and', 'or', 'but', 'if', 'then', 'else', 'when', 'at', 'by', 'for', 'from', 'in', 'into', 'of', 'off', 'on', 'onto', 'out', 'over', 'to', 'up', 'with', 'under', 'above', 'below', 'between', 'among',
+        'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'can', 'could', 'should', 'would', 'will', 'shall', 'may', 'might', 'must',
+        'i', 'me', 'my', 'myself', 'we', 'us', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves',
+        'this', 'that', 'these', 'those', 'such', 'what', 'which', 'who', 'whom', 'whose', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'just', 'now', 'also', 'here',
+        'we', 'our', 'show', 'paper', 'chapter', 'section', 'thesis', 'study', 'results', 'equations', 'equation', 'method', 'methods', 'solutions', 'solution', 'using', 'used', 'obtain', 'pde', 'pdes', 'ode', 'odes', 'specifically', 'notably', 'clearly', 'indeed', 'essentially'
+    }
+
+    def _extract_sentence_keywords(self, sentence):
+        cleaned = re.sub(r'\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*', ' ', sentence)
+        cleaned = re.sub(r'\$[^\$]+\$', ' ', cleaned)
+        cleaned = re.sub(r'[^a-zA-Z\s]', ' ', cleaned)
+        words = [w.lower() for w in cleaned.split() if len(w) > 0]
+        
+        if not words:
+            return None
+            
+        # 3-gram candidates
+        for i in range(len(words) - 2):
+            phrase = (words[i], words[i+1], words[i+2])
+            if all(w not in self.FILLER_WORDS for w in (phrase[0], phrase[-1])) and all(len(w) > 2 for w in phrase):
+                return " ".join(phrase)
+                
+        # 2-gram candidates
+        for i in range(len(words) - 1):
+            phrase = (words[i], words[i+1])
+            if all(w not in self.FILLER_WORDS for w in (phrase[0], phrase[-1])) and all(len(w) > 2 for w in phrase):
+                return " ".join(phrase)
+                
+        # 1-word candidates
+        candidates = [w for w in words if w not in self.FILLER_WORDS and len(w) > 4]
+        if candidates:
+            return max(candidates, key=len)
+            
+        return None
+
     def _determine_topic_citation(self, line):
         lower = line.lower()
+        # 1. Try matching existing topic citations first
         for keywords_tuple, cite_info in self.topic_citations.items():
             for keyword in keywords_tuple:
                 if keyword.lower() in lower:
                     return cite_info["key"]
-        return None
+                    
+        # 2. Dynamically extract keyword/phrase from the sentence
+        phrase = self._extract_sentence_keywords(line)
+        if phrase:
+            key_suffix = phrase.replace(" ", "_")
+            key = f"ref_{key_suffix}"
+            topic = phrase.title() + " and Related Research"
+            keywords_tuple = tuple(phrase.split())
+            
+            # Register in topic_citations if not already present
+            if keywords_tuple not in self.topic_citations:
+                self.topic_citations[keywords_tuple] = {
+                    "key": key,
+                    "topic": topic
+                }
+            return key
+            
+        # 3. Fallback generic key if no keywords were found
+        fallback_key = "ref_numerical_study"
+        fallback_tuple = ("numerical", "study")
+        if fallback_tuple not in self.topic_citations:
+            self.topic_citations[fallback_tuple] = {
+                "key": fallback_key,
+                "topic": "Numerical Investigation and Analysis"
+            }
+        return fallback_key
 
     # ==================================================================
     # NEW STAGE 16: Contraction Converter
