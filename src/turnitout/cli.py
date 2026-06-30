@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import argparse
+import re
 from collections import defaultdict
 
 from turnitout.config import load_config_json, auto_configure_project, BASE_DIR
@@ -145,13 +146,23 @@ def main():
     seed = getattr(config, "RANDOM_SEED", 42)
     min_cite_len = getattr(config, "MIN_SENTENCE_LENGTH_FOR_CITE", 45)
 
-    # Pre-extract all normalized 5-grams from the original document PROSE zones for auditing
+    # Pre-extract all normalized 5-grams from the original document PROSE zones as a continuous document-level stream
     source_grams = set()
     temp_modifier = TextModifier(seed=42, enable_ngram_audit=False, enable_risk_citation=False)
+    orig_prose_tokens = []
     for zone in zones:
         if zone['type'] == 'PROSE':
-            source_grams.update(temp_modifier._get_kgrams(zone['text'], k=5))
-    print(f"  Extracted {len(source_grams)} unique 5-grams from original prose for source-aware auditing.")
+            protected, _ = temp_modifier._protect_latex(zone['text'])
+            parts = re.split(r'(\s+)', protected)
+            for part in parts:
+                if part.strip() and not part.startswith('\x00'):
+                    cleaned = re.sub(r'[^a-zA-Z]', '', part).lower()
+                    if cleaned:
+                        orig_prose_tokens.append(cleaned)
+    k = 5
+    for i in range(len(orig_prose_tokens) - k + 1):
+        source_grams.add(tuple(orig_prose_tokens[i:i+k]))
+    print(f"  Extracted {len(source_grams)} unique document-level 5-grams from original prose for auditing.")
 
     modifier = TextModifier(
         seed=seed,
@@ -184,8 +195,6 @@ def main():
         source_grams=source_grams
     )
 
-    modified_lines = []
-
     for i, zone in enumerate(zones):
         line = zone['text']
 
@@ -200,7 +209,7 @@ def main():
             if args.verbose and modified != line:
                 print(f"    L{zone['idx']+1}: {line.strip()[:70]}...")
                 print(f"       -> {modified.strip()[:70]}...")
-            modified_lines.append(modified)
+            zones[i]['text'] = modified
 
         elif zone['type'] == 'HEADING':
             # Light modifications for headings (phrase rewrites only, no synonyms)
@@ -217,13 +226,12 @@ def main():
                 print(f"       -> {modified.strip()[:70]}...")
             modifier.phrase_rewrite_count += light_modifier.phrase_rewrite_count
             modifier.changes_log.extend(light_modifier.changes_log)
-            modified_lines.append(modified)
+            zones[i]['text'] = modified
 
-        else:
-            # Skip and math environments are untouched
-            modified_lines.append(line)
+    # Run the document-level post-pass n-gram audit to capture cross-line and placeholder-adjacent overlaps
+    modifier.audit_document_ngrams(zones)
 
-    modified_content = '\n'.join(modified_lines)
+    modified_content = '\n'.join(z['text'] for z in zones)
 
     print(f"  Synonym replacements:  {modifier.replacement_count}")
     print(f"  Phrase rewrites:       {modifier.phrase_rewrite_count}")

@@ -1245,6 +1245,98 @@ class TextModifier:
             return []
         return [tuple(tokens[i:i+k]) for i in range(len(tokens) - k + 1)]
 
+    def _get_kgrams_masked(self, text, k=5):
+        parts = re.split(r'(\s+)', text)
+        word_tokens = []
+        for part in parts:
+            if part.strip() and not part.startswith('\x00'):
+                cleaned = re.sub(r'[^a-zA-Z]', '', part).lower()
+                if cleaned:
+                    word_tokens.append(cleaned)
+        if len(word_tokens) < k:
+            return []
+        return [tuple(word_tokens[i:i+k]) for i in range(len(word_tokens) - k + 1)]
+
+    def audit_document_ngrams(self, zones):
+        """Document-level post-pass to scan and eliminate remaining overlapping 5-grams across line boundaries."""
+        if not self.enable_ngram_audit or not self.source_grams:
+            return
+
+        # We will keep a list of all prose tokens across all prose zones
+        # Each element is: (cleaned_word, zone_index, part_index)
+        zone_parts = {}
+        prose_tokens_map = []
+
+        for zi, zone in enumerate(zones):
+            if zone['type'] == 'PROSE':
+                protected, placeholders = self._protect_latex(zone['text'])
+                parts = re.split(r'(\s+)', protected)
+                zone_parts[zi] = (parts, placeholders)
+
+                for pi, part in enumerate(parts):
+                    if part.strip() and not part.startswith('\x00'):
+                        cleaned = re.sub(r'[^a-zA-Z]', '', part).lower()
+                        if cleaned:
+                            prose_tokens_map.append((cleaned, zi, pi))
+
+        k = 5
+        idx = 0
+        modified_zones = set()
+
+        while idx <= len(prose_tokens_map) - k:
+            window_tokens = [prose_tokens_map[idx + j][0] for j in range(k)]
+            if tuple(window_tokens) in self.source_grams:
+                broken = False
+                
+                # Option A: Try synonym replacement
+                for j in range(k):
+                    cleaned, zi, pi = prose_tokens_map[idx + j]
+                    parts, placeholders = zone_parts[zi]
+                    w = parts[pi]
+                    match = re.match(r'^([^a-zA-Z]*)([a-zA-Z]+)([^a-zA-Z]*)$', w)
+                    if match:
+                        prefix, word_core, suffix = match.groups()
+                        lower_core = word_core.lower()
+                        if lower_core in ACADEMIC_SYNONYMS:
+                            candidates = ACADEMIC_SYNONYMS[lower_core]
+                            replacement = self.rng.choice(candidates)
+                            if word_core[0].isupper():
+                                replacement = replacement.capitalize()
+                            parts[pi] = prefix + replacement + suffix
+                            self.ngram_audit_count += 1
+                            modified_zones.add(zi)
+                            broken = True
+                            break
+
+                # Option B: Insert a natural adverbial qualifier if no synonym was found
+                if not broken:
+                    cleaned, zi, pi = prose_tokens_map[idx + 1]
+                    parts, placeholders = zone_parts[zi]
+                    qualifiers = ["notably", "indeed", "essentially", "specifically", "particularly", "clearly"]
+                    qualifier = self.rng.choice(qualifiers)
+                    parts[pi] = parts[pi] + " " + qualifier
+                    self.ngram_audit_count += 1
+                    modified_zones.add(zi)
+                    broken = True
+
+                if broken:
+                    prose_tokens_map = []
+                    for zi, (parts, placeholders) in zone_parts.items():
+                        for pi, part in enumerate(parts):
+                            if part.strip() and not part.startswith('\x00'):
+                                cleaned = re.sub(r'[^a-zA-Z]', '', part).lower()
+                                if cleaned:
+                                    prose_tokens_map.append((cleaned, zi, pi))
+                    continue
+
+            idx += 1
+
+        # Restore LaTeX and write modified text back into the zones
+        for zi in modified_zones:
+            parts, placeholders = zone_parts[zi]
+            restored = self._restore_latex(''.join(parts), placeholders)
+            zones[zi]['text'] = restored
+
     def _source_aware_ngram_audit(self, text):
         """Deterministic post-pass to scan for and eliminate remaining overlapping 5-grams."""
         if not self.enable_ngram_audit or not self.source_grams:
@@ -1292,16 +1384,14 @@ class TextModifier:
                 # Option B: Insert a natural adverbial qualifier if no synonym was found
                 if not broken:
                     w_idx_1 = word_indices[idx + 1]  # after the second word
-                    w_idx_2 = word_indices[idx + 2]
                     
                     qualifiers = ["notably", "indeed", "essentially", "specifically", "particularly", "clearly"]
                     qualifier = self.rng.choice(qualifiers)
 
-                    if w_idx_2 == w_idx_1 + 2:
-                        parts[w_idx_1 + 1] = f" {qualifier} "
-                        self.ngram_audit_count += 1
-                        broken = True
-                        modified = True
+                    parts[w_idx_1] = parts[w_idx_1] + " " + qualifier
+                    self.ngram_audit_count += 1
+                    broken = True
+                    modified = True
 
                 # Re-parse if broken to avoid index misalignment on updated spacing/words
                 if broken:
