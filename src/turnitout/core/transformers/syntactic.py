@@ -8,12 +8,17 @@ class VoiceTransformTransformer(BaseTransformer):
     """Stage 8: Alternate active/passive voice constructions."""
     category = "ai_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
-        if not context.enable_voice_transform:
+    def __init__(self, voice_transform_rate=0.30, enable_voice_transform=True):
+        self.voice_transform_rate = voice_transform_rate
+        self.enable_voice_transform = enable_voice_transform
+        self.voice_transform_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None, force_run: bool = False) -> str:
+        if not self.enable_voice_transform:
             return text
         if '\x00' in text or len(text.strip()) < 60:
             return text
-        if not getattr(context, 'force_run', False) and context.rng.random() > context.voice_transform_rate:
+        if not force_run and rng.random() > self.voice_transform_rate:
             return text
 
         def _get_past_participle(verb):
@@ -76,7 +81,7 @@ class VoiceTransformTransformer(BaseTransformer):
             if m:
                 new_text = pat.sub(lambda mo, a=art: _active_to_passive(mo, a), text, count=1)
                 if new_text != text:
-                    context.voice_transform_count += 1
+                    self.voice_transform_count += 1
                     return new_text
 
         # Pattern C: "Scientists have demonstrated that..."
@@ -99,7 +104,7 @@ class VoiceTransformTransformer(BaseTransformer):
                 new_text = pattern_c.sub(f"It has been {passive_form} by {agent.lower()} that {clause}{end_punct}", text, count=1)
             
             if new_text != text:
-                context.voice_transform_count += 1
+                self.voice_transform_count += 1
                 return new_text
 
         # Passive -> Active
@@ -134,7 +139,7 @@ class VoiceTransformTransformer(BaseTransformer):
                 text, count=1,
             )
             if new_text != text:
-                context.voice_transform_count += 1
+                self.voice_transform_count += 1
                 return new_text
 
         return text
@@ -144,12 +149,17 @@ class SentenceFusionTransformer(BaseTransformer):
     """Stage 9: Combine two adjacent short sentences to vary sentence length."""
     category = "similarity_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
-        if not context.enable_sentence_fusion:
+    def __init__(self, sentence_fusion_rate=0.25, enable_sentence_fusion=True):
+        self.sentence_fusion_rate = sentence_fusion_rate
+        self.enable_sentence_fusion = enable_sentence_fusion
+        self.sentence_fusion_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        if not self.enable_sentence_fusion:
             return text
         if '\x00' in text:
             return text
-        if context.rng.random() > context.sentence_fusion_rate:
+        if rng.random() > self.sentence_fusion_rate:
             return text
 
         current = text.strip()
@@ -177,7 +187,7 @@ class SentenceFusionTransformer(BaseTransformer):
             "thus leading to",
             "and as a result",
         ]
-        connector = context.rng.choice(connectors)
+        connector = rng.choice(connectors)
 
         if current.endswith('.'):
             fused = (
@@ -189,7 +199,7 @@ class SentenceFusionTransformer(BaseTransformer):
                 + next_line[1:]
             )
             indent = text[:len(text) - len(current)]
-            context.sentence_fusion_count += 1
+            self.sentence_fusion_count += 1
             return indent + fused
 
         return text
@@ -199,26 +209,32 @@ class TransitionInjectTransformer(BaseTransformer):
     """Stage 10: Inject transitional logical connectors."""
     category = "ai_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
-        if not context.enable_transition_inject:
+    def __init__(self, transition_inject_rate=0.25, enable_transition_inject=True):
+        self.transition_inject_rate = transition_inject_rate
+        self.enable_transition_inject = enable_transition_inject
+        self.transition_inject_count = 0
+        self._last_used_transitions = []
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        if not self.enable_transition_inject:
             return text
         if '\x00' in text or len(text.strip()) < 70:
             return text
-        if context.rng.random() > context.transition_inject_rate:
+        if rng.random() > self.transition_inject_rate:
             return text
 
-        category = context.rng.choice(list(TRANSITION_PHRASES.keys()))
+        category = rng.choice(list(TRANSITION_PHRASES.keys()))
         candidates = [
             t for t in TRANSITION_PHRASES[category]
-            if t not in context._last_used_transitions
+            if t not in self._last_used_transitions
         ]
         if not candidates:
             candidates = TRANSITION_PHRASES[category]
-        transition = context.rng.choice(candidates)
+        transition = rng.choice(candidates)
 
-        context._last_used_transitions.append(transition)
-        if len(context._last_used_transitions) > 10:
-            context._last_used_transitions.pop(0)
+        self._last_used_transitions.append(transition)
+        if len(self._last_used_transitions) > 10:
+            self._last_used_transitions.pop(0)
 
         stripped = text.strip()
         indent = text[:len(text) - len(stripped)]
@@ -234,7 +250,7 @@ class TransitionInjectTransformer(BaseTransformer):
                     + ' '
                     + stripped[insert_at:]
                 )
-                context.transition_inject_count += 1
+                self.transition_inject_count += 1
                 return result
 
         result = (
@@ -244,7 +260,7 @@ class TransitionInjectTransformer(BaseTransformer):
             + stripped[0].lower()
             + stripped[1:]
         )
-        context.transition_inject_count += 1
+        self.transition_inject_count += 1
         return result
 
 
@@ -252,12 +268,17 @@ class ClauseWordReorderTransformer(BaseTransformer):
     """Stage 11: Reorder word sequences within a clause (shifting prepositional/adverbial modifiers)."""
     category = "ai_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
-        if not context.enable_word_reorder:
+    def __init__(self, word_reorder_rate=0.20, enable_word_reorder=True):
+        self.word_reorder_rate = word_reorder_rate
+        self.enable_word_reorder = enable_word_reorder
+        self.clause_word_reorder_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None, force_run: bool = False) -> str:
+        if not self.enable_word_reorder:
             return text
         if '\x00' in text or len(text.strip()) < 80:
             return text
-        if not getattr(context, 'force_run', False) and context.rng.random() > context.word_reorder_rate:
+        if not force_run and rng.random() > self.word_reorder_rate:
             return text
 
         stripped = text.strip()
@@ -293,7 +314,7 @@ class ClauseWordReorderTransformer(BaseTransformer):
             if not result.rstrip().endswith(('.', ',', ';', ':')):
                 if stripped.rstrip().endswith('.'):
                     result = result.rstrip() + '.'
-            context.clause_word_reorder_count += 1
+            self.clause_word_reorder_count += 1
             return indent + result
 
         end_pat = re.compile(
@@ -306,7 +327,7 @@ class ClauseWordReorderTransformer(BaseTransformer):
             means = m.group(2).strip()
             end_punct = m.group(3)
             result = f"By means of {means}, {main[0].lower()}{main[1:]}{end_punct}"
-            context.clause_word_reorder_count += 1
+            self.clause_word_reorder_count += 1
             return indent + result
 
         return text
@@ -316,12 +337,17 @@ class NominalizationTransformer(BaseTransformer):
     """Stage 12: Nominalize verbs or de-nominalize nouns."""
     category = "ai_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
-        if not context.enable_nominalization:
+    def __init__(self, nominalization_rate=0.20, enable_nominalization=True):
+        self.nominalization_rate = nominalization_rate
+        self.enable_nominalization = enable_nominalization
+        self.nominalization_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None, force_run: bool = False) -> str:
+        if not self.enable_nominalization:
             return text
         if '\x00' in text or len(text.strip()) < 70:
             return text
-        if not getattr(context, 'force_run', False) and context.rng.random() > context.nominalization_rate:
+        if not force_run and rng.random() > self.nominalization_rate:
             return text
 
         stripped = text.strip()
@@ -350,7 +376,7 @@ class NominalizationTransformer(BaseTransformer):
                     text, count=1,
                 )
                 if new_text != text:
-                    context.nominalization_count += 1
+                    self.nominalization_count += 1
                     return new_text
 
         for verb, noun in VERB_NOUN_PAIRS.items():
@@ -372,7 +398,7 @@ class NominalizationTransformer(BaseTransformer):
                     text, count=1,
                 )
                 if new_text != text:
-                    context.nominalization_count += 1
+                    self.nominalization_count += 1
                     return new_text
 
         return text
@@ -382,12 +408,18 @@ class AppositiveInjectTransformer(BaseTransformer):
     """Stage 13: Inject brief definitions after technical terms."""
     category = "ai_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
-        if not context.enable_appositive:
+    def __init__(self, appositive_rate=0.35, enable_appositive=True):
+        self.appositive_rate = appositive_rate
+        self.enable_appositive = enable_appositive
+        self.appositive_count = 0
+        self._used_appositives = set()
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None, force_run: bool = False) -> str:
+        if not self.enable_appositive:
             return text
         if '\x00' in text:
             return text
-        if not getattr(context, 'force_run', False) and context.rng.random() > context.appositive_rate:
+        if not force_run and rng.random() > self.appositive_rate:
             return text
 
         stripped = text.strip()
@@ -396,7 +428,7 @@ class AppositiveInjectTransformer(BaseTransformer):
         for term in sorted(APPOSITIVE_MAP.keys(), key=len, reverse=True):
             appositive = APPOSITIVE_MAP[term]
 
-            if term in context._used_appositives:
+            if term in self._used_appositives:
                 continue
 
             if not re.search(r'\b' + re.escape(term) + r'\b', stripped, re.IGNORECASE):
@@ -410,8 +442,8 @@ class AppositiveInjectTransformer(BaseTransformer):
                 flags=re.IGNORECASE,
             )
             if new_stripped != stripped:
-                context._used_appositives.add(term)
-                context.appositive_count += 1
+                self._used_appositives.add(term)
+                self.appositive_count += 1
                 return indent + new_stripped
 
         return text

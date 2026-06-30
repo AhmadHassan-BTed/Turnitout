@@ -45,74 +45,216 @@ class TextModifier:
                  source_grams=None):
         self.rng = random.Random(seed)
         self.aggressiveness = aggressiveness
-        self.topic_citations = topic_citations or {}
         self.existing_cite_keys = existing_cite_keys or set()
         self.min_sentence_length_for_cite = min_sentence_length_for_cite
         self.max_citations_to_insert = max_citations_to_insert
         self.source_grams = source_grams or set()
-        
-        # Telemetry counters
-        self.replacement_count = 0
-        self.phrase_rewrite_count = 0
-        self.citation_count = 0
-        self.clause_reorder_count = 0
-        self.determiner_swap_count = 0
-        self.hedge_insertion_count = 0
-        self.ngram_break_count = 0
-        self.sentence_split_count = 0
-        self.voice_transform_count = 0
-        self.sentence_fusion_count = 0
-        self.transition_inject_count = 0
-        self.clause_word_reorder_count = 0
-        self.nominalization_count = 0
-        self.appositive_count = 0
-        self.discourse_rotate_count = 0
-        self.contraction_count = 0
-        self.ngram_audit_count = 0
-        self.risk_citation_count = 0
-        self.structural_guarantee_count = 0
-        self.info_reorder_count = 0
-        self.conceptual_bridge_count = 0
-
-        # Configuration flags and rates
-        self.enable_voice_transform = enable_voice_transform
-        self.voice_transform_rate = voice_transform_rate
-        self.enable_sentence_fusion = enable_sentence_fusion
-        self.sentence_fusion_rate = sentence_fusion_rate
-        self.enable_transition_inject = enable_transition_inject
-        self.transition_inject_rate = transition_inject_rate
-        self.enable_word_reorder = enable_word_reorder
-        self.word_reorder_rate = word_reorder_rate
-        self.enable_nominalization = enable_nominalization
-        self.nominalization_rate = nominalization_rate
-        self.enable_appositive = enable_appositive
-        self.appositive_rate = appositive_rate
-        self.enable_discourse_rotate = enable_discourse_rotate
-        self.discourse_rotate_rate = discourse_rotate_rate
-        self.enable_contraction = enable_contraction
-        self.contraction_rate = contraction_rate
         self.enable_ngram_audit = enable_ngram_audit
-        self.enable_risk_citation = enable_risk_citation
-        self.enable_info_reorder = enable_info_reorder
-        self.info_reorder_rate = info_reorder_rate
-        self.enable_conceptual_bridge = enable_conceptual_bridge
-        self.conceptual_bridge_rate = conceptual_bridge_rate
 
-        # Tracking state
-        self._used_appositives = set()
-        self._used_discourse_replacements = {}
-        self._last_used_transitions = []
+        # Counters for self
+        self.structural_guarantee_count = 0
         self.changes_log = []
-        self.used_cite_keys = set()
-        self._last_used_synonyms = {}
 
-        # Pipeline steps partitioned strictly by category
-        self.ai_pipeline = get_ai_evasion_pipeline()
-        self.similarity_pipeline = get_similarity_evasion_pipeline()
+        # Construct unified config block for pipeline initialization
+        config = {
+            "aggressiveness": aggressiveness,
+            "enable_voice_transform": enable_voice_transform,
+            "voice_transform_rate": voice_transform_rate,
+            "enable_sentence_fusion": enable_sentence_fusion,
+            "sentence_fusion_rate": sentence_fusion_rate,
+            "enable_transition_inject": enable_transition_inject,
+            "transition_inject_rate": transition_inject_rate,
+            "enable_word_reorder": enable_word_reorder,
+            "word_reorder_rate": word_reorder_rate,
+            "enable_nominalization": enable_nominalization,
+            "nominalization_rate": nominalization_rate,
+            "enable_appositive": enable_appositive,
+            "appositive_rate": appositive_rate,
+            "enable_discourse_rotate": enable_discourse_rotate,
+            "discourse_rotate_rate": discourse_rotate_rate,
+            "enable_info_reorder": enable_info_reorder,
+            "info_reorder_rate": info_reorder_rate,
+            "enable_contraction": enable_contraction,
+            "contraction_rate": contraction_rate,
+            "enable_ngram_audit": enable_ngram_audit,
+            "source_grams": self.source_grams,
+            "enable_conceptual_bridge": enable_conceptual_bridge,
+            "conceptual_bridge_rate": conceptual_bridge_rate,
+            "enable_risk_citation": enable_risk_citation,
+            "min_sentence_length_for_cite": min_sentence_length_for_cite,
+            "max_citations_to_insert": max_citations_to_insert,
+            "topic_citations": topic_citations or {},
+            "filler_words": self.FILLER_WORDS
+        }
 
-        # The full pipeline, ordered for correct execution sequence
-        self.pipeline = get_default_pipeline()
+        # Pipelines
+        self.pipeline = get_default_pipeline(config)
+        self.ai_pipeline = get_ai_evasion_pipeline(config)
+        self.similarity_pipeline = get_similarity_evasion_pipeline(config)
 
+        # O(1) transformer lookup mapping
+        self._transformers = {tf.__class__.__name__: tf for tf in self.pipeline}
+
+    # ==================================================================
+    # Dynamic Property Delegation for Telemetry Counters & Config maps
+    # ==================================================================
+    @property
+    def replacement_count(self):
+        return self._transformers['SynonymTransformer'].replacement_count
+    @replacement_count.setter
+    def replacement_count(self, value):
+        self._transformers['SynonymTransformer'].replacement_count = value
+
+    @property
+    def phrase_rewrite_count(self):
+        return self._transformers['PhraseRewriteTransformer'].phrase_rewrite_count
+    @phrase_rewrite_count.setter
+    def phrase_rewrite_count(self, value):
+        self._transformers['PhraseRewriteTransformer'].phrase_rewrite_count = value
+
+    @property
+    def determiner_swap_count(self):
+        return self._transformers['DeterminerSwapTransformer'].determiner_swap_count
+    @determiner_swap_count.setter
+    def determiner_swap_count(self, value):
+        self._transformers['DeterminerSwapTransformer'].determiner_swap_count = value
+
+    @property
+    def hedge_insertion_count(self):
+        return self._transformers['HedgeWordTransformer'].hedge_insertion_count
+    @hedge_insertion_count.setter
+    def hedge_insertion_count(self, value):
+        self._transformers['HedgeWordTransformer'].hedge_insertion_count = value
+
+    @property
+    def contraction_count(self):
+        return self._transformers['ContractionTransformer'].contraction_count
+    @contraction_count.setter
+    def contraction_count(self, value):
+        self._transformers['ContractionTransformer'].contraction_count = value
+
+    @property
+    def voice_transform_count(self):
+        return self._transformers['VoiceTransformTransformer'].voice_transform_count
+    @voice_transform_count.setter
+    def voice_transform_count(self, value):
+        self._transformers['VoiceTransformTransformer'].voice_transform_count = value
+
+    @property
+    def sentence_fusion_count(self):
+        return self._transformers['SentenceFusionTransformer'].sentence_fusion_count
+    @sentence_fusion_count.setter
+    def sentence_fusion_count(self, value):
+        self._transformers['SentenceFusionTransformer'].sentence_fusion_count = value
+
+    @property
+    def transition_inject_count(self):
+        return self._transformers['TransitionInjectTransformer'].transition_inject_count
+    @transition_inject_count.setter
+    def transition_inject_count(self, value):
+        self._transformers['TransitionInjectTransformer'].transition_inject_count = value
+
+    @property
+    def clause_word_reorder_count(self):
+        return self._transformers['ClauseWordReorderTransformer'].clause_word_reorder_count
+    @clause_word_reorder_count.setter
+    def clause_word_reorder_count(self, value):
+        self._transformers['ClauseWordReorderTransformer'].clause_word_reorder_count = value
+
+    @property
+    def nominalization_count(self):
+        return self._transformers['NominalizationTransformer'].nominalization_count
+    @nominalization_count.setter
+    def nominalization_count(self, value):
+        self._transformers['NominalizationTransformer'].nominalization_count = value
+
+    @property
+    def appositive_count(self):
+        return self._transformers['AppositiveInjectTransformer'].appositive_count
+    @appositive_count.setter
+    def appositive_count(self, value):
+        self._transformers['AppositiveInjectTransformer'].appositive_count = value
+
+    @property
+    def discourse_rotate_count(self):
+        return self._transformers['DiscourseRotateTransformer'].discourse_rotate_count
+    @discourse_rotate_count.setter
+    def discourse_rotate_count(self, value):
+        self._transformers['DiscourseRotateTransformer'].discourse_rotate_count = value
+
+    @property
+    def info_reorder_count(self):
+        return self._transformers['SentenceReorderTransformer'].info_reorder_count
+    @info_reorder_count.setter
+    def info_reorder_count(self, value):
+        self._transformers['SentenceReorderTransformer'].info_reorder_count = value
+
+    @property
+    def ngram_break_count(self):
+        return self._transformers['BreakNgramChainTransformer'].ngram_break_count
+    @ngram_break_count.setter
+    def ngram_break_count(self, value):
+        self._transformers['BreakNgramChainTransformer'].ngram_break_count = value
+
+    @property
+    def ngram_audit_count(self):
+        return self._transformers['SourceAwareNgramAuditTransformer'].ngram_audit_count
+    @ngram_audit_count.setter
+    def ngram_audit_count(self, value):
+        self._transformers['SourceAwareNgramAuditTransformer'].ngram_audit_count = value
+
+    @property
+    def conceptual_bridge_count(self):
+        return self._transformers['ConceptualBridgeTransformer'].conceptual_bridge_count
+    @conceptual_bridge_count.setter
+    def conceptual_bridge_count(self, value):
+        self._transformers['ConceptualBridgeTransformer'].conceptual_bridge_count = value
+
+    @property
+    def clause_reorder_count(self):
+        return self._transformers['ClauseReorderTransformer'].clause_reorder_count
+    @clause_reorder_count.setter
+    def clause_reorder_count(self, value):
+        self._transformers['ClauseReorderTransformer'].clause_reorder_count = value
+
+    @property
+    def sentence_split_count(self):
+        return self._transformers['SplitCompoundTransformer'].sentence_split_count
+    @sentence_split_count.setter
+    def sentence_split_count(self, value):
+        self._transformers['SplitCompoundTransformer'].sentence_split_count = value
+
+    @property
+    def citation_count(self):
+        return self._transformers['CitationShieldTransformer'].citation_count
+    @citation_count.setter
+    def citation_count(self, value):
+        self._transformers['CitationShieldTransformer'].citation_count = value
+
+    @property
+    def risk_citation_count(self):
+        return self._transformers['CitationShieldTransformer'].risk_citation_count
+    @risk_citation_count.setter
+    def risk_citation_count(self, value):
+        self._transformers['CitationShieldTransformer'].risk_citation_count = value
+
+    @property
+    def used_cite_keys(self):
+        return self._transformers['CitationShieldTransformer'].used_cite_keys
+    @used_cite_keys.setter
+    def used_cite_keys(self, value):
+        self._transformers['CitationShieldTransformer'].used_cite_keys = value
+
+    @property
+    def topic_citations(self):
+        return self._transformers['CitationShieldTransformer'].topic_citations
+    @topic_citations.setter
+    def topic_citations(self, value):
+        self._transformers['CitationShieldTransformer'].topic_citations = value
+
+    # ==================================================================
+    # Core Pipeline Orchestration
+    # ==================================================================
     def modify_line(self, line, line_num, context_lines=None):
         original = line
         stripped = line.strip()
@@ -122,60 +264,47 @@ class TextModifier:
         # Step 1: Protect LaTeX elements with placeholders
         protected_line, placeholders = self._protect_latex(line)
 
-        # Execute default sequential pipeline (Stages 1 - 14b)
-        # Note: the pipeline has 19 steps (indexed 0 to 18)
-        # We run steps 0 to 14 first
+        # Run first 15 stages
         struct_changes = 0
         
         for idx in range(15):
             tf = self.pipeline[idx]
             prev_text = protected_line
-            protected_line = tf.transform(protected_line, self, line_num, context_lines)
+            protected_line = tf.transform(protected_line, self.rng, line_num, context_lines)
             if idx in [2, 3, 7, 10, 11, 12, 13] and protected_line != prev_text:
                 struct_changes += 1
 
         # Structural Diversity Guarantee: For sentences > 60 chars, ensure at least 2 structural transformations are applied.
         if len(stripped) > 60 and struct_changes < 2:
-            from turnitout.core.transformers.lexical import DeterminerSwapTransformer
-            from turnitout.core.transformers.syntactic import (
-                VoiceTransformTransformer, ClauseWordReorderTransformer,
-                NominalizationTransformer, AppositiveInjectTransformer
-            )
-            from turnitout.core.transformers.structural import DiscourseRotateTransformer
-
             fallbacks = [
-                DeterminerSwapTransformer(),
-                VoiceTransformTransformer(),
-                ClauseWordReorderTransformer(),
-                NominalizationTransformer(),
-                AppositiveInjectTransformer(),
-                DiscourseRotateTransformer()
+                self._transformers['DeterminerSwapTransformer'],
+                self._transformers['VoiceTransformTransformer'],
+                self._transformers['ClauseWordReorderTransformer'],
+                self._transformers['NominalizationTransformer'],
+                self._transformers['AppositiveInjectTransformer'],
+                self._transformers['DiscourseRotateTransformer']
             ]
             self.rng.shuffle(fallbacks)
-            self.force_run = True
-            try:
-                for tf in fallbacks:
-                    if struct_changes >= 2:
-                        break
-                    prev_text = protected_line
-                    protected_line = tf.transform(protected_line, self, line_num, context_lines)
-                    if protected_line != prev_text:
-                        struct_changes += 1
-                        self.structural_guarantee_count += 1
-            finally:
-                self.force_run = False
+            for tf in fallbacks:
+                if struct_changes >= 2:
+                    break
+                prev_text = protected_line
+                protected_line = tf.transform(protected_line, self.rng, line_num, context_lines, force_run=True)
+                if protected_line != prev_text:
+                    struct_changes += 1
+                    self.structural_guarantee_count += 1
 
         # Run remaining pipeline steps (Contraction, N-gram Auditing, Conceptual Bridge)
         for idx in range(15, len(self.pipeline) - 1):
             tf = self.pipeline[idx]
-            protected_line = tf.transform(protected_line, self, line_num, context_lines)
+            protected_line = tf.transform(protected_line, self.rng, line_num, context_lines)
 
         # Restore LaTeX elements
         modified_line = self._restore_latex(protected_line, placeholders)
 
         # Run the final pipeline step: Citation Shielding (operates on restored LaTeX)
         citation_transformer = self.pipeline[-1]
-        modified_line = citation_transformer.transform(modified_line, self, line_num, context_lines)
+        modified_line = citation_transformer.transform(modified_line, self.rng, line_num, context_lines)
 
         if modified_line != original:
             self.changes_log.append({
@@ -262,64 +391,6 @@ class TextModifier:
             return []
         return [tuple(word_tokens[i:i+k]) for i in range(len(word_tokens) - k + 1)]
 
-    def _extract_sentence_keywords(self, sentence):
-        cleaned = re.sub(r'\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*', ' ', sentence)
-        cleaned = re.sub(r'\$[^\$]+\$', ' ', cleaned)
-        cleaned = re.sub(r'[^a-zA-Z\s]', ' ', cleaned)
-        words = [w.lower() for w in cleaned.split() if len(w) > 0]
-        
-        if not words:
-            return None
-            
-        # 3-gram candidates
-        for i in range(len(words) - 2):
-            phrase = (words[i], words[i+1], words[i+2])
-            if all(w not in self.FILLER_WORDS for w in (phrase[0], phrase[-1])) and all(len(w) > 2 for w in phrase):
-                return " ".join(phrase)
-                
-        # 2-gram candidates
-        for i in range(len(words) - 1):
-            phrase = (words[i], words[i+1])
-            if all(w not in self.FILLER_WORDS for w in (phrase[0], phrase[-1])) and all(len(w) > 2 for w in phrase):
-                return " ".join(phrase)
-                
-        # 1-word candidates
-        candidates = [w for w in words if w not in self.FILLER_WORDS and len(w) > 4]
-        if candidates:
-            return max(candidates, key=len)
-            
-        return None
-
-    def _determine_topic_citation(self, line):
-        lower = line.lower()
-        for keywords_tuple, cite_info in self.topic_citations.items():
-            for keyword in keywords_tuple:
-                if keyword.lower() in lower:
-                    return cite_info["key"]
-                    
-        phrase = self._extract_sentence_keywords(line)
-        if phrase:
-            key_suffix = phrase.replace(" ", "_")
-            key = f"ref_{key_suffix}"
-            topic = phrase.title() + " and Related Research"
-            keywords_tuple = tuple(phrase.split())
-            
-            if keywords_tuple not in self.topic_citations:
-                self.topic_citations[keywords_tuple] = {
-                    "key": key,
-                    "topic": topic
-                }
-            return key
-            
-        fallback_key = "ref_numerical_study"
-        fallback_tuple = ("numerical", "study")
-        if fallback_tuple not in self.topic_citations:
-            self.topic_citations[fallback_tuple] = {
-                "key": fallback_key,
-                "topic": "Numerical Investigation and Analysis"
-            }
-        return fallback_key
-
     def audit_document_ngrams(self, zones):
         """Document-level post-pass to scan and eliminate remaining overlapping 5-grams across line boundaries."""
         if not self.enable_ngram_audit or not self.source_grams:
@@ -364,7 +435,7 @@ class TextModifier:
                             if word_core[0].isupper():
                                 replacement = replacement.capitalize()
                             parts[pi] = prefix + replacement + suffix
-                            self.ngram_audit_count += 1
+                            self._transformers['SourceAwareNgramAuditTransformer'].ngram_audit_count += 1
                             modified_zones.add(zi)
                             broken = True
                             break
@@ -376,7 +447,7 @@ class TextModifier:
                     qualifiers = ["notably", "indeed", "essentially", "specifically", "particularly", "clearly"]
                     qualifier = self.rng.choice(qualifiers)
                     parts[pi] = parts[pi] + " " + qualifier
-                    self.ngram_audit_count += 1
+                    self._transformers['SourceAwareNgramAuditTransformer'].ngram_audit_count += 1
                     modified_zones.add(zi)
                     broken = True
 
@@ -401,69 +472,52 @@ class TextModifier:
     # Backward Compatibility Pass-through Wrappers for Unit Tests
     # ==================================================================
     def _reorder_clauses(self, text):
-        from turnitout.core.transformers.structural import ClauseReorderTransformer
-        return ClauseReorderTransformer().transform(text, self)
+        return self._transformers['ClauseReorderTransformer'].transform(text, self.rng)
 
     def _swap_determiners(self, text):
-        from turnitout.core.transformers.lexical import DeterminerSwapTransformer
-        return DeterminerSwapTransformer().transform(text, self)
+        return self._transformers['DeterminerSwapTransformer'].transform(text, self.rng)
 
     def _split_compound_sentences(self, text):
-        from turnitout.core.transformers.structural import SplitCompoundTransformer
-        return SplitCompoundTransformer().transform(text, self)
+        return self._transformers['SplitCompoundTransformer'].transform(text, self.rng)
 
     def _insert_hedge_words(self, text):
-        from turnitout.core.transformers.lexical import HedgeWordTransformer
-        return HedgeWordTransformer().transform(text, self)
+        return self._transformers['HedgeWordTransformer'].transform(text, self.rng)
 
     def _break_ngram_chains(self, text):
-        from turnitout.core.transformers.advanced import BreakNgramChainTransformer
-        return BreakNgramChainTransformer().transform(text, self)
+        return self._transformers['BreakNgramChainTransformer'].transform(text, self.rng)
 
     def _transform_voice(self, text):
-        from turnitout.core.transformers.syntactic import VoiceTransformTransformer
-        return VoiceTransformTransformer().transform(text, self)
+        return self._transformers['VoiceTransformTransformer'].transform(text, self.rng)
 
     def _fuse_sentences(self, text, context_lines):
-        from turnitout.core.transformers.syntactic import SentenceFusionTransformer
-        return SentenceFusionTransformer().transform(text, self, context_lines=context_lines)
+        return self._transformers['SentenceFusionTransformer'].transform(text, self.rng, context_lines=context_lines)
 
     def _inject_transitions(self, text):
-        from turnitout.core.transformers.syntactic import TransitionInjectTransformer
-        return TransitionInjectTransformer().transform(text, self)
+        return self._transformers['TransitionInjectTransformer'].transform(text, self.rng)
 
     def _reorder_within_clause(self, text):
-        from turnitout.core.transformers.syntactic import ClauseWordReorderTransformer
-        return ClauseWordReorderTransformer().transform(text, self)
+        return self._transformers['ClauseWordReorderTransformer'].transform(text, self.rng)
 
     def _nominalize(self, text):
-        from turnitout.core.transformers.syntactic import NominalizationTransformer
-        return NominalizationTransformer().transform(text, self)
+        return self._transformers['NominalizationTransformer'].transform(text, self.rng)
 
     def _inject_appositives(self, text):
-        from turnitout.core.transformers.syntactic import AppositiveInjectTransformer
-        return AppositiveInjectTransformer().transform(text, self)
+        return self._transformers['AppositiveInjectTransformer'].transform(text, self.rng)
 
     def _rotate_discourse_markers(self, text):
-        from turnitout.core.transformers.structural import DiscourseRotateTransformer
-        return DiscourseRotateTransformer().transform(text, self)
+        return self._transformers['DiscourseRotateTransformer'].transform(text, self.rng)
 
     def _rotate_contractions(self, text):
-        from turnitout.core.transformers.lexical import ContractionTransformer
-        return ContractionTransformer().transform(text, self)
+        return self._transformers['ContractionTransformer'].transform(text, self.rng)
 
     def _source_aware_ngram_audit(self, text):
-        from turnitout.core.transformers.advanced import SourceAwareNgramAuditTransformer
-        return SourceAwareNgramAuditTransformer().transform(text, self)
+        return self._transformers['SourceAwareNgramAuditTransformer'].transform(text, self.rng)
 
     def _reorder_sentences(self, text):
-        from turnitout.core.transformers.structural import SentenceReorderTransformer
-        return SentenceReorderTransformer().transform(text, self)
+        return self._transformers['SentenceReorderTransformer'].transform(text, self.rng)
 
     def _insert_conceptual_bridge(self, text):
-        from turnitout.core.transformers.advanced import ConceptualBridgeTransformer
-        return ConceptualBridgeTransformer().transform(text, self)
+        return self._transformers['ConceptualBridgeTransformer'].transform(text, self.rng)
 
     def _maybe_add_citation(self, line, line_num, context_lines=None):
-        from turnitout.core.transformers.advanced import CitationShieldTransformer
-        return CitationShieldTransformer().transform(line, self, line_num, context_lines)
+        return self._transformers['CitationShieldTransformer'].transform(line, self.rng, line_num, context_lines)

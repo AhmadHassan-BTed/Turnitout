@@ -16,34 +16,78 @@ from turnitout.core.transformers.advanced import (
     ConceptualBridgeTransformer, CitationShieldTransformer
 )
 
-def get_default_pipeline():
-    """Returns the ordered list of default transformation stages in the pipeline."""
+def get_default_pipeline(config=None):
+    """Returns the ordered list of default transformation stages, configured with localized parameters."""
+    config = config or {}
+
     return [
-        PhraseRewriteTransformer(),      # Step 2: Stage 1 (similarity)
-        SynonymTransformer(),           # Step 3: Stage 2 (ai)
-        ClauseReorderTransformer(),     # Step 4: Stage 3 (similarity)
-        DeterminerSwapTransformer(),    # Step 5: Stage 4 (ai)
-        SplitCompoundTransformer(),     # Step 6: Stage 5 (similarity)
-        HedgeWordTransformer(),         # Step 7: Stage 6 (similarity)
-        BreakNgramChainTransformer(),   # Step 8: Stage 7 (similarity)
-        VoiceTransformTransformer(),    # Step 9: Stage 8 (ai)
-        SentenceFusionTransformer(),    # Step 10: Stage 9 (similarity)
-        TransitionInjectTransformer(),  # Step 11: Stage 10 (ai)
-        ClauseWordReorderTransformer(), # Step 12: Stage 11 (ai)
-        NominalizationTransformer(),    # Step 13: Stage 12 (ai)
-        AppositiveInjectTransformer(),  # Step 14: Stage 13 (ai)
-        DiscourseRotateTransformer(),   # Step 15: Stage 14 (ai)
-        SentenceReorderTransformer(),   # Step 15b: Stage 14b (similarity)
-        ContractionTransformer(),       # Step 16: Stage 15 (ai)
-        SourceAwareNgramAuditTransformer(), # Step 17: Stage 16 (similarity)
-        ConceptualBridgeTransformer(),  # Step 17b: Stage 17 (similarity)
-        CitationShieldTransformer(),    # Step 19: Stage 18 (similarity)
+        PhraseRewriteTransformer(),
+        SynonymTransformer(
+            aggressiveness=config.get("aggressiveness", 0.55)
+        ),
+        ClauseReorderTransformer(),
+        DeterminerSwapTransformer(),
+        SplitCompoundTransformer(),
+        HedgeWordTransformer(),
+        BreakNgramChainTransformer(),
+        VoiceTransformTransformer(
+            voice_transform_rate=config.get("voice_transform_rate", 0.30),
+            enable_voice_transform=config.get("enable_voice_transform", True)
+        ),
+        SentenceFusionTransformer(
+            sentence_fusion_rate=config.get("sentence_fusion_rate", 0.25),
+            enable_sentence_fusion=config.get("enable_sentence_fusion", True)
+        ),
+        TransitionInjectTransformer(
+            transition_inject_rate=config.get("transition_inject_rate", 0.25),
+            enable_transition_inject=config.get("enable_transition_inject", True)
+        ),
+        ClauseWordReorderTransformer(
+            word_reorder_rate=config.get("word_reorder_rate", 0.20),
+            enable_word_reorder=config.get("enable_word_reorder", True)
+        ),
+        NominalizationTransformer(
+            nominalization_rate=config.get("nominalization_rate", 0.20),
+            enable_nominalization=config.get("enable_nominalization", True)
+        ),
+        AppositiveInjectTransformer(
+            appositive_rate=config.get("appositive_rate", 0.35),
+            enable_appositive=config.get("enable_appositive", True)
+        ),
+        DiscourseRotateTransformer(
+            discourse_rotate_rate=config.get("discourse_rotate_rate", 0.50),
+            enable_discourse_rotate=config.get("enable_discourse_rotate", True)
+        ),
+        SentenceReorderTransformer(
+            info_reorder_rate=config.get("info_reorder_rate", 0.20),
+            enable_info_reorder=config.get("enable_info_reorder", True)
+        ),
+        ContractionTransformer(
+            contraction_rate=config.get("contraction_rate", 0.20),
+            enable_contraction=config.get("enable_contraction", True)
+        ),
+        SourceAwareNgramAuditTransformer(
+            enable_ngram_audit=config.get("enable_ngram_audit", True),
+            source_grams=config.get("source_grams", None)
+        ),
+        ConceptualBridgeTransformer(
+            enable_conceptual_bridge=config.get("enable_conceptual_bridge", True),
+            conceptual_bridge_rate=config.get("conceptual_bridge_rate", 0.20)
+        ),
+        CitationShieldTransformer(
+            enable_risk_citation=config.get("enable_risk_citation", True),
+            source_grams=config.get("source_grams", None),
+            min_sentence_length_for_cite=config.get("min_sentence_length_for_cite", 60),
+            max_citations_to_insert=config.get("max_citations_to_insert", 30),
+            topic_citations=config.get("topic_citations", None),
+            filler_words=config.get("filler_words", None)
+        ),
     ]
 
-def get_ai_evasion_pipeline():
+def get_ai_evasion_pipeline(config=None):
     """Returns the pipeline of transformers designed for AI Evasion."""
-    return [tf for tf in get_default_pipeline() if tf.category == "ai_evasion"]
+    return [tf for tf in get_default_pipeline(config) if tf.category == "ai_evasion"]
 
-def get_similarity_evasion_pipeline():
+def get_similarity_evasion_pipeline(config=None):
     """Returns the pipeline of transformers designed for Similarity/Plagiarism Evasion."""
-    return [tf for tf in get_default_pipeline() if tf.category == "similarity_evasion"]
+    return [tf for tf in get_default_pipeline(config) if tf.category == "similarity_evasion"]

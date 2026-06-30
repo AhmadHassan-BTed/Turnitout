@@ -8,11 +8,14 @@ class ClauseReorderTransformer(BaseTransformer):
     """Stage 3: Move trailing subordinate clauses to the front of the sentence."""
     category = "similarity_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
+    def __init__(self):
+        self.clause_reorder_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
         if '\x00' in text or len(text.strip()) < 80:
             return text
 
-        if context.rng.random() > 0.30:
+        if rng.random() > 0.30:
             return text
 
         for conj in SUBORDINATE_CONJUNCTIONS:
@@ -28,7 +31,7 @@ class ClauseReorderTransformer(BaseTransformer):
                 reordered = (indent +
                              sub_clause[0].upper() + sub_clause[1:] + ', ' +
                              main_clause[0].lower() + main_clause[1:] + '.')
-                context.clause_reorder_count += 1
+                self.clause_reorder_count += 1
                 return reordered
 
         return text
@@ -38,12 +41,15 @@ class SplitCompoundTransformer(BaseTransformer):
     """Stage 5: Split long compound sentences at coordinating conjunctions."""
     category = "similarity_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
+    def __init__(self):
+        self.sentence_split_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
         stripped = text.strip()
         if len(stripped) < 120 or '\x00' in text:
             return text
 
-        if context.rng.random() > 0.20:
+        if rng.random() > 0.20:
             return text
 
         split_patterns = [
@@ -65,7 +71,7 @@ class SplitCompoundTransformer(BaseTransformer):
                         after = after[0].upper() + after[1:]
                     indent = text[:len(text) - len(text.lstrip())]
                     result = indent + before + '.' + joiner.rstrip() + ' ' + after
-                    context.sentence_split_count += 1
+                    self.sentence_split_count += 1
                     return result
 
         return text
@@ -75,12 +81,17 @@ class SentenceReorderTransformer(BaseTransformer):
     """Stage 14: Rotate sentence sequence inside a paragraph line if they are independent."""
     category = "similarity_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
-        if not context.enable_info_reorder:
+    def __init__(self, info_reorder_rate=0.20, enable_info_reorder=True):
+        self.info_reorder_rate = info_reorder_rate
+        self.enable_info_reorder = enable_info_reorder
+        self.info_reorder_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        if not self.enable_info_reorder:
             return text
         if '\x00' in text:
             return text
-        if context.rng.random() > context.info_reorder_rate:
+        if rng.random() > self.info_reorder_rate:
             return text
 
         stripped = text.strip()
@@ -105,7 +116,7 @@ class SentenceReorderTransformer(BaseTransformer):
             first_word_s2 = words_s2[0].lower().strip('.,;:!?()[]{}') if words_s2 else ""
             if first_word_s2 and first_word_s2 not in dependent_starts:
                 sentences[i], sentences[i + 1] = s2, s1
-                context.info_reorder_count += 1
+                self.info_reorder_count += 1
                 modified = True
                 break
                 
@@ -118,12 +129,18 @@ class DiscourseRotateTransformer(BaseTransformer):
     """Stage 14b: Replace overused discourse markers at the beginning of sentences."""
     category = "ai_evasion"
 
-    def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
-        if not context.enable_discourse_rotate:
+    def __init__(self, discourse_rotate_rate=0.50, enable_discourse_rotate=True):
+        self.discourse_rotate_rate = discourse_rotate_rate
+        self.enable_discourse_rotate = enable_discourse_rotate
+        self.discourse_rotate_count = 0
+        self._used_discourse_replacements = {}
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None, force_run: bool = False) -> str:
+        if not self.enable_discourse_rotate:
             return text
         if '\x00' in text:
             return text
-        if not getattr(context, 'force_run', False) and context.rng.random() > context.discourse_rotate_rate:
+        if not force_run and rng.random() > self.discourse_rotate_rate:
             return text
 
         stripped = text.strip()
@@ -138,13 +155,13 @@ class DiscourseRotateTransformer(BaseTransformer):
             if not m:
                 continue
 
-            used = context._used_discourse_replacements.get(marker, [])
+            used = self._used_discourse_replacements.get(marker, [])
             available = [v for v in variants if v not in used]
             if not available:
                 available = variants
 
-            replacement = context.rng.choice(available)
-            context._used_discourse_replacements.setdefault(marker, []).append(replacement)
+            replacement = rng.choice(available)
+            self._used_discourse_replacements.setdefault(marker, []).append(replacement)
 
             original_word = m.group(1)
             if original_word[0].isupper():
@@ -155,7 +172,7 @@ class DiscourseRotateTransformer(BaseTransformer):
             separator = m.group(2)
             rest = stripped[m.end():]
             new_stripped = replacement + separator + rest
-            context.discourse_rotate_count += 1
+            self.discourse_rotate_count += 1
             return indent + new_stripped
 
         return text
