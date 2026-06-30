@@ -4,6 +4,8 @@ from turnitout.core.rules import ACADEMIC_SYNONYMS
 
 class BreakNgramChainTransformer(BaseTransformer):
     """Stage 7: Break surviving literal word sequences with punctuation inserts."""
+    category = "similarity_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         stripped = text.strip()
         if len(stripped) < 60 or '\x00' in text:
@@ -54,6 +56,8 @@ class BreakNgramChainTransformer(BaseTransformer):
 
 class SourceAwareNgramAuditTransformer(BaseTransformer):
     """Stage 16: Check window of tokens against self.source_grams and break them with synonyms or adverbials."""
+    category = "similarity_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_ngram_audit or not context.source_grams:
             return text
@@ -116,6 +120,8 @@ class SourceAwareNgramAuditTransformer(BaseTransformer):
 
 class ConceptualBridgeTransformer(BaseTransformer):
     """Stage 17: Insert general academic conceptual bridge sentences at paragraph boundaries."""
+    category = "similarity_evasion"
+
     CONCEPTUAL_BRIDGES = [
         "This approach provides a robust framework for further analysis.",
         "These aspects are crucial for establishing the validity of the model.",
@@ -145,6 +151,8 @@ class ConceptualBridgeTransformer(BaseTransformer):
 
 class CitationShieldTransformer(BaseTransformer):
     """Stage 18: Add citations at sentence end or 5-gram boundary for risk shielding."""
+    category = "similarity_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         stripped = text.strip()
         if context.citation_count >= context.max_citations_to_insert:

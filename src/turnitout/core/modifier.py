@@ -1,7 +1,9 @@
 import re
 import random
 from turnitout.core.rules import PROTECTED_TERMS, ACADEMIC_SYNONYMS
-from turnitout.core.transformers import get_default_pipeline
+from turnitout.core.transformers import (
+    get_default_pipeline, get_ai_evasion_pipeline, get_similarity_evasion_pipeline
+)
 
 class TextModifier:
     """
@@ -104,7 +106,11 @@ class TextModifier:
         self.used_cite_keys = set()
         self._last_used_synonyms = {}
 
-        # Pipeline steps
+        # Pipeline steps partitioned strictly by category
+        self.ai_pipeline = get_ai_evasion_pipeline()
+        self.similarity_pipeline = get_similarity_evasion_pipeline()
+
+        # The full pipeline, ordered for correct execution sequence
         self.pipeline = get_default_pipeline()
 
     def modify_line(self, line, line_num, context_lines=None):

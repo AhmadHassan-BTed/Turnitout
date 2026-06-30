@@ -6,6 +6,8 @@ from turnitout.core.rules import (
 
 class ClauseReorderTransformer(BaseTransformer):
     """Stage 3: Move trailing subordinate clauses to the front of the sentence."""
+    category = "similarity_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if '\x00' in text or len(text.strip()) < 80:
             return text
@@ -34,6 +36,8 @@ class ClauseReorderTransformer(BaseTransformer):
 
 class SplitCompoundTransformer(BaseTransformer):
     """Stage 5: Split long compound sentences at coordinating conjunctions."""
+    category = "similarity_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         stripped = text.strip()
         if len(stripped) < 120 or '\x00' in text:
@@ -69,6 +73,8 @@ class SplitCompoundTransformer(BaseTransformer):
 
 class SentenceReorderTransformer(BaseTransformer):
     """Stage 14: Rotate sentence sequence inside a paragraph line if they are independent."""
+    category = "similarity_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_info_reorder:
             return text
@@ -110,6 +116,8 @@ class SentenceReorderTransformer(BaseTransformer):
 
 class DiscourseRotateTransformer(BaseTransformer):
     """Stage 14b: Replace overused discourse markers at the beginning of sentences."""
+    category = "ai_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_discourse_rotate:
             return text

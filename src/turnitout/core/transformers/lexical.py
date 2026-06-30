@@ -11,6 +11,8 @@ CONTRACTION_PATTERNS = [
 
 class PhraseRewriteTransformer(BaseTransformer):
     """Stage 1: Apply phrase-level rewrites."""
+    category = "similarity_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         parts = re.split(r'(\x00PH\d{4}\x00)', text)
         for i in range(len(parts)):
@@ -33,6 +35,8 @@ class PhraseRewriteTransformer(BaseTransformer):
 
 class SynonymTransformer(BaseTransformer):
     """Stage 2: Apply word-level academic synonym replacement with inflected conjugation."""
+    category = "ai_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         tokens = re.split(r'(\s+|[.,;:!?()\[\]{}"\'\\])', text)
         modified_tokens = []
@@ -224,6 +228,8 @@ class SynonymTransformer(BaseTransformer):
 
 class DeterminerSwapTransformer(BaseTransformer):
     """Stage 4: Contextually swap determiners (e.g. 'the' <-> 'this', 'a' <-> 'another')."""
+    category = "ai_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         tokens = text.split()
         modified = []
@@ -257,6 +263,8 @@ class DeterminerSwapTransformer(BaseTransformer):
 
 class HedgeWordTransformer(BaseTransformer):
     """Stage 6: Insert a academic hedge word at natural boundaries."""
+    category = "similarity_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         stripped = text.strip()
         if len(stripped) < 80 or '\x00' in text:
@@ -285,6 +293,8 @@ class HedgeWordTransformer(BaseTransformer):
 
 class ContractionTransformer(BaseTransformer):
     """Stage 15: Swap formal words to contractions and vice versa ( burstiness variation)."""
+    category = "ai_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_contraction:
             return text

@@ -6,6 +6,8 @@ from turnitout.core.rules import (
 
 class VoiceTransformTransformer(BaseTransformer):
     """Stage 8: Alternate active/passive voice constructions."""
+    category = "ai_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_voice_transform:
             return text
@@ -140,6 +142,8 @@ class VoiceTransformTransformer(BaseTransformer):
 
 class SentenceFusionTransformer(BaseTransformer):
     """Stage 9: Combine two adjacent short sentences to vary sentence length."""
+    category = "similarity_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_sentence_fusion:
             return text
@@ -193,6 +197,8 @@ class SentenceFusionTransformer(BaseTransformer):
 
 class TransitionInjectTransformer(BaseTransformer):
     """Stage 10: Inject transitional logical connectors."""
+    category = "ai_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_transition_inject:
             return text
@@ -244,6 +250,8 @@ class TransitionInjectTransformer(BaseTransformer):
 
 class ClauseWordReorderTransformer(BaseTransformer):
     """Stage 11: Reorder word sequences within a clause (shifting prepositional/adverbial modifiers)."""
+    category = "ai_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_word_reorder:
             return text
@@ -306,6 +314,8 @@ class ClauseWordReorderTransformer(BaseTransformer):
 
 class NominalizationTransformer(BaseTransformer):
     """Stage 12: Nominalize verbs or de-nominalize nouns."""
+    category = "ai_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_nominalization:
             return text
@@ -370,6 +380,8 @@ class NominalizationTransformer(BaseTransformer):
 
 class AppositiveInjectTransformer(BaseTransformer):
     """Stage 13: Inject brief definitions after technical terms."""
+    category = "ai_evasion"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         if not context.enable_appositive:
             return text

@@ -1,5 +1,7 @@
 class BaseTransformer:
     """Base class/interface for all text transformers in the pipeline."""
+    category = "generic"
+
     def transform(self, text: str, context, line_num: int = 0, context_lines=None) -> str:
         """
         Applies a specific text transformation to the given text line.
