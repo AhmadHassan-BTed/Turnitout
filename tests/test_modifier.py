@@ -154,3 +154,31 @@ def test_structural_diversity():
     assert total_struct >= 2
     assert validate_latex(modified) == []
 
+
+def test_sentence_reorder():
+    """Verify that independent adjacent sentences within a prose paragraph are reordered."""
+    modifier = TextModifier(seed=42, enable_info_reorder=True, info_reorder_rate=1.0)
+    
+    # 3 sentences, where sentence 2 and 3 are independent
+    line = "First sentence here. Second sentence starts. Third sentence starts."
+    modified = modifier._reorder_sentences(line)
+    
+    assert modified != line
+    assert "second" in modified.lower()
+    assert "third" in modified.lower()
+    assert modifier.info_reorder_count >= 1
+    assert validate_latex(modified) == []
+
+
+def test_conceptual_bridging():
+    """Verify that generic connecting sentences are appended to long paragraph blocks to dilute similarity."""
+    modifier = TextModifier(seed=42, enable_conceptual_bridge=True, conceptual_bridge_rate=1.0)
+    
+    line = "We present a comprehensive formulation of the thermal conduction and mathematical diffusion processes that can model the heat flow across any multi-layered physical material under realistic boundary conditions."
+    modified = modifier._insert_conceptual_bridge(line)
+    
+    assert modified != line
+    assert any(bridge in modified for bridge in TextModifier.CONCEPTUAL_BRIDGES)
+    assert modifier.conceptual_bridge_count >= 1
+    assert validate_latex(modified) == []
+

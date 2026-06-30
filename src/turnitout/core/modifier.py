@@ -29,6 +29,8 @@ class TextModifier:
                  enable_discourse_rotate=True, discourse_rotate_rate=0.50,
                  enable_contraction=True, contraction_rate=0.20,
                  enable_ngram_audit=True, enable_risk_citation=True,
+                 enable_info_reorder=True, info_reorder_rate=0.20,
+                 enable_conceptual_bridge=True, conceptual_bridge_rate=0.20,
                  source_grams=None):
         self.rng = random.Random(seed)
         self.aggressiveness = aggressiveness
@@ -59,6 +61,8 @@ class TextModifier:
         self.ngram_audit_count = 0
         self.risk_citation_count = 0
         self.structural_guarantee_count = 0
+        self.info_reorder_count = 0
+        self.conceptual_bridge_count = 0
 
         # Configuration flags and rates
         self.enable_voice_transform = enable_voice_transform
@@ -79,6 +83,10 @@ class TextModifier:
         self.contraction_rate = contraction_rate
         self.enable_ngram_audit = enable_ngram_audit
         self.enable_risk_citation = enable_risk_citation
+        self.enable_info_reorder = enable_info_reorder
+        self.info_reorder_rate = info_reorder_rate
+        self.enable_conceptual_bridge = enable_conceptual_bridge
+        self.conceptual_bridge_rate = conceptual_bridge_rate
 
         # Tracking sets / dicts for new stages
         self._used_appositives = set()
@@ -163,6 +171,9 @@ class TextModifier:
         if protected_line != prev_text:
             struct_changes += 1
 
+        # Step 15b: Paragraph-level sentence reordering
+        protected_line = self._reorder_sentences(protected_line)
+
         # Structural Diversity Guarantee: For sentences > 60 chars, ensure at least 2 structural transformations are applied.
         if len(stripped) > 60 and struct_changes < 2:
             fallbacks = [
@@ -188,6 +199,9 @@ class TextModifier:
 
         # Step 17: Post-Pass Source-Aware N-gram Audit
         protected_line = self._source_aware_ngram_audit(protected_line)
+
+        # Step 17b: Conceptual bridging insertion
+        protected_line = self._insert_conceptual_bridge(protected_line)
 
         # Step 18: Restore LaTeX elements (loop recursively to handle nesting)
         modified_line = self._restore_latex(protected_line, placeholders)
@@ -1299,6 +1313,75 @@ class TextModifier:
             idx += 1
 
         return ''.join(parts)
+
+    def _reorder_sentences(self, text):
+        """Rotate sentence sequence inside a paragraph line if they don't have start pronouns/transition dependencies.
+        """
+        if not self.enable_info_reorder:
+            return text
+        if '\x00' in text:
+            return text
+        if self.rng.random() > self.info_reorder_rate:
+            return text
+
+        stripped = text.strip()
+        indent = text[:len(text) - len(stripped)]
+
+        # Split into sentences (keeping punctuation/spacing)
+        sentences = re.split(r'(?<=[.!?])\s+', stripped)
+        if len(sentences) < 3:
+            return text
+
+        # Check which sentences are independent (do not start with dependent words)
+        dependent_starts = (
+            "this", "that", "these", "those", "they", "it", "their", "he", "she", "him", "her",
+            "therefore", "thus", "consequently", "however", "hence", "moreover", "furthermore",
+            "meanwhile", "nevertheless", "nonetheless", "subsequently", "accordingly"
+        )
+        
+        modified = False
+        for i in range(len(sentences) - 1):
+            s1 = sentences[i]
+            s2 = sentences[i + 1]
+            
+            words_s2 = s2.split()
+            first_word_s2 = words_s2[0].lower().strip('.,;:!?()[]{}') if words_s2 else ""
+            if first_word_s2 and first_word_s2 not in dependent_starts:
+                # Swap sentence i and sentence i+1
+                sentences[i], sentences[i + 1] = s2, s1
+                self.info_reorder_count += 1
+                modified = True
+                break
+                
+        if modified:
+            return indent + ' '.join(sentences)
+        return text
+
+    CONCEPTUAL_BRIDGES = [
+        "This approach provides a robust framework for further analysis.",
+        "These aspects are crucial for establishing the validity of the model.",
+        "This relation plays a key role in the subsequent computations.",
+        "The underlying assumptions remain valid under standard conditions.",
+        "These observations are consistent with existing theoretical benchmarks.",
+        "This formulation simplifies the implementation of the numerical scheme."
+    ]
+
+    def _insert_conceptual_bridge(self, text):
+        if not self.enable_conceptual_bridge:
+            return text
+        if '\x00' in text or len(text.strip()) < 120:
+            return text
+        if self.rng.random() > self.conceptual_bridge_rate:
+            return text
+
+        stripped = text.strip()
+        if stripped.endswith('.'):
+            bridge = self.rng.choice(self.CONCEPTUAL_BRIDGES)
+            result = stripped + ' ' + bridge
+            self.conceptual_bridge_count += 1
+            indent = text[:len(text) - len(stripped)]
+            return indent + result
+        return text
 
 
 

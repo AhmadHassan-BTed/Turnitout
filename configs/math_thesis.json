@@ -25,6 +25,10 @@
   "contraction_rate": 0.20,
   "enable_ngram_audit": true,
   "enable_risk_citation": true,
+  "enable_info_reorder": true,
+  "info_reorder_rate": 0.20,
+  "enable_conceptual_bridge": true,
+  "conceptual_bridge_rate": 0.20,
   "topic_citations": [
     {
       "keywords": ["heat equation", "thermal", "conduction", "fourier", "diffusion equation", "temperature"],

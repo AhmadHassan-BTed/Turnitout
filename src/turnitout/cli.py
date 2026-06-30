@@ -177,6 +177,10 @@ def main():
         contraction_rate=config.CONTRACTION_RATE,
         enable_ngram_audit=config.ENABLE_NGRAM_AUDIT,
         enable_risk_citation=config.ENABLE_RISK_CITATION,
+        enable_info_reorder=config.ENABLE_INFO_REORDER,
+        info_reorder_rate=config.INFO_REORDER_RATE,
+        enable_conceptual_bridge=config.ENABLE_CONCEPTUAL_BRIDGE,
+        conceptual_bridge_rate=config.CONCEPTUAL_BRIDGE_RATE,
         source_grams=source_grams
     )
 
@@ -239,6 +243,8 @@ def main():
     print(f"  N-gram audits:         {modifier.ngram_audit_count}")
     print(f"  Risk citation shields: {modifier.risk_citation_count}")
     print(f"  Structural guarantees: {modifier.structural_guarantee_count}")
+    print(f"  Sentence reorders:     {modifier.info_reorder_count}")
+    print(f"  Conceptual bridges:    {modifier.conceptual_bridge_count}")
     print(f"  Citations added:       {modifier.citation_count}")
     print(f"  Lines modified:        {len(modifier.changes_log)}")
 
@@ -342,7 +348,8 @@ def main():
                          modifier.nominalization_count + modifier.appositive_count +
                          modifier.discourse_rotate_count + modifier.contraction_count +
                          modifier.ngram_audit_count + modifier.risk_citation_count +
-                         modifier.structural_guarantee_count)
+                         modifier.structural_guarantee_count + modifier.info_reorder_count +
+                         modifier.conceptual_bridge_count)
     print(f"  Total lines processed:    {total_lines}")
     print(f"  Prose lines modified:     {len(modifier.changes_log)}")
     print(f"  Total transformations:    {total_transforms}")
@@ -364,6 +371,8 @@ def main():
     print(f"    N-gram audits:         {modifier.ngram_audit_count}")
     print(f"    Risk citation shields: {modifier.risk_citation_count}")
     print(f"    Structural guarantees: {modifier.structural_guarantee_count}")
+    print(f"    Sentence reorders:     {modifier.info_reorder_count}")
+    print(f"    Conceptual bridges:    {modifier.conceptual_bridge_count}")
     print(f"    Citations added:        {modifier.citation_count}")
     
     new_dummies = sum(1 for kw_tuple, info in config.TOPIC_CITATIONS.items() 

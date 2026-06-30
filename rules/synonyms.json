@@ -1,4 +1,19 @@
 {
+  "convergence": [
+    "convergent behavior",
+    "convergence characteristics",
+    "numerical convergence"
+  ],
+  "stability": [
+    "stable behavior",
+    "numerical stability",
+    "stability properties"
+  ],
+  "accuracy": [
+    "precision level",
+    "numerical accuracy",
+    "degree of precision"
+  ],
   "show": [
     "demonstrate",
     "illustrate",

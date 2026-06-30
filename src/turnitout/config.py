@@ -40,6 +40,10 @@ def validate_config_contract(data, config_path):
         "contraction_rate": (int, float),
         "enable_ngram_audit": bool,
         "enable_risk_citation": bool,
+        "enable_info_reorder": bool,
+        "info_reorder_rate": (int, float),
+        "enable_conceptual_bridge": bool,
+        "conceptual_bridge_rate": (int, float),
         "topic_citations": list,
     }
 
@@ -152,8 +156,13 @@ def load_config_json(config_name):
     enable_ngram_audit = os.getenv("TURNITOUT_NGRAM_AUDIT", str(data.get("enable_ngram_audit", True))).lower() in ("true", "1", "yes")
     enable_risk_citation = os.getenv("TURNITOUT_RISK_CITATION", str(data.get("enable_risk_citation", True))).lower() in ("true", "1", "yes")
 
+    enable_info_reorder = os.getenv("TURNITOUT_INFO_REORDER", str(data.get("enable_info_reorder", True))).lower() in ("true", "1", "yes")
+    info_reorder_rate = float(os.getenv("TURNITOUT_INFO_REORDER_RATE", data.get("info_reorder_rate", 0.20)))
+    enable_conceptual_bridge = os.getenv("TURNITOUT_CONCEPTUAL_BRIDGE", str(data.get("enable_conceptual_bridge", True))).lower() in ("true", "1", "yes")
+    conceptual_bridge_rate = float(os.getenv("TURNITOUT_CONCEPTUAL_BRIDGE_RATE", data.get("conceptual_bridge_rate", 0.20)))
+
     class ConfigNamespace:
-        def __init__(self, d, tc, agg, sd, mcl, ev, vr, ef, fr, et, tr, er, rr, en, nr, ea, ar, ed, dr, ec, cr, ena, erc):
+        def __init__(self, d, tc, agg, sd, mcl, ev, vr, ef, fr, et, tr, er, rr, en, nr, ea, ar, ed, dr, ec, cr, ena, erc, eir, irr, ecb, cbr):
             self.PROJECT_NAME = d["project_name"]
             
             # Resolve relative paths relative to BASE_DIR
@@ -185,13 +194,18 @@ def load_config_json(config_name):
             self.CONTRACTION_RATE = cr
             self.ENABLE_NGRAM_AUDIT = ena
             self.ENABLE_RISK_CITATION = erc
+            self.ENABLE_INFO_REORDER = eir
+            self.INFO_REORDER_RATE = irr
+            self.ENABLE_CONCEPTUAL_BRIDGE = ecb
+            self.CONCEPTUAL_BRIDGE_RATE = cbr
 
     return ConfigNamespace(data, topic_citations, aggressiveness, seed, min_cite_len,
                            enable_voice, voice_rate, enable_fusion, fusion_rate,
                            enable_transition, transition_rate, enable_reorder, reorder_rate,
                            enable_nominal, nominal_rate, enable_appositive, appositive_rate,
                            enable_discourse, discourse_rate, enable_contraction, contraction_rate,
-                           enable_ngram_audit, enable_risk_citation)
+                           enable_ngram_audit, enable_risk_citation,
+                           enable_info_reorder, info_reorder_rate, enable_conceptual_bridge, conceptual_bridge_rate)
 
 
 def auto_configure_project():
@@ -334,5 +348,9 @@ def auto_configure_project():
             self.CONTRACTION_RATE = float(os.getenv("TURNITOUT_CONTRACTION_RATE", 0.20))
             self.ENABLE_NGRAM_AUDIT = os.getenv("TURNITOUT_NGRAM_AUDIT", "true").lower() in ("true", "1", "yes")
             self.ENABLE_RISK_CITATION = os.getenv("TURNITOUT_RISK_CITATION", "true").lower() in ("true", "1", "yes")
+            self.ENABLE_INFO_REORDER = os.getenv("TURNITOUT_INFO_REORDER", "true").lower() in ("true", "1", "yes")
+            self.INFO_REORDER_RATE = float(os.getenv("TURNITOUT_INFO_REORDER_RATE", 0.20))
+            self.ENABLE_CONCEPTUAL_BRIDGE = os.getenv("TURNITOUT_CONCEPTUAL_BRIDGE", "true").lower() in ("true", "1", "yes")
+            self.CONCEPTUAL_BRIDGE_RATE = float(os.getenv("TURNITOUT_CONCEPTUAL_BRIDGE_RATE", 0.20))
 
     return AutoConfigNamespace()
