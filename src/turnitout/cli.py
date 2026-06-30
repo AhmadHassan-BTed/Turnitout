@@ -212,7 +212,15 @@ def main():
                 if 0 <= ci < len(zones) and zones[ci]['type'] == 'PROSE':
                     context.append(zones[ci]['text'])
 
-            modified = modifier.modify_line(line, zone['idx'], context)
+            orig_max_cites = modifier._transformers['CitationShieldTransformer'].max_citations_to_insert
+            if 'abstract' in zone.get('reason', '') or 'conclusion' in zone.get('reason', ''):
+                modifier._transformers['CitationShieldTransformer'].max_citations_to_insert = 0
+
+            try:
+                modified = modifier.modify_line(line, zone['idx'], context)
+            finally:
+                modifier._transformers['CitationShieldTransformer'].max_citations_to_insert = orig_max_cites
+
             if args.verbose and modified != line:
                 print(f"    L{zone['idx']+1}: {line.strip()[:70]}...")
                 print(f"       -> {modified.strip()[:70]}...")

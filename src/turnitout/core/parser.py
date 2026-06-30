@@ -33,6 +33,9 @@ class LaTeXZoneParser:
         past_first_chapter = False
         env_depth = 0
 
+        in_abstract = False
+        in_conclusion = False
+
         for i, line in enumerate(lines):
             stripped = line.strip()
 
@@ -52,6 +55,28 @@ class LaTeXZoneParser:
             if in_frontmatter and not past_first_chapter:
                 zones.append({'idx': i, 'text': line, 'type': 'SKIP', 'reason': 'frontmatter'})
                 continue
+
+            # -- Abstract environment tracking --
+            if '\\begin{abstract}' in line:
+                in_abstract = True
+            elif '\\end{abstract}' in line:
+                in_abstract = False
+
+            # -- Heading tracking to update section states --
+            if self._is_heading(stripped):
+                is_main_heading = bool(re.match(r'\\(chapter|section)\*?\{', stripped))
+                if is_main_heading:
+                    title_match = re.search(r'\{([^}]+)\}', stripped)
+                    title = title_match.group(1).lower() if title_match else ""
+                    if "abstract" in title:
+                        in_abstract = True
+                        in_conclusion = False
+                    elif "conclusion" in title or "future direction" in title or "future work" in title:
+                        in_abstract = False
+                        in_conclusion = True
+                    else:
+                        in_abstract = False
+                        in_conclusion = False
 
             # -- Environment tracking --
             env_starts = re.findall(r'\\begin\{(\w+\*?)\}', line)
@@ -82,7 +107,12 @@ class LaTeXZoneParser:
             elif self._is_heading(stripped):
                 zones.append({'idx': i, 'text': line, 'type': 'HEADING', 'reason': 'heading'})
             else:
-                zones.append({'idx': i, 'text': line, 'type': 'PROSE', 'reason': 'text'})
+                reason = 'text'
+                if in_abstract:
+                    reason += ':abstract'
+                if in_conclusion:
+                    reason += ':conclusion'
+                zones.append({'idx': i, 'text': line, 'type': 'PROSE', 'reason': reason})
 
             # -- Close environments --
             for ee in env_ends:
