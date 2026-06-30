@@ -357,7 +357,7 @@ class TextModifier:
                        make_placeholder, text)
 
         # 7. Custom macros
-        text = re.sub(r'\\(/subhead|pd|pdd|pdmix|od|odd|laplacian|grad|divop|'
+        text = re.sub(r'\\(?:subhead|pd|pdd|pdmix|od|odd|laplacian|grad|divop|'
                        r'temp|disp|density|specheat|thermcond|thermdiff|tension|'
                        r'wavespeed|heatflow|eqnote|Real|Nat|abs|norm|inner)\b'
                        r'(?:\{[^}]*\})*',
