@@ -433,13 +433,13 @@ class CitationShieldTransformer(BaseTransformer):
         # 3-gram candidates
         for i in range(len(words) - 2):
             phrase = (words[i], words[i+1], words[i+2])
-            if all(w not in self.filler_words for w in (phrase[0], phrase[-1])) and all(len(w) > 2 for w in phrase):
+            if all(w not in self.filler_words for w in phrase) and all(len(w) > 2 for w in phrase):
                 return " ".join(phrase)
                 
         # 2-gram candidates
         for i in range(len(words) - 1):
             phrase = (words[i], words[i+1])
-            if all(w not in self.filler_words for w in (phrase[0], phrase[-1])) and all(len(w) > 2 for w in phrase):
+            if all(w not in self.filler_words for w in phrase) and all(len(w) > 2 for w in phrase):
                 return " ".join(phrase)
                 
         # 1-word candidates

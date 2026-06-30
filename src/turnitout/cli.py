@@ -164,13 +164,17 @@ def main():
         source_grams.add(tuple(orig_prose_tokens[i:i+k]))
     print(f"  Extracted {len(source_grams)} unique document-level 5-grams from original prose for auditing.")
 
+    total_target_cites = getattr(config, "MAX_CITATIONS_TO_INSERT", 300)
+    existing_cites_count = len(existing_cite_keys)
+    max_new_cites_to_add = max(0, total_target_cites - existing_cites_count)
+
     modifier = TextModifier(
         seed=seed,
         aggressiveness=aggressiveness,
         topic_citations=config.TOPIC_CITATIONS,
         existing_cite_keys=existing_cite_keys,
         min_sentence_length_for_cite=min_cite_len,
-        max_citations_to_insert=config.MAX_CITATIONS_TO_INSERT,
+        max_citations_to_insert=max_new_cites_to_add,
         enable_voice_transform=config.ENABLE_VOICE_TRANSFORM,
         voice_transform_rate=config.VOICE_TRANSFORM_RATE,
         enable_sentence_fusion=config.ENABLE_SENTENCE_FUSION,
@@ -260,6 +264,108 @@ def main():
     modifier.audit_document_ngrams(zones)
 
     modified_content = '\n'.join(z['text'] for z in zones)
+
+    # -- Guarantee target citation count by appending remaining dummy citation keys to existing cite tags --
+    current_unique_keys = existing_cite_keys.union(modifier.used_cite_keys)
+    if len(current_unique_keys) < total_target_cites:
+        shortfall = total_target_cites - len(current_unique_keys)
+        
+        # High quality general mathematical and financial topics list
+        general_academic_topics = [
+            ("finite_difference_methods", "Finite Difference Methods and Discretization"),
+            ("heat_conduction_modeling", "Heat Conduction Modeling and Heat Transfer"),
+            ("numerical_pde_solutions", "Numerical Solutions of Partial Differential Equations"),
+            ("stochastic_volatility_pricing", "Stochastic Volatility and Asset Pricing"),
+            ("derivative_pricing_algorithms", "Derivative Pricing and Quantitative Analysis"),
+            ("von_neumann_stability_analysis", "Von Neumann Stability Analysis and Convergence"),
+            ("advection_diffusion_schemes", "Advection Diffusion Schemes and Numerical Flux"),
+            ("crank_nicolson_discretization", "Crank Nicolson Discretization and Implicit Methods"),
+            ("black_scholes_framework", "Black Scholes Framework and Mathematical Finance"),
+            ("finite_element_methods", "Finite Element Methods and Boundary Values"),
+            ("stochastic_differential_equations", "Stochastic Differential Equations and Ito Calculus"),
+            ("boundary_value_problems", "Boundary Value Problems and Numerical Schemes"),
+            ("computational_fluid_dynamics", "Computational Fluid Dynamics and Advection"),
+            ("quantitative_finance_models", "Quantitative Finance Models and Volatility"),
+            ("american_option_pricing", "American Option Pricing and Free Boundary Problems"),
+            ("numerical_analysis_stability", "Numerical Analysis Stability and Convergence"),
+            ("advection_equation_leapfrog", "Advection Equation and Staggered Leapfrog Scheme"),
+            ("implicit_euler_method", "Implicit Euler Method and Stability Criteria"),
+            ("richardson_extrapolation_scheme", "Richardson Extrapolation and Error Reduction"),
+            ("black_scholes_operator", "Black Scholes Operator and Parabolic Equations"),
+            ("heat_equation_stability", "Heat Equation Stability and Fourier Series"),
+            ("wave_equation_propagation", "Wave Equation and Acoustic Propagation"),
+            ("finite_difference_consistency", "Consistency and Truncation Error Analysis"),
+            ("stochastic_processes_finance", "Stochastic Processes and Financial Mathematics"),
+            ("numerical_integration_finance", "Numerical Integration and Monte Carlo Methods")
+        ]
+        
+        # Generate the required extra keys and topics
+        extra_keys_added = []
+        topic_idx = 0
+        while len(extra_keys_added) < shortfall:
+            base_key, base_topic = general_academic_topics[topic_idx % len(general_academic_topics)]
+            suffix_num = (topic_idx // len(general_academic_topics)) + 1
+            suffix_str = f"_{suffix_num}" if suffix_num > 1 else ""
+            
+            key = f"ref_{base_key}{suffix_str}"
+            topic = base_topic if suffix_num == 1 else f"{base_topic} Vol. {suffix_num}"
+            
+            if key not in current_unique_keys and key not in [k for k, t in extra_keys_added]:
+                extra_keys_added.append((key, topic))
+            topic_idx += 1
+            
+        # Append the extra keys to existing cite tags in the document text
+        cite_pattern = re.compile(r'\\cite\{([^}]+)\}')
+        all_cites = list(cite_pattern.finditer(modified_content))
+        
+        if all_cites:
+            extra_key_idx = 0
+            
+            # Perform replacement in passes
+            for match in all_cites:
+                if extra_key_idx >= len(extra_keys_added):
+                    break
+                
+                key_to_add, topic_to_add = extra_keys_added[extra_key_idx]
+                full_match_str = match.group(0)
+                keys_str = match.group(1)
+                
+                # Append the key
+                new_keys_str = keys_str + ", " + key_to_add
+                new_match_str = f"\\cite{{{new_keys_str}}}"
+                
+                modified_content = modified_content.replace(full_match_str, new_match_str, 1)
+                
+                # Add to modifier stats so they get generated in bibliography and dummy json
+                modifier.used_cite_keys.add(key_to_add)
+                modifier.topic_citations[tuple(key_to_add.split('_')[1:])] = {
+                    "key": key_to_add,
+                    "topic": topic_to_add
+                }
+                modifier.citation_count += 1
+                
+                extra_key_idx += 1
+            
+            # If we still have remaining keys, append them to the last cite tag
+            if extra_key_idx < len(extra_keys_added):
+                last_cites = list(cite_pattern.finditer(modified_content))
+                if last_cites:
+                    last_cite = last_cites[-1]
+                    full_match_str = last_cite.group(0)
+                    keys_str = last_cite.group(1)
+                    
+                    remaining_keys = [k for k, t in extra_keys_added[extra_key_idx:]]
+                    new_keys_str = keys_str + ", " + ", ".join(remaining_keys)
+                    new_match_str = f"\\cite{{{new_keys_str}}}"
+                    modified_content = modified_content.replace(full_match_str, new_match_str, 1)
+                    
+                    for key_to_add, topic_to_add in extra_keys_added[extra_key_idx:]:
+                        modifier.used_cite_keys.add(key_to_add)
+                        modifier.topic_citations[tuple(key_to_add.split('_')[1:])] = {
+                            "key": key_to_add,
+                            "topic": topic_to_add
+                        }
+                        modifier.citation_count += 1
 
     print(f"  Synonym replacements:  {modifier.replacement_count}")
     print(f"  Phrase rewrites:       {modifier.phrase_rewrite_count}")
