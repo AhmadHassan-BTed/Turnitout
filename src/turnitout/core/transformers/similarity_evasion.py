@@ -1,6 +1,141 @@
 import re
 from turnitout.core.transformers.base import BaseTransformer
-from turnitout.core.rules import ACADEMIC_SYNONYMS
+from turnitout.core.rules import (
+    PHRASE_REWRITES, SUBORDINATE_CONJUNCTIONS, HEDGE_WORDS, ACADEMIC_SYNONYMS
+)
+
+class PhraseRewriteTransformer(BaseTransformer):
+    """Stage 1: Apply phrase-level rewrites."""
+    category = "similarity_evasion"
+
+    def __init__(self):
+        self.phrase_rewrite_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        parts = re.split(r'(\x00PH\d{4}\x00)', text)
+        for i in range(len(parts)):
+            if not parts[i].startswith('\x00') or not parts[i].endswith('\x00'):
+                for pattern, replacement in PHRASE_REWRITES:
+                    def case_aware_replace(match):
+                        original = match.group(0)
+                        if original[0].isupper() and replacement[0].islower():
+                            return replacement[0].upper() + replacement[1:]
+                        return replacement
+
+                    new_part = re.sub(pattern, case_aware_replace, parts[i], flags=re.IGNORECASE)
+                    if new_part != parts[i]:
+                        matches = len(re.findall(pattern, parts[i], flags=re.IGNORECASE))
+                        self.phrase_rewrite_count += matches
+                        parts[i] = new_part
+
+        return ''.join(parts)
+
+
+class ClauseReorderTransformer(BaseTransformer):
+    """Stage 3: Move trailing subordinate clauses to the front of the sentence."""
+    category = "similarity_evasion"
+
+    def __init__(self):
+        self.clause_reorder_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        if '\x00' in text or len(text.strip()) < 80:
+            return text
+
+        if rng.random() > 0.30:
+            return text
+
+        for conj in SUBORDINATE_CONJUNCTIONS:
+            pattern = re.compile(
+                r'^(\s*)([A-Z][^,]+),\s+(' + re.escape(conj) + r'\s+[^.]+)\.\s*$',
+                re.IGNORECASE
+            )
+            m = pattern.match(text)
+            if m:
+                indent = m.group(1)
+                main_clause = m.group(2)
+                sub_clause = m.group(3)
+                reordered = (indent +
+                             sub_clause[0].upper() + sub_clause[1:] + ', ' +
+                             main_clause[0].lower() + main_clause[1:] + '.')
+                self.clause_reorder_count += 1
+                return reordered
+
+        return text
+
+
+class SplitCompoundTransformer(BaseTransformer):
+    """Stage 5: Split long compound sentences at coordinating conjunctions."""
+    category = "similarity_evasion"
+
+    def __init__(self):
+        self.sentence_split_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        stripped = text.strip()
+        if len(stripped) < 120 or '\x00' in text:
+            return text
+
+        if rng.random() > 0.20:
+            return text
+
+        split_patterns = [
+            (r',\s+and\s+', '. '),
+            (r',\s+but\s+', '. However, '),
+            (r';\s+however,?\s+', '. However, '),
+            (r',\s+whereas\s+', '. In contrast, '),
+            (r',\s+while\s+', '. Meanwhile, '),
+        ]
+
+        for pattern, joiner in split_patterns:
+            match = re.search(pattern, stripped, re.IGNORECASE)
+            if match:
+                pos = match.start()
+                before = stripped[:pos]
+                after = stripped[match.end():]
+                if len(before) >= 40 and len(after) >= 40:
+                    if after and after[0].islower():
+                        after = after[0].upper() + after[1:]
+                    indent = text[:len(text) - len(text.lstrip())]
+                    result = indent + before + '.' + joiner.rstrip() + ' ' + after
+                    self.sentence_split_count += 1
+                    return result
+
+        return text
+
+
+class HedgeWordTransformer(BaseTransformer):
+    """Stage 6: Insert a academic hedge word at natural boundaries."""
+    category = "similarity_evasion"
+
+    def __init__(self):
+        self.hedge_insertion_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        stripped = text.strip()
+        if len(stripped) < 80 or '\x00' in text:
+            return text
+
+        if rng.random() > 0.20:
+            return text
+
+        hedge = rng.choice(HEDGE_WORDS)
+
+        comma_positions = [m.start() for m in re.finditer(r',\s+', stripped)]
+        if comma_positions:
+            mid = len(stripped) // 2
+            best_pos = min(comma_positions, key=lambda p: abs(p - mid))
+            match = re.search(r',\s+', stripped[best_pos:])
+            if match:
+                insert_at = best_pos + match.end()
+                if insert_at < len(stripped) and stripped[insert_at:insert_at + 1].islower():
+                    indent = text[:len(text) - len(text.lstrip())]
+                    result = indent + stripped[:insert_at] + hedge + ' ' + stripped[insert_at:]
+                    self.hedge_insertion_count += 1
+                    return result
+
+        return text
+
 
 class BreakNgramChainTransformer(BaseTransformer):
     """Stage 7: Break surviving literal word sequences with punctuation inserts."""
@@ -55,6 +190,114 @@ class BreakNgramChainTransformer(BaseTransformer):
         result = indent + ' '.join(words_list[:break_point]) + ' ' + insert + ' ' + ' '.join(words_list[break_point:])
         self.ngram_break_count += 1
         return result
+
+
+class SentenceFusionTransformer(BaseTransformer):
+    """Stage 9: Combine two adjacent short sentences to vary sentence length."""
+    category = "similarity_evasion"
+
+    def __init__(self, sentence_fusion_rate=0.25, enable_sentence_fusion=True):
+        self.sentence_fusion_rate = sentence_fusion_rate
+        self.enable_sentence_fusion = enable_sentence_fusion
+        self.sentence_fusion_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        if not self.enable_sentence_fusion:
+            return text
+        if '\x00' in text:
+            return text
+        if rng.random() > self.sentence_fusion_rate:
+            return text
+
+        current = text.strip()
+        if len(current) >= 80:
+            return text
+
+        next_line = None
+        if context_lines:
+            for candidate in context_lines:
+                candidate_stripped = candidate.strip()
+                if candidate_stripped and candidate_stripped != current:
+                    next_line = candidate_stripped
+                    break
+
+        if not next_line or len(next_line) >= 80:
+            return text
+
+        if next_line.startswith('\\') or '\x00' in next_line:
+            return text
+
+        connectors = [
+            "which",
+            "thereby",
+            "consequently",
+            "thus leading to",
+            "and as a result",
+        ]
+        connector = rng.choice(connectors)
+
+        if current.endswith('.'):
+            fused = (
+                current[:-1]
+                + ', '
+                + connector
+                + ' '
+                + next_line[0].lower()
+                + next_line[1:]
+            )
+            indent = text[:len(text) - len(current)]
+            self.sentence_fusion_count += 1
+            return indent + fused
+
+        return text
+
+
+class SentenceReorderTransformer(BaseTransformer):
+    """Stage 14: Rotate sentence sequence inside a paragraph line if they are independent."""
+    category = "similarity_evasion"
+
+    def __init__(self, info_reorder_rate=0.20, enable_info_reorder=True):
+        self.info_reorder_rate = info_reorder_rate
+        self.enable_info_reorder = enable_info_reorder
+        self.info_reorder_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        if not self.enable_info_reorder:
+            return text
+        if '\x00' in text:
+            return text
+        if rng.random() > self.info_reorder_rate:
+            return text
+
+        stripped = text.strip()
+        indent = text[:len(text) - len(stripped)]
+
+        sentences = re.split(r'(?<=[.!?])\s+', stripped)
+        if len(sentences) < 3:
+            return text
+
+        dependent_starts = (
+            "this", "that", "these", "those", "they", "it", "their", "he", "she", "him", "her",
+            "therefore", "thus", "consequently", "however", "hence", "moreover", "furthermore",
+            "meanwhile", "nevertheless", "nonetheless", "subsequently", "accordingly"
+        )
+        
+        modified = False
+        for i in range(len(sentences) - 1):
+            s1 = sentences[i]
+            s2 = sentences[i + 1]
+            
+            words_s2 = s2.split()
+            first_word_s2 = words_s2[0].lower().strip('.,;:!?()[]{}') if words_s2 else ""
+            if first_word_s2 and first_word_s2 not in dependent_starts:
+                sentences[i], sentences[i + 1] = s2, s1
+                self.info_reorder_count += 1
+                modified = True
+                break
+                
+        if modified:
+            return indent + ' '.join(sentences)
+        return text
 
 
 class SourceAwareNgramAuditTransformer(BaseTransformer):

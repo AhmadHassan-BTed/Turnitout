@@ -1,8 +1,250 @@
 import re
 from turnitout.core.transformers.base import BaseTransformer
 from turnitout.core.rules import (
-    PASSIVE_VERB_MAP, TRANSITION_PHRASES, VERB_NOUN_PAIRS, APPOSITIVE_MAP
+    ACADEMIC_SYNONYMS, DETERMINER_MAP, PASSIVE_VERB_MAP, TRANSITION_PHRASES,
+    VERB_NOUN_PAIRS, APPOSITIVE_MAP, DISCOURSE_MARKER_VARIANTS, CONTRACTIONS
 )
+
+CONTRACTION_PATTERNS = [
+    (re.compile(r'\b' + re.escape(item[0]) + r'\b', re.IGNORECASE), item[1])
+    for item in CONTRACTIONS
+]
+
+class SynonymTransformer(BaseTransformer):
+    """Stage 2: Apply word-level academic synonym replacement with inflected conjugation."""
+    category = "ai_evasion"
+
+    def __init__(self, aggressiveness=0.55):
+        self.aggressiveness = aggressiveness
+        self.replacement_count = 0
+        self._last_used_synonyms = {}
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        tokens = re.split(r'(\s+|[.,;:!?()\[\]{}"\'\\])', text)
+        modified_tokens = []
+
+        for token in tokens:
+            if not token or not token.strip() or '\x00' in token:
+                modified_tokens.append(token)
+                continue
+
+            if len(token) <= 2:
+                modified_tokens.append(token)
+                continue
+
+            lower = token.lower()
+            
+            # 1. Direct match
+            if lower in ACADEMIC_SYNONYMS:
+                if rng.random() < self.aggressiveness:
+                    candidates = ACADEMIC_SYNONYMS[lower]
+                    last_used = self._last_used_synonyms.get(lower, None)
+                    filtered = [c for c in candidates if c != last_used]
+                    if not filtered:
+                        filtered = candidates
+
+                    replacement = rng.choice(filtered)
+                    self._last_used_synonyms[lower] = replacement
+
+                    if token[0].isupper():
+                        replacement = replacement[0].upper() + replacement[1:]
+                    if token.isupper() and len(token) > 1:
+                        replacement = replacement.upper()
+
+                    modified_tokens.append(replacement)
+                    self.replacement_count += 1
+                    continue
+            
+            # 2. Inflection fallback match
+            replaced = False
+            if rng.random() < self.aggressiveness:
+                # Plural/Third-person singular (-s, -es, -ies)
+                if lower.endswith('s') and len(lower) > 3:
+                    base = None
+                    suffix = ''
+                    if lower.endswith('ies'):
+                        base = lower[:-3] + 'y'
+                        suffix = 'ies'
+                    elif lower.endswith('es') and any(lower.endswith(x) for x in ['ses', 'shes', 'ches', 'xes', 'zes']):
+                        base = lower[:-2]
+                        suffix = 'es'
+                    else:
+                        base = lower[:-1]
+                        suffix = 's'
+                    
+                    if base in ACADEMIC_SYNONYMS:
+                        candidates = ACADEMIC_SYNONYMS[base]
+                        last_used = self._last_used_synonyms.get(base, None)
+                        filtered = [c for c in candidates if c != last_used]
+                        if not filtered: filtered = candidates
+                        base_rep = rng.choice(filtered)
+                        self._last_used_synonyms[base] = base_rep
+                        
+                        if suffix == 'ies':
+                            rep = base_rep[:-1] + 'ies' if base_rep.endswith('y') else base_rep + 's'
+                        elif suffix == 'es':
+                            rep = base_rep + 'es' if any(base_rep.endswith(x) for x in ['s', 'sh', 'ch', 'x', 'z']) else base_rep + 's'
+                        else:
+                            if base_rep.endswith('y') and not any(base_rep.endswith(x) for x in ['ay', 'ey', 'oy', 'uy']):
+                                rep = base_rep[:-1] + 'ies'
+                            elif any(base_rep.endswith(x) for x in ['s', 'sh', 'ch', 'x', 'z']):
+                                rep = base_rep + 'es'
+                            else:
+                                rep = base_rep + 's'
+                        
+                        if token[0].isupper(): rep = rep[0].upper() + rep[1:]
+                        if token.isupper() and len(token) > 1: rep = rep.upper()
+                        modified_tokens.append(rep)
+                        self.replacement_count += 1
+                        replaced = True
+                        
+                # Past tense/participle (-ed, -ied, -d)
+                elif not replaced and lower.endswith('ed') and len(lower) > 4:
+                    base = None
+                    suffix = ''
+                    if lower.endswith('ied'):
+                        base = lower[:-3] + 'y'
+                        suffix = 'ied'
+                    elif lower.endswith('ed'):
+                        if (lower[:-1]) in ACADEMIC_SYNONYMS:
+                            base = lower[:-1]
+                            suffix = 'd'
+                        else:
+                            base = lower[:-2]
+                            suffix = 'ed'
+                    
+                    if base in ACADEMIC_SYNONYMS:
+                        candidates = ACADEMIC_SYNONYMS[base]
+                        last_used = self._last_used_synonyms.get(base, None)
+                        filtered = [c for c in candidates if c != last_used]
+                        if not filtered: filtered = candidates
+                        base_rep = rng.choice(filtered)
+                        self._last_used_synonyms[base] = base_rep
+                        
+                        if suffix == 'ied':
+                            rep = base_rep[:-1] + 'ied' if base_rep.endswith('y') else base_rep + 'ed'
+                        elif suffix == 'd':
+                            rep = base_rep + 'd' if base_rep.endswith('e') else base_rep + 'ed'
+                        else:
+                            if base_rep.endswith('y') and not any(base_rep.endswith(x) for x in ['ay', 'ey', 'oy', 'uy']):
+                                rep = base_rep[:-1] + 'ied'
+                            elif base_rep.endswith('e'):
+                                rep = base_rep + 'd'
+                            else:
+                                rep = base_rep + 'ed'
+                                
+                        if token[0].isupper(): rep = rep[0].upper() + rep[1:]
+                        if token.isupper() and len(token) > 1: rep = rep.upper()
+                        modified_tokens.append(rep)
+                        self.replacement_count += 1
+                        replaced = True
+                        
+                # Present participle/gerund (-ing)
+                elif not replaced and lower.endswith('ing') and len(lower) > 5:
+                    base = None
+                    suffix = ''
+                    if (lower[:-3]) in ACADEMIC_SYNONYMS:
+                        base = lower[:-3]
+                        suffix = 'ing'
+                    elif (lower[:-3] + 'e') in ACADEMIC_SYNONYMS:
+                        base = lower[:-3] + 'e'
+                        suffix = 'eing'
+                    
+                    if base in ACADEMIC_SYNONYMS:
+                        candidates = ACADEMIC_SYNONYMS[base]
+                        last_used = self._last_used_synonyms.get(base, None)
+                        filtered = [c for c in candidates if c != last_used]
+                        if not filtered: filtered = candidates
+                        base_rep = rng.choice(filtered)
+                        self._last_used_synonyms[base] = base_rep
+                        
+                        if base_rep.endswith('e') and not base_rep.endswith('ee'):
+                            rep = base_rep[:-1] + 'ing'
+                        else:
+                            rep = base_rep + 'ing'
+                            
+                        if token[0].isupper(): rep = rep[0].upper() + rep[1:]
+                        if token.isupper() and len(token) > 1: rep = rep.upper()
+                        modified_tokens.append(rep)
+                        self.replacement_count += 1
+                        replaced = True
+                        
+                # Adverb (-ly, -ily)
+                elif not replaced and lower.endswith('ly') and len(lower) > 4:
+                    base = None
+                    suffix = ''
+                    if lower.endswith('ily'):
+                        base = lower[:-3] + 'y'
+                        suffix = 'ily'
+                    else:
+                        base = lower[:-2]
+                        suffix = 'ly'
+                        
+                    if base in ACADEMIC_SYNONYMS:
+                        candidates = ACADEMIC_SYNONYMS[base]
+                        last_used = self._last_used_synonyms.get(base, None)
+                        filtered = [c for c in candidates if c != last_used]
+                        if not filtered: filtered = candidates
+                        base_rep = rng.choice(filtered)
+                        self._last_used_synonyms[base] = base_rep
+                        
+                        if suffix == 'ily':
+                            rep = base_rep[:-1] + 'ily' if base_rep.endswith('y') else base_rep + 'ly'
+                        else:
+                            if base_rep.endswith('y') and not any(base_rep.endswith(x) for x in ['ay', 'ey', 'oy', 'uy']):
+                                rep = base_rep[:-1] + 'ily'
+                            else:
+                                rep = base_rep + 'ly'
+                                
+                        if token[0].isupper(): rep = rep[0].upper() + rep[1:]
+                        if token.isupper() and len(token) > 1: rep = rep.upper()
+                        modified_tokens.append(rep)
+                        self.replacement_count += 1
+                        replaced = True
+
+            if not replaced:
+                modified_tokens.append(token)
+
+        return ''.join(modified_tokens)
+
+
+class DeterminerSwapTransformer(BaseTransformer):
+    """Stage 4: Contextually swap determiners (e.g. 'the' <-> 'this', 'a' <-> 'another')."""
+    category = "ai_evasion"
+
+    def __init__(self):
+        self.determiner_swap_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None, force_run: bool = False) -> str:
+        tokens = text.split()
+        modified = []
+        i = 0
+        while i < len(tokens):
+            token = tokens[i]
+            lower = token.lower().rstrip('.,;:')
+
+            if (lower in DETERMINER_MAP
+                    and i + 1 < len(tokens)
+                    and '\x00' not in tokens[i + 1]
+                    and len(tokens[i + 1]) >= 4
+                    and tokens[i + 1][0].isalpha()
+                    and (force_run or rng.random() < 0.25)):
+
+                candidates = DETERMINER_MAP[lower]
+                replacement = rng.choice(candidates)
+
+                if token[0].isupper():
+                    replacement = replacement[0].upper() + replacement[1:]
+
+                trailing = token[len(lower):]
+                modified.append(replacement + trailing)
+                self.determiner_swap_count += 1
+            else:
+                modified.append(token)
+            i += 1
+
+        return ' '.join(modified)
+
 
 class VoiceTransformTransformer(BaseTransformer):
     """Stage 8: Alternate active/passive voice constructions."""
@@ -141,66 +383,6 @@ class VoiceTransformTransformer(BaseTransformer):
             if new_text != text:
                 self.voice_transform_count += 1
                 return new_text
-
-        return text
-
-
-class SentenceFusionTransformer(BaseTransformer):
-    """Stage 9: Combine two adjacent short sentences to vary sentence length."""
-    category = "similarity_evasion"
-
-    def __init__(self, sentence_fusion_rate=0.25, enable_sentence_fusion=True):
-        self.sentence_fusion_rate = sentence_fusion_rate
-        self.enable_sentence_fusion = enable_sentence_fusion
-        self.sentence_fusion_count = 0
-
-    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
-        if not self.enable_sentence_fusion:
-            return text
-        if '\x00' in text:
-            return text
-        if rng.random() > self.sentence_fusion_rate:
-            return text
-
-        current = text.strip()
-        if len(current) >= 80:
-            return text
-
-        next_line = None
-        if context_lines:
-            for candidate in context_lines:
-                candidate_stripped = candidate.strip()
-                if candidate_stripped and candidate_stripped != current:
-                    next_line = candidate_stripped
-                    break
-
-        if not next_line or len(next_line) >= 80:
-            return text
-
-        if next_line.startswith('\\') or '\x00' in next_line:
-            return text
-
-        connectors = [
-            "which",
-            "thereby",
-            "consequently",
-            "thus leading to",
-            "and as a result",
-        ]
-        connector = rng.choice(connectors)
-
-        if current.endswith('.'):
-            fused = (
-                current[:-1]
-                + ', '
-                + connector
-                + ' '
-                + next_line[0].lower()
-                + next_line[1:]
-            )
-            indent = text[:len(text) - len(current)]
-            self.sentence_fusion_count += 1
-            return indent + fused
 
         return text
 
@@ -447,3 +629,92 @@ class AppositiveInjectTransformer(BaseTransformer):
                 return indent + new_stripped
 
         return text
+
+
+class DiscourseRotateTransformer(BaseTransformer):
+    """Stage 14b: Replace overused discourse markers at the beginning of sentences."""
+    category = "ai_evasion"
+
+    def __init__(self, discourse_rotate_rate=0.50, enable_discourse_rotate=True):
+        self.discourse_rotate_rate = discourse_rotate_rate
+        self.enable_discourse_rotate = enable_discourse_rotate
+        self.discourse_rotate_count = 0
+        self._used_discourse_replacements = {}
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None, force_run: bool = False) -> str:
+        if not self.enable_discourse_rotate:
+            return text
+        if '\x00' in text:
+            return text
+        if not force_run and rng.random() > self.discourse_rotate_rate:
+            return text
+
+        stripped = text.strip()
+        indent = text[:len(text) - len(stripped)]
+
+        for marker, variants in DISCOURSE_MARKER_VARIANTS.items():
+            pattern = re.compile(
+                r'^(' + re.escape(marker) + r')(\s*[,;]\s*|\s+)',
+                re.IGNORECASE,
+            )
+            m = pattern.match(stripped)
+            if not m:
+                continue
+
+            used = self._used_discourse_replacements.get(marker, [])
+            available = [v for v in variants if v not in used]
+            if not available:
+                available = variants
+
+            replacement = rng.choice(available)
+            self._used_discourse_replacements.setdefault(marker, []).append(replacement)
+
+            original_word = m.group(1)
+            if original_word[0].isupper():
+                replacement = replacement[0].upper() + replacement[1:]
+            else:
+                replacement = replacement[0].lower() + replacement[1:]
+
+            separator = m.group(2)
+            rest = stripped[m.end():]
+            new_stripped = replacement + separator + rest
+            self.discourse_rotate_count += 1
+            return indent + new_stripped
+
+        return text
+
+
+class ContractionTransformer(BaseTransformer):
+    """Stage 15: Swap formal words to contractions and vice versa ( burstiness variation)."""
+    category = "ai_evasion"
+
+    def __init__(self, contraction_rate=0.20, enable_contraction=True):
+        self.contraction_rate = contraction_rate
+        self.enable_contraction = enable_contraction
+        self.contraction_count = 0
+
+    def transform(self, text: str, rng, line_num: int = 0, context_lines=None) -> str:
+        if not self.enable_contraction:
+            return text
+        if '\x00' in text:
+            return text
+        if rng.random() > self.contraction_rate:
+            return text
+
+        parts = re.split(r'(\x00PH\d{4}\x00)', text)
+        for i in range(len(parts)):
+            if not parts[i].startswith('\x00') or not parts[i].endswith('\x00'):
+                for pattern, replacement in CONTRACTION_PATTERNS:
+                    def case_aware_replace(match):
+                        original = match.group(0)
+                        if original[0].isupper():
+                            return replacement[0].upper() + replacement[1:]
+                        return replacement
+
+                    new_part = re.sub(pattern, case_aware_replace, parts[i])
+                    if new_part != parts[i]:
+                        self.contraction_count += 1
+                        parts[i] = new_part
+                        break
+
+        return ''.join(parts)

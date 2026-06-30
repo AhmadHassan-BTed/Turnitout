@@ -1,18 +1,13 @@
 from turnitout.core.transformers.base import BaseTransformer
-from turnitout.core.transformers.lexical import (
-    PhraseRewriteTransformer, SynonymTransformer, DeterminerSwapTransformer,
-    HedgeWordTransformer, ContractionTransformer
+from turnitout.core.transformers.ai_evasion import (
+    SynonymTransformer, DeterminerSwapTransformer, VoiceTransformTransformer,
+    TransitionInjectTransformer, ClauseWordReorderTransformer, NominalizationTransformer,
+    AppositiveInjectTransformer, DiscourseRotateTransformer, ContractionTransformer
 )
-from turnitout.core.transformers.syntactic import (
-    VoiceTransformTransformer, SentenceFusionTransformer, TransitionInjectTransformer,
-    ClauseWordReorderTransformer, NominalizationTransformer, AppositiveInjectTransformer
-)
-from turnitout.core.transformers.structural import (
-    ClauseReorderTransformer, SplitCompoundTransformer, SentenceReorderTransformer,
-    DiscourseRotateTransformer
-)
-from turnitout.core.transformers.advanced import (
-    BreakNgramChainTransformer, SourceAwareNgramAuditTransformer,
+from turnitout.core.transformers.similarity_evasion import (
+    PhraseRewriteTransformer, ClauseReorderTransformer, SplitCompoundTransformer,
+    HedgeWordTransformer, BreakNgramChainTransformer, SentenceFusionTransformer,
+    SentenceReorderTransformer, SourceAwareNgramAuditTransformer,
     ConceptualBridgeTransformer, CitationShieldTransformer
 )
 
