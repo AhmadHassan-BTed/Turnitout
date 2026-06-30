@@ -68,7 +68,7 @@ class LaTeXZoneParser:
                 if is_main_heading:
                     title_match = re.search(r'\{([^}]+)\}', stripped)
                     title = title_match.group(1).lower() if title_match else ""
-                    if "abstract" in title:
+                    if any(kw in title for kw in ["abstract", "acknowledg", "dedication", "declaration", "appendix", "appendices"]):
                         in_abstract = True
                         in_conclusion = False
                     elif "conclusion" in title or "future direction" in title or "future work" in title:
