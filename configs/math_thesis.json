@@ -159,6 +159,31 @@
       "keywords": ["volatility", "drift", "diffusion coefficient"],
       "key": "ref_volatility_models",
       "topic": "Volatility and Diffusion Coefficient Modeling"
+    },
+    {
+      "keywords": ["fluid mechanics", "navier-stokes", "cfd", "viscous"],
+      "key": "ref_cfd_fluids",
+      "topic": "Computational Fluid Dynamics and Navier-Stokes Solver Methods"
+    },
+    {
+      "keywords": ["error analysis", "truncation", "order of accuracy", "discretization error"],
+      "key": "ref_error_analysis",
+      "topic": "Error Analysis and Discretization Precision Studies"
+    },
+    {
+      "keywords": ["parabolic equation", "diffusion processes", "convection-diffusion"],
+      "key": "ref_parabolic_pde",
+      "topic": "Analysis and Numerical Methods for Parabolic PDEs"
+    },
+    {
+      "keywords": ["hyperbolic equation", "wave propagation", "shock waves", "characteristics"],
+      "key": "ref_hyperbolic_pde",
+      "topic": "Numerical Methods for Hyperbolic Systems and Wave Equations"
+    },
+    {
+      "keywords": ["american option", "optimal stopping", "free boundary", "early exercise"],
+      "key": "ref_american_options",
+      "topic": "Optimal Stopping and Free Boundary Problems in Option Pricing"
     }
   ]
 }
