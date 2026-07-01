@@ -39,3 +39,4 @@ if %errorlevel% neq 0 (
 
 :: Run the script
 python run.py %*
+pause
