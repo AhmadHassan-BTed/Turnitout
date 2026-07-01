@@ -17,17 +17,24 @@ def validate_latex(content):
     """Basic LaTeX validation checks to ensure structural/syntactic correctness."""
     issues = []
 
-    # Check balanced braces
+    # Check balanced braces (ignoring escaped \{ and \})
     depth = 0
+    in_escape = False
     for i, ch in enumerate(content):
+        if ch == '\\':
+            in_escape = not in_escape
+            continue
         if ch == '{':
-            depth += 1
+            if not in_escape:
+                depth += 1
         elif ch == '}':
-            depth -= 1
+            if not in_escape:
+                depth -= 1
         if depth < 0:
             line_num = content[:i].count('\n') + 1
             issues.append("Unmatched closing brace at line " + str(line_num))
             depth = 0
+        in_escape = False
     if depth != 0:
         issues.append("Unbalanced braces: " + str(depth) + " unclosed '{' remaining")
 
