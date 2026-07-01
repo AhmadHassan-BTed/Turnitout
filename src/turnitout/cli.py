@@ -12,6 +12,78 @@ from turnitout.core.generator import DummyReferenceGenerator, ChangeReportGenera
 from turnitout.core.utils import validate_latex, load_existing_bib_keys, deduplicate_bib_content, check_overlap, load_existing_bib_topics
 from turnitout.core.rules import GENERAL_ACADEMIC_TOPICS
 
+def get_keywords_tuple(k, t):
+    """Extract meaningful keyword tuple from a key and topic text using stopword filtering.
+    
+    Falls back to key-based tuple extraction if all meaningful words are filterable,
+    ensuring a valid tuple is always returned for BibTeX generation.
+    """
+    k_clean = k.lower().replace('ref_', '').replace('_', ' ').replace('-', ' ')
+    t_clean = t.lower().replace('_', ' ').replace('-', ' ')
+    words = re.findall(r'[a-z]+', k_clean + ' ' + t_clean)
+    stopwords = {
+        'ref', 'and', 'or', 'of', 'in', 'for', 'to', 'with', 'on', 'at', 'by', 'an', 'the', 'its', 'their', 'his', 'her',
+        'modeling', 'model', 'models', 'methods', 'method', 'solutions', 'solution',
+        'analysis', 'scheme', 'schemes', 'pricing', 'algorithms', 'algorithm',
+        'framework', 'frameworks', 'theory', 'theories', 'processes', 'process',
+        'study', 'studies', 'investigation', 'investigations', 'approach', 'approaches',
+        'techniques', 'technique', 'discretization', 'computation', 'computational',
+        'numerical', 'applied', 'approximation', 'approximations', 'equations', 'equation',
+        'science', 'research', 'work', 'paper', 'chapter', 'section', 'thesis', 'results',
+        'result', 'applications', 'application', 'modern', 'basic', 'fundamental', 'fundamentals',
+        'introduction', 'introductory', 'overview', 'review', 'perspective', 'perspectives',
+        'aspect', 'aspects', 'case', 'cases', 'problem', 'problems', 'system', 'systems',
+        'linear', 'nonlinear', 'first', 'second', 'third', 'order', 'high', 'low', 'general',
+        'generalized', 'some', 'new', 'recent', 'developments', 'development', 'advanced',
+        'estimation', 'control', 'optimal', 'optimization', 'rate', 'rates', 'variable', 'variables',
+        'classical', 'classic', 'element', 'elements', 'volume', 'volumes', 'difference', 'differences',
+        'course', 'one', 'two', 'three', 'four', 'five'
+    }
+    unique_words = []
+    for w in words:
+        if w not in stopwords and len(w) > 2 and w not in unique_words:
+            unique_words.append(w)
+
+    if unique_words:
+        return tuple(unique_words)
+
+    # Fallback: derive tuple from key parts if topic-based filtering produced nothing
+    key_parts = [part for part in k_clean.split() if len(part) > 2 and part != 'ref']
+    if key_parts:
+        return tuple(key_parts)
+
+    # Last resort: use raw topic words that are at least 2 chars
+    fallback = [part for part in t_clean.split() if len(part) > 2]
+    return tuple(fallback) if fallback else (t_clean.replace(' ', '_'),)
+
+
+def get_light_keywords_tuple(t):
+    """Extract keywords from topic text using a minimal stopword list.
+    Keeps academic content words (unlike get_keywords_tuple which is aggressive).
+    Used for dummy citation entries to ensure coherent keyword matching.
+    """
+    t_clean = t.lower().replace('_', ' ').replace('-', ' ')
+    words = re.findall(r'[a-z]+', t_clean)
+    # Only remove true noise words — keep academic content words
+    light_stopwords = {
+        'a', 'an', 'the', 'of', 'in', 'for', 'to', 'with', 'on', 'at', 'by', 'and', 'or',
+        'its', 'their', 'his', 'her', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+        'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'can', 'could',
+        'may', 'might', 'shall', 'should', 'about', 'into', 'through', 'during',
+        'before', 'after', 'above', 'below', 'from', 'up', 'down', 'out', 'off',
+        'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there',
+        'when', 'where', 'why', 'how', 'all', 'each', 'every', 'both', 'few',
+        'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only',
+        'own', 'same', 'so', 'than', 'too', 'very', 'just', 'because', 'as',
+        'until', 'while', 'vol', 'vols', 'volume', 'volumes'
+    }
+    unique_words = []
+    for w in words:
+        if w not in light_stopwords and len(w) > 2 and w not in unique_words:
+            unique_words.append(w)
+    return tuple(unique_words) if unique_words else None
+
+
 def guarantee_all_keys_cited(content, all_reference_keys):
     """
     FINAL GUARANTEE: Ensure EVERY single VALID key appears in the document.
@@ -232,34 +304,6 @@ def main():
 
     bib_topics = load_existing_bib_topics(config.BIB_FILE)
     for key, title in bib_topics:
-        def get_keywords_tuple(k, t):
-            k_clean = k.lower().replace('ref_', '').replace('_', ' ').replace('-', ' ')
-            t_clean = t.lower().replace('_', ' ').replace('-', ' ')
-            words = re.findall(r'[a-z]+', k_clean + ' ' + t_clean)
-            stopwords = {
-                'ref', 'and', 'or', 'of', 'in', 'for', 'to', 'with', 'on', 'at', 'by', 'an', 'the', 'its', 'their', 'his', 'her',
-                'modeling', 'model', 'models', 'methods', 'method', 'solutions', 'solution',
-                'analysis', 'scheme', 'schemes', 'pricing', 'algorithms', 'algorithm',
-                'framework', 'frameworks', 'theory', 'theories', 'processes', 'process',
-                'study', 'studies', 'investigation', 'investigations', 'approach', 'approaches',
-                'techniques', 'technique', 'discretization', 'computation', 'computational',
-                'numerical', 'applied', 'approximation', 'approximations', 'equations', 'equation',
-                'science', 'research', 'work', 'paper', 'chapter', 'section', 'thesis', 'results',
-                'result', 'applications', 'application', 'modern', 'basic', 'fundamental', 'fundamentals',
-                'introduction', 'introductory', 'overview', 'review', 'perspective', 'perspectives',
-                'aspect', 'aspects', 'case', 'cases', 'problem', 'problems', 'system', 'systems',
-                'linear', 'nonlinear', 'first', 'second', 'third', 'order', 'high', 'low', 'general',
-                'generalized', 'some', 'new', 'recent', 'developments', 'development', 'advanced',
-                'estimation', 'control', 'optimal', 'optimization', 'rate', 'rates', 'variable', 'variables',
-                'classical', 'classic', 'element', 'elements', 'volume', 'volumes', 'difference', 'differences',
-                'course', 'one', 'two', 'three', 'four', 'five'
-            }
-            unique_words = []
-            for w in words:
-                if w not in stopwords and len(w) > 2 and w not in unique_words:
-                    unique_words.append(w)
-            return tuple(unique_words)
-
         kw_tuple = get_keywords_tuple(key, title)
         if kw_tuple and kw_tuple not in combined_topic_citations:
             combined_topic_citations[kw_tuple] = {
@@ -456,10 +500,20 @@ def main():
 
                 # Add to modifier stats so they get generated in bibliography and dummy json
                 modifier.used_cite_keys.add(key_to_add)
-                modifier.topic_citations[tuple(key_to_add.split('_')[1:])] = {
-                    "key": key_to_add,
-                    "topic": topic_to_add
-                }
+                # Remove any old topic_citations entries for this key (from _determine_topic_citation
+                # which uses sparse sentence-derived keywords) so we can replace with a coherent one
+                keys_to_remove = [kt for kt, info in modifier.topic_citations.items() if info["key"] == key_to_add]
+                for kt in keys_to_remove:
+                    del modifier.topic_citations[kt]
+                # Derive keywords from topic text for coherence, but append key as suffix
+                # to ensure uniqueness (prevents collisions when two keys share similar topics)
+                kw_tuple = get_light_keywords_tuple(topic_to_add)
+                if kw_tuple:
+                    unique_tuple = kw_tuple + (key_to_add,)
+                    modifier.topic_citations[unique_tuple] = {
+                        "key": key_to_add,
+                        "topic": topic_to_add
+                    }
                 modifier.citation_count += 1
 
                 extra_key_idx += 1
@@ -479,11 +533,35 @@ def main():
 
                     for key_to_add, topic_to_add in extra_keys_added[extra_key_idx:]:
                         modifier.used_cite_keys.add(key_to_add)
-                        modifier.topic_citations[tuple(key_to_add.split('_')[1:])] = {
-                            "key": key_to_add,
-                            "topic": topic_to_add
-                        }
+                        # Remove any old topic_citations entries for this key
+                        keys_to_remove = [kt for kt, info in modifier.topic_citations.items() if info["key"] == key_to_add]
+                        for kt in keys_to_remove:
+                            del modifier.topic_citations[kt]
+                        kw_tuple = get_light_keywords_tuple(topic_to_add)
+                        if kw_tuple:
+                            unique_tuple = kw_tuple + (key_to_add,)
+                            modifier.topic_citations[unique_tuple] = {
+                                "key": key_to_add,
+                                "topic": topic_to_add
+                            }
                         modifier.citation_count += 1
+
+    # Final coherence pass: replace ALL topic_citations entries with keywords derived
+    # from the topic text (not from sentence matching), so the JSON is coherent with .bib
+    final_topic_citations = {}
+    for kw_tuple, info in modifier.topic_citations.items():
+        key = info["key"]
+        topic = info["topic"]
+        # Derive coherent keywords from the topic text
+        coherent_kw = get_light_keywords_tuple(topic)
+        if coherent_kw:
+            unique_tuple = coherent_kw + (key,)
+        else:
+            # Fallback: keep existing tuple but ensure key is appended for uniqueness
+            unique_tuple = kw_tuple if kw_tuple[-1] == key else kw_tuple + (key,)
+        final_topic_citations[unique_tuple] = {"key": key, "topic": topic}
+    modifier.topic_citations.clear()
+    modifier.topic_citations.update(final_topic_citations)
 
     # FINAL GUARANTEE: Ensure ALL VALID reference keys are cited in the document
     # Valid keys = existing references + keys that were actually used/inserted via citations
@@ -570,7 +648,8 @@ def main():
         generated_json_path = os.path.join(config.OUTPUT_DIR, "dummy_topic_citations.json")
         json_output_list = []
         for kw_tuple, info in modifier.topic_citations.items():
-            if info["key"] in modifier.used_cite_keys:
+            # Only include keys that are actually in dummy_references.bib (new dummies, not existing bib keys)
+            if info["key"] in modifier.used_cite_keys and info["key"] not in existing_cite_keys:
                 json_output_list.append({
                     "keywords": list(kw_tuple),
                     "key": info["key"],
