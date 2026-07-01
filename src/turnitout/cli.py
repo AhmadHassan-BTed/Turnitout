@@ -14,21 +14,46 @@ from turnitout.core.rules import GENERAL_ACADEMIC_TOPICS
 
 def guarantee_all_keys_cited(content, all_reference_keys):
     """
-    FINAL GUARANTEE: Ensure EVERY single key appears in the document.
+    FINAL GUARANTEE: Ensure EVERY single VALID key appears in the document.
     Uses \\nocite{} for uncited keys before \\end{document}.
-    This bypasses citation insertion limits and guarantees 100% coverage.
+    Only cites keys that are in all_reference_keys set.
+    Removes or cleans invalid citations (those not in all_reference_keys).
     """
-    # Collect currently cited keys
     cited = set()
-    for m in re.finditer(r'\\cite\{([^}]+)\}', content):
-        for k in m.group(1).split(','):
-            cited.add(k.strip())
 
+    def clean_cite_command(match):
+        """Process a single \\cite{} command and keep only valid keys."""
+        keys_str = match.group(1)
+        valid_keys_in_cite = []
+
+        for k in keys_str.split(','):
+            k = k.strip()
+            if k and k in all_reference_keys:
+                cited.add(k)
+                valid_keys_in_cite.append(k)
+
+        # If no valid keys, remove the entire cite command
+        if not valid_keys_in_cite:
+            return ""
+        # Otherwise, return cleaned citation with only valid keys
+        else:
+            return r'\cite{' + ', '.join(valid_keys_in_cite) + '}'
+
+    # Clean all \cite{} commands using regex substitution
+    content = re.sub(r'\\cite\{([^}]+)\}', clean_cite_command, content)
+
+    # Also collect nocite keys (don't clean these, just track them)
+    for m in re.finditer(r'\\nocite\{([^}]+)\}', content):
+        for k in m.group(1).split(','):
+            k = k.strip()
+            if k and k in all_reference_keys:
+                cited.add(k)
+
+    # Add uncited keys via \nocite{}
     uncited = sorted(all_reference_keys - cited)
     if not uncited:
         return content
 
-    # Add all uncited keys via \nocite{} before \end{document}
     nocite_block = "\n% ===== UNCITED REFERENCES FOR COMPLETENESS =====\n"
     for key in uncited:
         nocite_block += f"\\nocite{{{key}}}\n"
@@ -460,24 +485,32 @@ def main():
                         }
                         modifier.citation_count += 1
 
-    # FINAL GUARANTEE: Ensure ALL reference keys are cited in the document
-    all_reference_keys = existing_cite_keys | modifier.used_cite_keys
-    modified_content = guarantee_all_keys_cited(modified_content, all_reference_keys)
+    # FINAL GUARANTEE: Ensure ALL VALID reference keys are cited in the document
+    # Valid keys = existing references + keys that were actually used/inserted via citations
+    # (NOT extra_keys_added, which may include keys that were never actually used)
+    valid_keys = set(existing_cite_keys)
+    valid_keys.update(modifier.used_cite_keys)
 
-    # Verify coverage
+    modified_content = guarantee_all_keys_cited(modified_content, valid_keys)
+
+    # Verify coverage - only count valid citations
     final_cited = set()
     for m in re.finditer(r'\\cite\{([^}]+)\}', modified_content):
         for k in m.group(1).split(','):
-            final_cited.add(k.strip())
+            k = k.strip()
+            if k in valid_keys:
+                final_cited.add(k)
     for m in re.finditer(r'\\nocite\{([^}]+)\}', modified_content):
         for k in m.group(1).split(','):
-            final_cited.add(k.strip())
+            k = k.strip()
+            if k in valid_keys:
+                final_cited.add(k)
 
-    uncovered = all_reference_keys - final_cited
+    uncovered = valid_keys - final_cited
     if uncovered:
         print(f"  WARNING: {len(uncovered)} keys still uncited after guarantee: {', '.join(list(uncovered)[:5])}...")
     else:
-        print(f"  ✓ Guarantee complete: All {len(all_reference_keys)} reference keys cited in document")
+        print(f"  [OK] Guarantee complete: All {len(valid_keys)} reference keys cited in document")
 
     print("  [AI Evasion Transformations]")
     print(f"    Synonym replacements:  {modifier.replacement_count}")
@@ -549,15 +582,62 @@ def main():
         print(f"  Generated dummy topic citations JSON: {generated_json_path}")
 
         # 3. Copy references.bib to output directory (do NOT merge dummy references to keep it pristine)
+        # Include only the cited references from the original .bib file
         dest_bib = os.path.join(config.OUTPUT_DIR, "references.bib")
         if os.path.exists(config.BIB_FILE):
             with open(config.BIB_FILE, 'r', encoding='utf-8', errors='ignore') as f:
                 raw_bib = f.read()
-            clean_bib = deduplicate_bib_content(raw_bib)
+
+            # Filter to only keep entries that are cited in the document
+            # (including the ones we added via \nocite{})
+            cited_keys = set()
+            for m in re.finditer(r'\\cite\{([^}]+)\}', modified_content):
+                for k in m.group(1).split(','):
+                    k = k.strip()
+                    if k in valid_keys:
+                        cited_keys.add(k)
+            for m in re.finditer(r'\\nocite\{([^}]+)\}', modified_content):
+                for k in m.group(1).split(','):
+                    k = k.strip()
+                    if k:
+                        cited_keys.add(k)
+
+            # Parse input .bib and keep only cited entries
+            filtered_bib_lines = []
+            i = 0
+            lines = raw_bib.splitlines(keepends=True)
+            while i < len(lines):
+                line = lines[i]
+                entry_match = re.match(r'^\s*@(\w+)\{\s*([\w\-:\.]+)\s*,', line)
+                if entry_match:
+                    key = entry_match.group(2)
+                    if key in cited_keys:
+                        # Collect the full entry via brace-depth tracking
+                        brace_depth = 0
+                        while i < len(lines):
+                            l = lines[i]
+                            brace_depth += l.count('{') - l.count('}')
+                            filtered_bib_lines.append(l)
+                            i += 1
+                            if brace_depth <= 0:
+                                break
+                    else:
+                        # Skip this entry (not cited)
+                        brace_depth = 0
+                        while i < len(lines):
+                            l = lines[i]
+                            brace_depth += l.count('{') - l.count('}')
+                            i += 1
+                            if brace_depth <= 0:
+                                break
+                else:
+                    filtered_bib_lines.append(line)
+                    i += 1
+
+            clean_bib = "".join(filtered_bib_lines)
             with open(dest_bib, 'w', encoding='utf-8') as f:
                 f.write(clean_bib)
-            print(f"  Deduplicated and copied original references database to: {dest_bib}")
-        print(f"  Bibliography file: {dest_bib}")
+            print(f"  Filtered original references (only cited) to: {dest_bib}")
 
         # 4. Copy media assets directories
         copied_media = []
