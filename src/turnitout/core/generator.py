@@ -11,9 +11,11 @@ class DummyReferenceGenerator:
         entries.append("% ============================================================")
         entries.append("")
 
+        generated_keys = set()
         for keywords_tuple, cite_info in topic_citations.items():
             key = cite_info["key"]
-            if key in used_keys and key not in existing_cite_keys:
+            if key in used_keys and key not in existing_cite_keys and key not in generated_keys:
+                generated_keys.add(key)
                 topic = cite_info["topic"]
                 entry = self._make_bib_entry(key, topic, seed)
                 entries.append(entry)
