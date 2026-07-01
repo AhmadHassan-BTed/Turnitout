@@ -457,14 +457,18 @@ def main():
             prompt_lines.append("For each topic, provide a real academic source. You MUST keep the exact BibTeX key I provide so that it matches my LaTeX file.\n")
             prompt_lines.append("Here is the list of citation keys and the academic topics they should cover:\n")
             
-            for idx, key in enumerate(sorted(modifier.used_cite_keys), 1):
+            prompt_idx = 1
+            for key in sorted(modifier.used_cite_keys):
+                if key in existing_cite_keys:
+                    continue
                 topic = "Unknown"
                 for kw_tuple, info in modifier.topic_citations.items():
                     if info["key"] == key:
                         topic = info["topic"]
                         break
-                prompt_lines.append(f"{idx}. Key: {key}")
+                prompt_lines.append(f"{prompt_idx}. Key: {key}")
                 prompt_lines.append(f"   Topic: {topic}\n")
+                prompt_idx += 1
                 
             prompt_lines.append("Please ensure:")
             prompt_lines.append("- The BibTeX citation key matches my key EXACTLY (e.g., ref_thermal_modeling).")
