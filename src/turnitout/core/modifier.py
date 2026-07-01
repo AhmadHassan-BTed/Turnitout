@@ -1,43 +1,21 @@
 import re
 import random
-from turnitout.core.rules import PROTECTED_TERMS, ACADEMIC_SYNONYMS
+from turnitout.core.rules import (
+    PROTECTED_TERMS, ACADEMIC_SYNONYMS, FILLER_WORDS, CONCEPTUAL_BRIDGES
+)
 from turnitout.core.transformers import (
     get_default_pipeline, get_ai_evasion_pipeline, get_similarity_evasion_pipeline
 )
-
+ 
 class TextModifier:
     """
     Core engine that coordinates the stylistic enhancement and document
     modification pipeline. Protects LaTeX elements, chains modular 
     transformers, guarantees structural diversity, and adds topic citations.
     """
-
-    FILLER_WORDS = {
-        # Basic prepositions and conjunctions
-        'the', 'a', 'an', 'and', 'or', 'but', 'if', 'then', 'else', 'when', 'at', 'by', 'for', 'from', 'in', 'into', 'of', 'off', 'on', 'onto', 'out', 'over', 'to', 'up', 'with', 'under', 'above', 'below', 'between', 'among',
-        'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'can', 'could', 'should', 'would', 'will', 'shall', 'may', 'might', 'must',
-        'i', 'me', 'my', 'myself', 'we', 'us', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves',
-        'this', 'that', 'these', 'those', 'such', 'what', 'which', 'who', 'whom', 'whose', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'just', 'now', 'also', 'here',
-        'we', 'our', 'show', 'paper', 'chapter', 'section', 'thesis', 'study', 'results', 'equations', 'equation', 'method', 'methods', 'solutions', 'solution', 'using', 'used', 'obtain', 'pde', 'pdes', 'ode', 'odes', 'specifically', 'notably', 'clearly', 'indeed', 'essentially',
-        # Common general academic verbs
-        'explore', 'substitute', 'replace', 'evaluate', 'calculate', 'analyze', 'reformulate', 'examine', 'provide', 'solve', 'determine', 'compare', 'consider', 'propose', 'apply', 'formulate', 'derive', 'obtain', 'show', 'illustrate', 'present', 'discuss', 'explain', 'suggest', 'identify', 'indicate', 'recommend', 'achieve', 'perform', 'verify', 'validate', 'simulate', 'compute', 'price', 'pricing',
-        # General adjectives & numbers
-        'one', 'two', 'three', 'four', 'five', 'first', 'second', 'third', 'certain', 'current', 'new', 'given', 'particular', 'relevant', 'related', 'different', 'various', 'several', 'many', 'some', 'any', 'every', 'each', 'another', 'own', 'same', 'similar', 'previous', 'aforementioned', 'stipulated', 'designated', 'prescribed', 'specified',
-        # General adverbs
-        'subsequently', 'obviously', 'manifestly', 'inherently', 'especially', 'particularly', 'consequently', 'therefore', 'thus', 'hence', 'however', 'moreover', 'furthermore', 'accordingly', 'additionally', 'similarly', 'alternatively', 'meanwhile', 'finally', 'originally', 'lately', 'recently', 'generally', 'chiefly', 'mainly', 'principally', 'truly', 'really', 'pretty', 'extremely', 'highly', 'relatively', 'comparatively',
-        # General nouns/concepts/units
-        'per', 'joule', 'meter', 'second', 'time', 'value', 'values', 'parameters', 'parameter', 'coefficients', 'coefficient', 'variables', 'variable', 'results', 'result', 'data', 'information', 'research', 'work', 'paper', 'thesis', 'approach', 'framework', 'concept', 'concepts', 'aspect', 'aspects', 'view', 'point', 'points', 'fact', 'facts', 'case', 'cases', 'example', 'examples', 'figure', 'figures', 'table', 'tables', 'graph', 'graphs', 'plot', 'plots', 'chart', 'charts', 'illustration', 'illustrations', 'scheme', 'schemes', 'paradigm', 'paradigms', 'strategy', 'strategies', 'tactic', 'tactics', 'procedure', 'procedures', 'technique', 'techniques', 'system', 'systems', 'model', 'models', 'methodology', 'methodologies', 'analysis', 'analyses', 'investigation', 'investigations'
-    }
-
-    CONCEPTUAL_BRIDGES = [
-        "This approach provides a robust framework for further analysis.",
-        "These aspects are crucial for establishing the validity of the model.",
-        "This relation plays a key role in the subsequent computations.",
-        "The underlying assumptions remain valid under standard conditions.",
-        "These observations are consistent with existing theoretical benchmarks.",
-        "This formulation simplifies the implementation of the numerical scheme."
-    ]
-
+    FILLER_WORDS = FILLER_WORDS
+    CONCEPTUAL_BRIDGES = CONCEPTUAL_BRIDGES
+ 
     def __init__(self, seed=42, aggressiveness=0.55, topic_citations=None, existing_cite_keys=None, min_sentence_length_for_cite=60,
                  max_citations_to_insert=30,
                  enable_voice_transform=True, voice_transform_rate=0.30,
@@ -93,7 +71,7 @@ class TextModifier:
             "min_sentence_length_for_cite": min_sentence_length_for_cite,
             "max_citations_to_insert": max_citations_to_insert,
             "topic_citations": topic_citations or {},
-            "filler_words": self.FILLER_WORDS
+            "filler_words": FILLER_WORDS
         }
 
         # Pipelines

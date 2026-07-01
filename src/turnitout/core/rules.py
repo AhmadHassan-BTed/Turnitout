@@ -24,6 +24,9 @@ def load_rules():
     appositives_path = os.path.join(RULES_DIR, "appositives.json")
     discourse_markers_path = os.path.join(RULES_DIR, "discourse_markers.json")
     contractions_path = os.path.join(RULES_DIR, "contractions.json")
+    filler_words_path = os.path.join(RULES_DIR, "filler_words.json")
+    conceptual_bridges_path = os.path.join(RULES_DIR, "conceptual_bridges.json")
+    general_topics_path = os.path.join(RULES_DIR, "general_academic_topics.json")
 
     # Verify that files exist
     required_paths = [
@@ -31,7 +34,8 @@ def load_rules():
         hedge_path, determiners_path, conjunctions_path,
         passive_verbs_path, transition_phrases_path,
         verb_noun_pairs_path, appositives_path, discourse_markers_path,
-        contractions_path
+        contractions_path, filler_words_path, conceptual_bridges_path,
+        general_topics_path
     ]
     for path in required_paths:
         if not os.path.exists(path):
@@ -86,9 +90,21 @@ def load_rules():
     # 12. Contractions
     contractions = load_json_file(contractions_path)
 
+    # 13. Filler Words
+    filler_words = set(load_json_file(filler_words_path))
+
+    # 14. Conceptual Bridges
+    conceptual_bridges = load_json_file(conceptual_bridges_path)
+
+    # 15. General Academic Topics
+    general_topics_list = load_json_file(general_topics_path)
+    general_topics = [(item[0], item[1]) for item in general_topics_list]
+
     return (synonyms, phrases, protected_terms, hedge_words, determiner_map, conjunctions,
-            passive_verbs, transition_phrases, verb_noun_pairs, appositive_map, discourse_markers, contractions)
+            passive_verbs, transition_phrases, verb_noun_pairs, appositive_map, discourse_markers, contractions,
+            filler_words, conceptual_bridges, general_topics)
 
 # Load rules dynamically on import
 (ACADEMIC_SYNONYMS, PHRASE_REWRITES, PROTECTED_TERMS, HEDGE_WORDS, DETERMINER_MAP, SUBORDINATE_CONJUNCTIONS,
- PASSIVE_VERB_MAP, TRANSITION_PHRASES, VERB_NOUN_PAIRS, APPOSITIVE_MAP, DISCOURSE_MARKER_VARIANTS, CONTRACTIONS) = load_rules()
+ PASSIVE_VERB_MAP, TRANSITION_PHRASES, VERB_NOUN_PAIRS, APPOSITIVE_MAP, DISCOURSE_MARKER_VARIANTS, CONTRACTIONS,
+ FILLER_WORDS, CONCEPTUAL_BRIDGES, GENERAL_ACADEMIC_TOPICS) = load_rules()

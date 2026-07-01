@@ -10,6 +10,7 @@ from turnitout.core.parser import LaTeXZoneParser
 from turnitout.core.modifier import TextModifier
 from turnitout.core.generator import DummyReferenceGenerator, ChangeReportGenerator
 from turnitout.core.utils import validate_latex, load_existing_bib_keys
+from turnitout.core.rules import GENERAL_ACADEMIC_TOPICS
 
 def main():
     parser = argparse.ArgumentParser(description="LaTeX Academic Document Stylistic Enhancer & Citation Helper")
@@ -270,41 +271,12 @@ def main():
     if len(current_unique_keys) < total_target_cites:
         shortfall = total_target_cites - len(current_unique_keys)
         
-        # High quality general mathematical and financial topics list
-        general_academic_topics = [
-            ("finite_difference_methods", "Finite Difference Methods and Discretization"),
-            ("heat_conduction_modeling", "Heat Conduction Modeling and Heat Transfer"),
-            ("numerical_pde_solutions", "Numerical Solutions of Partial Differential Equations"),
-            ("stochastic_volatility_pricing", "Stochastic Volatility and Asset Pricing"),
-            ("derivative_pricing_algorithms", "Derivative Pricing and Quantitative Analysis"),
-            ("von_neumann_stability_analysis", "Von Neumann Stability Analysis and Convergence"),
-            ("advection_diffusion_schemes", "Advection Diffusion Schemes and Numerical Flux"),
-            ("crank_nicolson_discretization", "Crank Nicolson Discretization and Implicit Methods"),
-            ("black_scholes_framework", "Black Scholes Framework and Mathematical Finance"),
-            ("finite_element_methods", "Finite Element Methods and Boundary Values"),
-            ("stochastic_differential_equations", "Stochastic Differential Equations and Ito Calculus"),
-            ("boundary_value_problems", "Boundary Value Problems and Numerical Schemes"),
-            ("computational_fluid_dynamics", "Computational Fluid Dynamics and Advection"),
-            ("quantitative_finance_models", "Quantitative Finance Models and Volatility"),
-            ("american_option_pricing", "American Option Pricing and Free Boundary Problems"),
-            ("numerical_analysis_stability", "Numerical Analysis Stability and Convergence"),
-            ("advection_equation_leapfrog", "Advection Equation and Staggered Leapfrog Scheme"),
-            ("implicit_euler_method", "Implicit Euler Method and Stability Criteria"),
-            ("richardson_extrapolation_scheme", "Richardson Extrapolation and Error Reduction"),
-            ("black_scholes_operator", "Black Scholes Operator and Parabolic Equations"),
-            ("heat_equation_stability", "Heat Equation Stability and Fourier Series"),
-            ("wave_equation_propagation", "Wave Equation and Acoustic Propagation"),
-            ("finite_difference_consistency", "Consistency and Truncation Error Analysis"),
-            ("stochastic_processes_finance", "Stochastic Processes and Financial Mathematics"),
-            ("numerical_integration_finance", "Numerical Integration and Monte Carlo Methods")
-        ]
-        
         # Generate the required extra keys and topics
         extra_keys_added = []
         topic_idx = 0
         while len(extra_keys_added) < shortfall:
-            base_key, base_topic = general_academic_topics[topic_idx % len(general_academic_topics)]
-            suffix_num = (topic_idx // len(general_academic_topics)) + 1
+            base_key, base_topic = GENERAL_ACADEMIC_TOPICS[topic_idx % len(GENERAL_ACADEMIC_TOPICS)]
+            suffix_num = (topic_idx // len(GENERAL_ACADEMIC_TOPICS)) + 1
             suffix_str = f"_{suffix_num}" if suffix_num > 1 else ""
             
             key = f"ref_{base_key}{suffix_str}"

@@ -1,7 +1,8 @@
 import re
 from turnitout.core.transformers.base import BaseTransformer
 from turnitout.core.rules import (
-    PHRASE_REWRITES, SUBORDINATE_CONJUNCTIONS, HEDGE_WORDS, ACADEMIC_SYNONYMS
+    PHRASE_REWRITES, SUBORDINATE_CONJUNCTIONS, HEDGE_WORDS, ACADEMIC_SYNONYMS,
+    CONCEPTUAL_BRIDGES
 )
 
 class PhraseRewriteTransformer(BaseTransformer):
@@ -373,15 +374,6 @@ class ConceptualBridgeTransformer(BaseTransformer):
     """Stage 17: Insert general academic conceptual bridge sentences at paragraph boundaries."""
     category = "similarity_evasion"
 
-    CONCEPTUAL_BRIDGES = [
-        "This approach provides a robust framework for further analysis.",
-        "These aspects are crucial for establishing the validity of the model.",
-        "This relation plays a key role in the subsequent computations.",
-        "The underlying assumptions remain valid under standard conditions.",
-        "These observations are consistent with existing theoretical benchmarks.",
-        "This formulation simplifies the implementation of the numerical scheme."
-    ]
-
     def __init__(self, enable_conceptual_bridge=True, conceptual_bridge_rate=0.20):
         self.enable_conceptual_bridge = enable_conceptual_bridge
         self.conceptual_bridge_rate = conceptual_bridge_rate
@@ -397,7 +389,7 @@ class ConceptualBridgeTransformer(BaseTransformer):
 
         stripped = text.strip()
         if stripped.endswith('.'):
-            bridge = rng.choice(self.CONCEPTUAL_BRIDGES)
+            bridge = rng.choice(CONCEPTUAL_BRIDGES)
             result = stripped + ' ' + bridge
             self.conceptual_bridge_count += 1
             indent = text[:len(text) - len(stripped)]
