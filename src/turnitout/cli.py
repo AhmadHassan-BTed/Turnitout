@@ -127,6 +127,15 @@ def main():
     existing_cite_keys = load_existing_bib_keys(config.BIB_FILE)
     print(f"  Found {len(existing_cite_keys)} existing citation keys in database")
 
+    # Count unique cited keys in the original input document
+    original_cited_keys = set()
+    for match in re.finditer(r'\\cite\{([^}]+)\}', tex_content):
+        keys_list = [k.strip() for k in match.group(1).split(',')]
+        for k in keys_list:
+            if k:
+                original_cited_keys.add(k)
+    print(f"  Found {len(original_cited_keys)} unique citation keys actually cited in document")
+
     # -- Parse LaTeX structure --
     print(f"\n[3/7] Parsing LaTeX structure into zones...")
     parser_obj = LaTeXZoneParser()
@@ -267,7 +276,7 @@ def main():
     modified_content = '\n'.join(z['text'] for z in zones)
 
     # -- Guarantee target citation count by appending remaining dummy citation keys to existing cite tags --
-    current_unique_keys = existing_cite_keys.union(modifier.used_cite_keys)
+    current_unique_keys = original_cited_keys.union(modifier.used_cite_keys)
     if len(current_unique_keys) < total_target_cites:
         shortfall = total_target_cites - len(current_unique_keys)
         
