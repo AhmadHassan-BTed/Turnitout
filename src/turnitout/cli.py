@@ -9,7 +9,7 @@ from turnitout.config import load_config_json, auto_configure_project, BASE_DIR
 from turnitout.core.parser import LaTeXZoneParser
 from turnitout.core.modifier import TextModifier
 from turnitout.core.generator import DummyReferenceGenerator, ChangeReportGenerator
-from turnitout.core.utils import validate_latex, load_existing_bib_keys
+from turnitout.core.utils import validate_latex, load_existing_bib_keys, deduplicate_bib_content
 from turnitout.core.rules import GENERAL_ACADEMIC_TOPICS
 
 def main():
@@ -420,8 +420,12 @@ def main():
         # 3. Copy references.bib to output directory (do NOT merge dummy references to keep it pristine)
         dest_bib = os.path.join(config.OUTPUT_DIR, "references.bib")
         if os.path.exists(config.BIB_FILE):
-            shutil.copy(config.BIB_FILE, dest_bib)
-            print(f"  Copied original references database to: {dest_bib}")
+            with open(config.BIB_FILE, 'r', encoding='utf-8', errors='ignore') as f:
+                raw_bib = f.read()
+            clean_bib = deduplicate_bib_content(raw_bib)
+            with open(dest_bib, 'w', encoding='utf-8') as f:
+                f.write(clean_bib)
+            print(f"  Deduplicated and copied original references database to: {dest_bib}")
         print(f"  Bibliography file: {dest_bib}")
 
         # 4. Copy media assets directories

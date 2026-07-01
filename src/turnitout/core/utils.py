@@ -66,3 +66,52 @@ def validate_latex(content):
                          ") vs \\end{" + env + "} (" + str(end_counts[env]) + ")")
 
     return issues
+
+
+def deduplicate_bib_content(content: str) -> str:
+    """Robustly parse and deduplicate BibTeX entries by key, keeping the first occurrence."""
+    entries = []
+    seen_keys = set()
+    current_entry = []
+    current_key = None
+    in_entry = False
+    
+    for line in content.splitlines(keepends=True):
+        if not in_entry:
+            match = re.match(r'^\s*@(\w+)\{\s*([\w\-:\.]+)\s*,', line)
+            if match:
+                in_entry = True
+                current_key = match.group(2)
+                current_entry = [line]
+            else:
+                entries.append(line)
+        else:
+            current_entry.append(line)
+            if line.rstrip().endswith('}'):
+                entry_str = "".join(current_entry)
+                open_braces = entry_str.count('{')
+                close_braces = entry_str.count('}')
+                if open_braces == close_braces:
+                    in_entry = False
+                    if current_key:
+                        # Case insensitive key check
+                        key_lower = current_key.lower()
+                        if key_lower not in seen_keys:
+                            seen_keys.add(key_lower)
+                            entries.append(entry_str)
+                    else:
+                        entries.append(entry_str)
+                    current_key = None
+                    current_entry = []
+                    
+    if current_entry:
+        entry_str = "".join(current_entry)
+        if current_key:
+            key_lower = current_key.lower()
+            if key_lower not in seen_keys:
+                seen_keys.add(key_lower)
+                entries.append(entry_str)
+        else:
+            entries.append(entry_str)
+            
+    return "".join(entries)
