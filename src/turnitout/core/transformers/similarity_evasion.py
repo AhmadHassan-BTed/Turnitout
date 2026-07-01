@@ -434,11 +434,6 @@ class CitationShieldTransformer(BaseTransformer):
             if all(w not in self.filler_words for w in phrase) and all(len(w) > 2 for w in phrase):
                 return " ".join(phrase)
                 
-        # 1-word candidates
-        candidates = [w for w in words if w not in self.filler_words and len(w) > 4]
-        if candidates:
-            return max(candidates, key=len)
-            
         return None
 
     def _determine_topic_citation(self, line):
