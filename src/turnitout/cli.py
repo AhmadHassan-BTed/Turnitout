@@ -406,14 +406,11 @@ def main():
             json.dump(json_output_list, f, indent=2)
         print(f"  Generated dummy topic citations JSON: {generated_json_path}")
 
-        # 3. Copy/merge references.bib to output directory
+        # 3. Copy references.bib to output directory (do NOT merge dummy references to keep it pristine)
         dest_bib = os.path.join(config.OUTPUT_DIR, "references.bib")
         if os.path.exists(config.BIB_FILE):
             shutil.copy(config.BIB_FILE, dest_bib)
-            if "@article" in bib_content:
-                with open(dest_bib, 'a', encoding='utf-8') as f:
-                    f.write("\n\n" + bib_content)
-                print(f"  Merged new dummy references into: {dest_bib}")
+            print(f"  Copied original references database to: {dest_bib}")
         print(f"  Bibliography file: {dest_bib}")
 
         # 4. Copy media assets directories
