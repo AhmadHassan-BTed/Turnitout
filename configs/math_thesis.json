@@ -30,7 +30,5 @@
   "info_reorder_rate": 0.20,
   "enable_conceptual_bridge": true,
   "conceptual_bridge_rate": 0.20,
-  "topic_citations": [
-   
-  ]
+  "topic_citations": []
 }

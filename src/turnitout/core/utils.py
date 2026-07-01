@@ -69,52 +69,64 @@ def validate_latex(content):
 
 
 def deduplicate_bib_content(content: str) -> str:
-    """Robustly parse and deduplicate BibTeX entries by key, keeping the first occurrence."""
-    entries = []
-    seen_keys = set()
-    current_entry = []
-    current_key = None
-    in_entry = False
-    
-    for line in content.splitlines(keepends=True):
-        if not in_entry:
-            match = re.match(r'^\s*@(\w+)\{\s*([\w\-:\.]+)\s*,', line)
-            if match:
-                in_entry = True
-                current_key = match.group(2)
-                current_entry = [line]
-            else:
-                entries.append(line)
-        else:
-            current_entry.append(line)
-            if line.rstrip().endswith('}'):
-                entry_str = "".join(current_entry)
-                open_braces = entry_str.count('{')
-                close_braces = entry_str.count('}')
-                if open_braces == close_braces:
-                    in_entry = False
-                    if current_key:
-                        # Case insensitive key check
-                        key_lower = current_key.lower()
-                        if key_lower not in seen_keys:
-                            seen_keys.add(key_lower)
-                            entries.append(entry_str)
-                    else:
-                        entries.append(entry_str)
-                    current_key = None
-                    current_entry = []
-                    
-    if current_entry:
-        entry_str = "".join(current_entry)
-        if current_key:
-            key_lower = current_key.lower()
-            if key_lower not in seen_keys:
-                seen_keys.add(key_lower)
-                entries.append(entry_str)
-        else:
-            entries.append(entry_str)
-            
-    return "".join(entries)
+    """
+    Robustly parse and deduplicate BibTeX entries by citation key AND normalized title.
+    Uses brace-depth tracking for reliable entry boundary detection.
+    Keeps the first occurrence; silently drops all later duplicates.
+    """
+    seen_keys: set = set()
+    seen_titles: set = set()
+    result_parts: list = []
+    i = 0
+    lines = content.splitlines(keepends=True)
+    n = len(lines)
+
+    while i < n:
+        line = lines[i]
+        entry_match = re.match(r'^\s*@(\w+)\{\s*([\w\-:\.]+)\s*,', line)
+        if not entry_match:
+            result_parts.append(line)
+            i += 1
+            continue
+
+        key = entry_match.group(2)
+        key_lower = key.lower()
+
+        # Collect the full entry via brace-depth tracking (reliable vs. endswith heuristic)
+        brace_depth = 0
+        entry_lines = []
+        while i < n:
+            l = lines[i]
+            brace_depth += l.count('{') - l.count('}')
+            entry_lines.append(l)
+            i += 1
+            if brace_depth <= 0:
+                break
+
+        entry_str = "".join(entry_lines)
+
+        # Normalize title for title-based deduplication
+        title_normalized = None
+        title_match = re.search(
+            r'(?i)title\s*=\s*\{((?:[^{}]|\{[^{}]*\})*)\}',
+            entry_str, re.DOTALL
+        )
+        if title_match:
+            raw = title_match.group(1)
+            raw = re.sub(r'[\{\}\\]', '', raw)
+            title_normalized = re.sub(r'\s+', ' ', raw).lower().strip()
+
+        is_dup_key = key_lower in seen_keys
+        is_dup_title = (title_normalized is not None) and (title_normalized in seen_titles)
+
+        if not is_dup_key and not is_dup_title:
+            seen_keys.add(key_lower)
+            if title_normalized:
+                seen_titles.add(title_normalized)
+            result_parts.append(entry_str)
+        # else: duplicate — silently drop
+
+    return "".join(result_parts)
 
 
 def check_overlap(cand_key, cand_topic, existing_topics):

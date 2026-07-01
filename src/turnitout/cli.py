@@ -12,6 +12,29 @@ from turnitout.core.generator import DummyReferenceGenerator, ChangeReportGenera
 from turnitout.core.utils import validate_latex, load_existing_bib_keys, deduplicate_bib_content, check_overlap, load_existing_bib_topics
 from turnitout.core.rules import GENERAL_ACADEMIC_TOPICS
 
+def guarantee_all_keys_cited(content, all_reference_keys):
+    """
+    FINAL GUARANTEE: Ensure EVERY single key appears in the document.
+    Uses \\nocite{} for uncited keys before \\end{document}.
+    This bypasses citation insertion limits and guarantees 100% coverage.
+    """
+    # Collect currently cited keys
+    cited = set()
+    for m in re.finditer(r'\\cite\{([^}]+)\}', content):
+        for k in m.group(1).split(','):
+            cited.add(k.strip())
+
+    uncited = sorted(all_reference_keys - cited)
+    if not uncited:
+        return content
+
+    # Add all uncited keys via \nocite{} before \end{document}
+    nocite_block = "\n% ===== UNCITED REFERENCES FOR COMPLETENESS =====\n"
+    for key in uncited:
+        nocite_block += f"\\nocite{{{key}}}\n"
+
+    return content.replace("\\end{document}", nocite_block + "\\end{document}", 1)
+
 def main():
     parser = argparse.ArgumentParser(description="LaTeX Academic Document Stylistic Enhancer & Citation Helper")
     parser.add_argument(
@@ -57,10 +80,10 @@ def main():
         input_root = os.path.join(BASE_DIR, "paper_input")
         other_projects = []
         if os.path.exists(input_root):
-            other_projects = [d for d in os.listdir(input_root) 
-                              if os.path.isdir(os.path.join(input_root, d)) 
+            other_projects = [d for d in os.listdir(input_root)
+                              if os.path.isdir(os.path.join(input_root, d))
                               and d != "Mathematics-thesis" and not d.startswith('.')]
-        
+
         if other_projects:
             print("[1/7] Auto-detecting project in paper_input/...")
             config = auto_configure_project()
@@ -92,7 +115,7 @@ def main():
             if stage in stage_map:
                 setattr(config, stage_map[stage], False)
                 print(f"  [Disabled] {stage} transformation stage")
- 
+
     if args.max_aggressiveness:
         config.SYNONYM_AGGRESSIVENESS = 0.95
         config.VOICE_TRANSFORM_RATE = 0.90
@@ -116,7 +139,7 @@ def main():
         print(f"  ERROR: LaTeX file not found at: {config.TEX_FILE}")
         print("  Please place your files in the 'paper_input/' directory.")
         sys.exit(1)
-        
+
     with open(config.TEX_FILE, 'r', encoding='utf-8') as f:
         tex_content = f.read()
     total_lines = tex_content.count('\n') + 1
@@ -151,7 +174,7 @@ def main():
 
     # -- Apply modifications --
     print(f"\n[4/7] Applying intelligent modifications...")
-    
+
     aggressiveness = getattr(config, "SYNONYM_AGGRESSIVENESS", 0.75)
     seed = getattr(config, "RANDOM_SEED", 42)
     min_cite_len = getattr(config, "MIN_SENTENCE_LENGTH_FOR_CITE", 45)
@@ -181,7 +204,7 @@ def main():
     combined_topic_citations = {}
     for kw_tuple, info in config.TOPIC_CITATIONS.items():
         combined_topic_citations[kw_tuple] = info
-        
+
     bib_topics = load_existing_bib_topics(config.BIB_FILE)
     for key, title in bib_topics:
         def get_keywords_tuple(k, t):
@@ -190,11 +213,11 @@ def main():
             words = re.findall(r'[a-z]+', k_clean + ' ' + t_clean)
             stopwords = {
                 'ref', 'and', 'or', 'of', 'in', 'for', 'to', 'with', 'on', 'at', 'by', 'an', 'the', 'its', 'their', 'his', 'her',
-                'modeling', 'model', 'models', 'methods', 'method', 'solutions', 'solution', 
-                'analysis', 'scheme', 'schemes', 'pricing', 'algorithms', 'algorithm', 
-                'framework', 'frameworks', 'theory', 'theories', 'processes', 'process', 
+                'modeling', 'model', 'models', 'methods', 'method', 'solutions', 'solution',
+                'analysis', 'scheme', 'schemes', 'pricing', 'algorithms', 'algorithm',
+                'framework', 'frameworks', 'theory', 'theories', 'processes', 'process',
                 'study', 'studies', 'investigation', 'investigations', 'approach', 'approaches',
-                'techniques', 'technique', 'discretization', 'computation', 'computational', 
+                'techniques', 'technique', 'discretization', 'computation', 'computational',
                 'numerical', 'applied', 'approximation', 'approximations', 'equations', 'equation',
                 'science', 'research', 'work', 'paper', 'chapter', 'section', 'thesis', 'results',
                 'result', 'applications', 'application', 'modern', 'basic', 'fundamental', 'fundamentals',
@@ -211,7 +234,7 @@ def main():
                 if w not in stopwords and len(w) > 2 and w not in unique_words:
                     unique_words.append(w)
             return tuple(unique_words)
-            
+
         kw_tuple = get_keywords_tuple(key, title)
         if kw_tuple and kw_tuple not in combined_topic_citations:
             combined_topic_citations[kw_tuple] = {
@@ -319,23 +342,23 @@ def main():
     # -- Guarantee target citation count by appending remaining dummy citation keys to existing cite tags --
     target_new_dummies = max(0, getattr(config, "TOTAL_CITATIONS", 300) - len(existing_cite_keys))
     current_new_dummies = modifier.used_cite_keys - existing_cite_keys
-    
+
     all_cited_so_far = original_cited_keys.union(modifier.used_cite_keys)
     uncited_existing_keys = existing_cite_keys - all_cited_so_far
-    
+
     extra_keys_added = []
-    
+
     # 1. First, make sure all uncited existing database keys are appended so they are guaranteed to be used/cited in main.tex
     bib_topics = load_existing_bib_topics(config.BIB_FILE)
     bib_topics_dict = {k: t for k, t in bib_topics}
     for key in sorted(uncited_existing_keys):
         topic = bib_topics_dict.get(key, key.replace('_', ' ').replace('-', ' '))
         extra_keys_added.append((key, topic))
-        
+
     # 2. Next, generate new dummy references to fill the shortfall if we haven't reached target_new_dummies
     if len(current_new_dummies) < target_new_dummies:
         shortfall = target_new_dummies - len(current_new_dummies)
-        
+
         # Collect existing topics to check for overlaps
         existing_topics_list = []
         for kw_tuple, info in config.TOPIC_CITATIONS.items():
@@ -343,13 +366,13 @@ def main():
         for kw_tuple, info in modifier.topic_citations.items():
             existing_topics_list.append((info["key"], info["topic"]))
         existing_topics_list.extend(bib_topics)
-        
+
         # Filter GENERAL_ACADEMIC_TOPICS to avoid any overlapping topics
         non_overlapping_topics = [
             (base_key, base_topic) for base_key, base_topic in GENERAL_ACADEMIC_TOPICS
             if not check_overlap(base_key, base_topic, existing_topics_list)
         ]
-        
+
         # Determine base topics pool
         if non_overlapping_topics:
             base_topics_pool = non_overlapping_topics
@@ -362,50 +385,50 @@ def main():
             base_topics_pool = filtered_existing if filtered_existing else GENERAL_ACADEMIC_TOPICS
         else:
             base_topics_pool = GENERAL_ACADEMIC_TOPICS
-            
+
         # Generate the required extra keys and topics
         topic_idx = 0
         new_dummies_added = []
         while len(new_dummies_added) < shortfall:
             base_key, base_topic = base_topics_pool[topic_idx % len(base_topics_pool)]
-            
+
             # Clean up the "ref_" prefix if present in the base_key
             clean_base_key = base_key[4:] if base_key.startswith("ref_") else base_key
-            
+
             suffix_num = (topic_idx // len(base_topics_pool)) + 1
             suffix_str = f"_{suffix_num}" if suffix_num > 1 else ""
-            
+
             key = f"ref_{clean_base_key}{suffix_str}"
             topic = base_topic if suffix_num == 1 else f"{base_topic} Vol. {suffix_num}"
-            
+
             if key not in existing_cite_keys and key not in modifier.used_cite_keys and key not in [k for k, t in extra_keys_added]:
                 extra_keys_added.append((key, topic))
                 new_dummies_added.append((key, topic))
             topic_idx += 1
-            
+
     # Append the extra keys to existing cite tags in the document text
     if extra_keys_added:
         cite_pattern = re.compile(r'\\cite\{([^}]+)\}')
         all_cites = list(cite_pattern.finditer(modified_content))
-        
+
         if all_cites:
             extra_key_idx = 0
-            
+
             # Perform replacement in passes
             for match in all_cites:
                 if extra_key_idx >= len(extra_keys_added):
                     break
-                
+
                 key_to_add, topic_to_add = extra_keys_added[extra_key_idx]
                 full_match_str = match.group(0)
                 keys_str = match.group(1)
-                
+
                 # Append the key
                 new_keys_str = keys_str + ", " + key_to_add
                 new_match_str = f"\\cite{{{new_keys_str}}}"
-                
+
                 modified_content = modified_content.replace(full_match_str, new_match_str, 1)
-                
+
                 # Add to modifier stats so they get generated in bibliography and dummy json
                 modifier.used_cite_keys.add(key_to_add)
                 modifier.topic_citations[tuple(key_to_add.split('_')[1:])] = {
@@ -413,9 +436,9 @@ def main():
                     "topic": topic_to_add
                 }
                 modifier.citation_count += 1
-                
+
                 extra_key_idx += 1
-            
+
             # If we still have remaining keys, append them to the last cite tag
             if extra_key_idx < len(extra_keys_added):
                 last_cites = list(cite_pattern.finditer(modified_content))
@@ -423,12 +446,12 @@ def main():
                     last_cite = last_cites[-1]
                     full_match_str = last_cite.group(0)
                     keys_str = last_cite.group(1)
-                    
+
                     remaining_keys = [k for k, t in extra_keys_added[extra_key_idx:]]
                     new_keys_str = keys_str + ", " + ", ".join(remaining_keys)
                     new_match_str = f"\\cite{{{new_keys_str}}}"
                     modified_content = modified_content.replace(full_match_str, new_match_str, 1)
-                    
+
                     for key_to_add, topic_to_add in extra_keys_added[extra_key_idx:]:
                         modifier.used_cite_keys.add(key_to_add)
                         modifier.topic_citations[tuple(key_to_add.split('_')[1:])] = {
@@ -436,6 +459,25 @@ def main():
                             "topic": topic_to_add
                         }
                         modifier.citation_count += 1
+
+    # FINAL GUARANTEE: Ensure ALL reference keys are cited in the document
+    all_reference_keys = existing_cite_keys | modifier.used_cite_keys
+    modified_content = guarantee_all_keys_cited(modified_content, all_reference_keys)
+
+    # Verify coverage
+    final_cited = set()
+    for m in re.finditer(r'\\cite\{([^}]+)\}', modified_content):
+        for k in m.group(1).split(','):
+            final_cited.add(k.strip())
+    for m in re.finditer(r'\\nocite\{([^}]+)\}', modified_content):
+        for k in m.group(1).split(','):
+            final_cited.add(k.strip())
+
+    uncovered = all_reference_keys - final_cited
+    if uncovered:
+        print(f"  WARNING: {len(uncovered)} keys still uncited after guarantee: {', '.join(list(uncovered)[:5])}...")
+    else:
+        print(f"  ✓ Guarantee complete: All {len(all_reference_keys)} reference keys cited in document")
 
     print("  [AI Evasion Transformations]")
     print(f"    Synonym replacements:  {modifier.replacement_count}")
@@ -545,7 +587,7 @@ def main():
             prompt_lines.append("I am using a LaTeX document stylistic enhancer and pre-submission validation helper. It has inserted recommended bibliographic citation keys as placeholders in my document. I need you to find real, highly-cited, relevant academic papers (journal articles, books, or conference papers) that match these topics, and format them as valid BibTeX entries.\n")
             prompt_lines.append("For each topic, provide a real academic source. You MUST keep the exact BibTeX key I provide so that it matches my LaTeX file.\n")
             prompt_lines.append("Here is the list of citation keys and the academic topics they should cover:\n")
-            
+
             prompt_idx = 1
             for key in sorted(modifier.used_cite_keys):
                 if key in existing_cite_keys:
@@ -558,12 +600,12 @@ def main():
                 prompt_lines.append(f"{prompt_idx}. Key: {key}")
                 prompt_lines.append(f"   Topic: {topic}\n")
                 prompt_idx += 1
-                
+
             prompt_lines.append("Please ensure:")
             prompt_lines.append("- The BibTeX citation key matches my key EXACTLY (e.g., ref_my_new_topic).")
             prompt_lines.append("- The papers are real, published, and highly cited (articles or textbooks).")
             prompt_lines.append("- The output is strictly formatted as valid BibTeX.")
-            
+
             with open(prompt_path, 'w', encoding='utf-8') as f:
                 f.write('\n'.join(prompt_lines))
             print(f"  Generated pre-filled AI Prompt: {prompt_path}")
@@ -610,8 +652,8 @@ def main():
     print(f"    Structural guarantees: {modifier.structural_guarantee_count}")
     print(f"    Conceptual bridges:    {modifier.conceptual_bridge_count}")
     print(f"    Citations added:        {modifier.citation_count}")
-    
-    new_dummies = sum(1 for kw_tuple, info in modifier.topic_citations.items() 
+
+    new_dummies = sum(1 for kw_tuple, info in modifier.topic_citations.items()
                       if info["key"] in modifier.used_cite_keys and info["key"] not in existing_cite_keys)
     print(f"  New dummy references:     {new_dummies}")
     print(f"  Validation issues:        {len(issues)}")
