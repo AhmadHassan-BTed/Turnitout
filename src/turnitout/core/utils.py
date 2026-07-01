@@ -115,3 +115,105 @@ def deduplicate_bib_content(content: str) -> str:
             entries.append(entry_str)
             
     return "".join(entries)
+
+
+def check_overlap(cand_key, cand_topic, existing_topics):
+    """Check if a candidate key or topic name overlaps with any of the existing topics."""
+    def get_clean_words(text):
+        if not text:
+            return set()
+        text = text.lower().replace('_', ' ').replace('-', ' ')
+        words = re.findall(r'[a-z]+', text)
+        stopwords = {
+            'ref', 'and', 'or', 'of', 'in', 'for', 'to', 'with', 'on', 'at', 'by', 'an', 'the', 'its', 'their', 'his', 'her',
+            'modeling', 'model', 'models', 'methods', 'method', 'solutions', 'solution', 
+            'analysis', 'scheme', 'schemes', 'pricing', 'algorithms', 'algorithm', 
+            'framework', 'frameworks', 'theory', 'theories', 'processes', 'process', 
+            'study', 'studies', 'investigation', 'investigations', 'approach', 'approaches',
+            'techniques', 'technique', 'discretization', 'computation', 'computational', 
+            'numerical', 'applied', 'approximation', 'approximations', 'equations', 'equation',
+            'science', 'research', 'work', 'paper', 'chapter', 'section', 'thesis', 'results',
+            'result', 'applications', 'application', 'modern', 'basic', 'fundamental', 'fundamentals',
+            'introduction', 'introductory', 'overview', 'review', 'perspective', 'perspectives',
+            'aspect', 'aspects', 'case', 'cases', 'problem', 'problems', 'system', 'systems',
+            'linear', 'nonlinear', 'first', 'second', 'third', 'order', 'high', 'low', 'general',
+            'generalized', 'some', 'new', 'recent', 'developments', 'development', 'advanced',
+            'estimation', 'control', 'optimal', 'optimization', 'rate', 'rates', 'variable', 'variables',
+            'classical', 'classic', 'element', 'elements', 'volume', 'volumes', 'difference', 'differences',
+            'course', 'one', 'two', 'three', 'four', 'five'
+        }
+        return {w for w in words if w not in stopwords and len(w) > 2}
+
+    cand_words = get_clean_words(cand_key).union(get_clean_words(cand_topic))
+    if not cand_words:
+        return False
+
+    for exist_key, exist_topic in existing_topics:
+        exist_words = get_clean_words(exist_key).union(get_clean_words(exist_topic))
+        # Check if they share any word or highly similar word
+        for cw in cand_words:
+            for ew in exist_words:
+                if cw == ew:
+                    return True
+                # Singular/plural match
+                if cw + 's' == ew or ew + 's' == cw:
+                    return True
+                if cw + 'es' == ew or ew + 'es' == cw:
+                    return True
+                # Prefix match for words of length >= 4
+                if len(cw) >= 4 and len(ew) >= 4:
+                    min_len = min(len(cw), len(ew))
+                    prefix_len = 0
+                    for i in range(min_len):
+                        if cw[i] == ew[i]:
+                            prefix_len += 1
+                        else:
+                            break
+                    if prefix_len >= 4:
+                        return True
+    return False
+
+
+def load_existing_bib_topics(bib_path):
+    """Load existing citation keys and their titles/topics from a .bib file."""
+    topics = []
+    if not os.path.exists(bib_path):
+        return topics
+        
+    with open(bib_path, 'r', encoding='utf-8', errors='ignore') as f:
+        content = f.read()
+        
+    pos = 0
+    pattern = re.compile(r'@\w+\{\s*([\w\-:\.]+)\s*,', re.IGNORECASE)
+    while True:
+        match = pattern.search(content, pos)
+        if not match:
+            break
+        key = match.group(1)
+        start_idx = match.end()
+        
+        # Find matching closing brace for the entry
+        brace_depth = 1
+        i = start_idx
+        while i < len(content) and brace_depth > 0:
+            if content[i] == '{':
+                brace_depth += 1
+            elif content[i] == '}':
+                brace_depth -= 1
+            i += 1
+        entry_content = content[start_idx:i]
+        pos = i
+        
+        # Extract title
+        title_match = re.search(r'title\s*=\s*[\{\"\'](.*?)[\}\"\']\s*(?:,|$)', entry_content, re.IGNORECASE | re.DOTALL)
+        if title_match:
+            title = title_match.group(1)
+            # Remove braces/backslashes
+            title = re.sub(r'[\{\}\\]', '', title)
+            title = ' '.join(title.split())
+            topics.append((key, title))
+        else:
+            topics.append((key, key.replace('_', ' ').replace('-', ' ')))
+            
+    return topics
+

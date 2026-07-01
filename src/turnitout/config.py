@@ -13,6 +13,11 @@ def validate_config_contract(data, config_path):
     """
     Validates that data contains all required keys with the expected types.
     """
+    if "total_citations" not in data and "max_citations_to_insert" in data:
+        data["total_citations"] = data["max_citations_to_insert"]
+    elif "total_citations" in data and "max_citations_to_insert" not in data:
+        data["max_citations_to_insert"] = data["total_citations"]
+        
     required_keys = {
         "project_name": str,
         "input_dir": str,
@@ -22,6 +27,7 @@ def validate_config_contract(data, config_path):
         "synonym_aggressiveness": (int, float),
         "random_seed": int,
         "min_sentence_length_for_cite": int,
+        "total_citations": int,
         "max_citations_to_insert": int,
         "enable_voice_transform": bool,
         "voice_transform_rate": (int, float),
@@ -129,7 +135,8 @@ def load_config_json(config_name):
     aggressiveness = float(os.getenv("TURNITOUT_AGGRESSIVENESS", data.get("synonym_aggressiveness", 0.75)))
     seed = int(os.getenv("TURNITOUT_RANDOM_SEED", data.get("random_seed", 42)))
     min_cite_len = int(os.getenv("TURNITOUT_MIN_SENTENCE_LEN", data.get("min_sentence_length_for_cite", 45)))
-    max_citations = int(os.getenv("TURNITOUT_MAX_CITATIONS", data.get("max_citations_to_insert", 30)))
+    total_citations = int(os.getenv("TURNITOUT_TOTAL_CITATIONS", os.getenv("TURNITOUT_MAX_CITATIONS", data.get("total_citations", 300))))
+    max_citations = total_citations
 
     enable_voice = os.getenv("TURNITOUT_VOICE_TRANSFORM", str(data.get("enable_voice_transform", True))).lower() in ("true", "1", "yes")
     voice_rate = float(os.getenv("TURNITOUT_VOICE_RATE", data.get("voice_transform_rate", 0.30)))
@@ -177,6 +184,7 @@ def load_config_json(config_name):
             self.RANDOM_SEED = sd
             self.MIN_SENTENCE_LENGTH_FOR_CITE = mcl
             self.MAX_CITATIONS_TO_INSERT = mc
+            self.TOTAL_CITATIONS = mc
             self.TOPIC_CITATIONS = tc
  
             self.ENABLE_VOICE_TRANSFORM = ev
@@ -320,7 +328,8 @@ def auto_configure_project():
     aggressiveness = float(os.getenv("TURNITOUT_AGGRESSIVENESS", 0.75))
     seed = int(os.getenv("TURNITOUT_RANDOM_SEED", 42))
     min_cite_len = int(os.getenv("TURNITOUT_MIN_SENTENCE_LEN", 45))
-    max_citations = int(os.getenv("TURNITOUT_MAX_CITATIONS", 30))
+    total_citations = int(os.getenv("TURNITOUT_TOTAL_CITATIONS", os.getenv("TURNITOUT_MAX_CITATIONS", 120)))
+    max_citations = total_citations
 
     class AutoConfigNamespace:
         def __init__(self):
@@ -333,6 +342,7 @@ def auto_configure_project():
             self.RANDOM_SEED = seed
             self.MIN_SENTENCE_LENGTH_FOR_CITE = min_cite_len
             self.MAX_CITATIONS_TO_INSERT = max_citations
+            self.TOTAL_CITATIONS = max_citations
             self.TOPIC_CITATIONS = topic_citations
 
             self.ENABLE_VOICE_TRANSFORM = os.getenv("TURNITOUT_VOICE_TRANSFORM", "true").lower() in ("true", "1", "yes")

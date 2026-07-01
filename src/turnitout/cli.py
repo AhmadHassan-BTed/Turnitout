@@ -9,7 +9,7 @@ from turnitout.config import load_config_json, auto_configure_project, BASE_DIR
 from turnitout.core.parser import LaTeXZoneParser
 from turnitout.core.modifier import TextModifier
 from turnitout.core.generator import DummyReferenceGenerator, ChangeReportGenerator
-from turnitout.core.utils import validate_latex, load_existing_bib_keys, deduplicate_bib_content
+from turnitout.core.utils import validate_latex, load_existing_bib_keys, deduplicate_bib_content, check_overlap, load_existing_bib_topics
 from turnitout.core.rules import GENERAL_ACADEMIC_TOPICS
 
 def main():
@@ -174,14 +174,55 @@ def main():
         source_grams.add(tuple(orig_prose_tokens[i:i+k]))
     print(f"  Extracted {len(source_grams)} unique document-level 5-grams from original prose for auditing.")
 
-    total_target_cites = getattr(config, "MAX_CITATIONS_TO_INSERT", 300)
-    existing_cites_count = len(existing_cite_keys)
-    max_new_cites_to_add = max(0, total_target_cites - existing_cites_count)
+    target_new_dummies = max(0, getattr(config, "TOTAL_CITATIONS", 300) - len(existing_cite_keys))
+    max_new_cites_to_add = target_new_dummies
+
+    # Combine custom topic citations from config with all database entries from references.bib
+    combined_topic_citations = {}
+    for kw_tuple, info in config.TOPIC_CITATIONS.items():
+        combined_topic_citations[kw_tuple] = info
+        
+    bib_topics = load_existing_bib_topics(config.BIB_FILE)
+    for key, title in bib_topics:
+        def get_keywords_tuple(k, t):
+            k_clean = k.lower().replace('ref_', '').replace('_', ' ').replace('-', ' ')
+            t_clean = t.lower().replace('_', ' ').replace('-', ' ')
+            words = re.findall(r'[a-z]+', k_clean + ' ' + t_clean)
+            stopwords = {
+                'ref', 'and', 'or', 'of', 'in', 'for', 'to', 'with', 'on', 'at', 'by', 'an', 'the', 'its', 'their', 'his', 'her',
+                'modeling', 'model', 'models', 'methods', 'method', 'solutions', 'solution', 
+                'analysis', 'scheme', 'schemes', 'pricing', 'algorithms', 'algorithm', 
+                'framework', 'frameworks', 'theory', 'theories', 'processes', 'process', 
+                'study', 'studies', 'investigation', 'investigations', 'approach', 'approaches',
+                'techniques', 'technique', 'discretization', 'computation', 'computational', 
+                'numerical', 'applied', 'approximation', 'approximations', 'equations', 'equation',
+                'science', 'research', 'work', 'paper', 'chapter', 'section', 'thesis', 'results',
+                'result', 'applications', 'application', 'modern', 'basic', 'fundamental', 'fundamentals',
+                'introduction', 'introductory', 'overview', 'review', 'perspective', 'perspectives',
+                'aspect', 'aspects', 'case', 'cases', 'problem', 'problems', 'system', 'systems',
+                'linear', 'nonlinear', 'first', 'second', 'third', 'order', 'high', 'low', 'general',
+                'generalized', 'some', 'new', 'recent', 'developments', 'development', 'advanced',
+                'estimation', 'control', 'optimal', 'optimization', 'rate', 'rates', 'variable', 'variables',
+                'classical', 'classic', 'element', 'elements', 'volume', 'volumes', 'difference', 'differences',
+                'course', 'one', 'two', 'three', 'four', 'five'
+            }
+            unique_words = []
+            for w in words:
+                if w not in stopwords and len(w) > 2 and w not in unique_words:
+                    unique_words.append(w)
+            return tuple(unique_words)
+            
+        kw_tuple = get_keywords_tuple(key, title)
+        if kw_tuple and kw_tuple not in combined_topic_citations:
+            combined_topic_citations[kw_tuple] = {
+                "key": key,
+                "topic": title
+            }
 
     modifier = TextModifier(
         seed=seed,
         aggressiveness=aggressiveness,
-        topic_citations=config.TOPIC_CITATIONS,
+        topic_citations=combined_topic_citations,
         existing_cite_keys=existing_cite_keys,
         min_sentence_length_for_cite=min_cite_len,
         max_citations_to_insert=max_new_cites_to_add,
@@ -245,7 +286,7 @@ def main():
             light_modifier = TextModifier(
                 seed=seed + i,
                 aggressiveness=0.0,
-                topic_citations=config.TOPIC_CITATIONS,
+                topic_citations=combined_topic_citations,
                 existing_cite_keys=existing_cite_keys,
                 min_sentence_length_for_cite=min_cite_len,
                 max_citations_to_insert=0,
@@ -276,26 +317,74 @@ def main():
     modified_content = '\n'.join(z['text'] for z in zones)
 
     # -- Guarantee target citation count by appending remaining dummy citation keys to existing cite tags --
-    current_unique_keys = original_cited_keys.union(modifier.used_cite_keys)
-    if len(current_unique_keys) < total_target_cites:
-        shortfall = total_target_cites - len(current_unique_keys)
+    target_new_dummies = max(0, getattr(config, "TOTAL_CITATIONS", 300) - len(existing_cite_keys))
+    current_new_dummies = modifier.used_cite_keys - existing_cite_keys
+    
+    all_cited_so_far = original_cited_keys.union(modifier.used_cite_keys)
+    uncited_existing_keys = existing_cite_keys - all_cited_so_far
+    
+    extra_keys_added = []
+    
+    # 1. First, make sure all uncited existing database keys are appended so they are guaranteed to be used/cited in main.tex
+    bib_topics = load_existing_bib_topics(config.BIB_FILE)
+    bib_topics_dict = {k: t for k, t in bib_topics}
+    for key in sorted(uncited_existing_keys):
+        topic = bib_topics_dict.get(key, key.replace('_', ' ').replace('-', ' '))
+        extra_keys_added.append((key, topic))
         
+    # 2. Next, generate new dummy references to fill the shortfall if we haven't reached target_new_dummies
+    if len(current_new_dummies) < target_new_dummies:
+        shortfall = target_new_dummies - len(current_new_dummies)
+        
+        # Collect existing topics to check for overlaps
+        existing_topics_list = []
+        for kw_tuple, info in config.TOPIC_CITATIONS.items():
+            existing_topics_list.append((info["key"], info["topic"]))
+        for kw_tuple, info in modifier.topic_citations.items():
+            existing_topics_list.append((info["key"], info["topic"]))
+        existing_topics_list.extend(bib_topics)
+        
+        # Filter GENERAL_ACADEMIC_TOPICS to avoid any overlapping topics
+        non_overlapping_topics = [
+            (base_key, base_topic) for base_key, base_topic in GENERAL_ACADEMIC_TOPICS
+            if not check_overlap(base_key, base_topic, existing_topics_list)
+        ]
+        
+        # Determine base topics pool
+        if non_overlapping_topics:
+            base_topics_pool = non_overlapping_topics
+        elif existing_topics_list:
+            filtered_existing = []
+            for key, topic in existing_topics_list:
+                other_topics = [(k, t) for k, t in existing_topics_list if k != key]
+                if not check_overlap(key, topic, other_topics):
+                    filtered_existing.append((key, topic))
+            base_topics_pool = filtered_existing if filtered_existing else GENERAL_ACADEMIC_TOPICS
+        else:
+            base_topics_pool = GENERAL_ACADEMIC_TOPICS
+            
         # Generate the required extra keys and topics
-        extra_keys_added = []
         topic_idx = 0
-        while len(extra_keys_added) < shortfall:
-            base_key, base_topic = GENERAL_ACADEMIC_TOPICS[topic_idx % len(GENERAL_ACADEMIC_TOPICS)]
-            suffix_num = (topic_idx // len(GENERAL_ACADEMIC_TOPICS)) + 1
+        new_dummies_added = []
+        while len(new_dummies_added) < shortfall:
+            base_key, base_topic = base_topics_pool[topic_idx % len(base_topics_pool)]
+            
+            # Clean up the "ref_" prefix if present in the base_key
+            clean_base_key = base_key[4:] if base_key.startswith("ref_") else base_key
+            
+            suffix_num = (topic_idx // len(base_topics_pool)) + 1
             suffix_str = f"_{suffix_num}" if suffix_num > 1 else ""
             
-            key = f"ref_{base_key}{suffix_str}"
+            key = f"ref_{clean_base_key}{suffix_str}"
             topic = base_topic if suffix_num == 1 else f"{base_topic} Vol. {suffix_num}"
             
-            if key not in current_unique_keys and key not in [k for k, t in extra_keys_added]:
+            if key not in existing_cite_keys and key not in modifier.used_cite_keys and key not in [k for k, t in extra_keys_added]:
                 extra_keys_added.append((key, topic))
+                new_dummies_added.append((key, topic))
             topic_idx += 1
             
-        # Append the extra keys to existing cite tags in the document text
+    # Append the extra keys to existing cite tags in the document text
+    if extra_keys_added:
         cite_pattern = re.compile(r'\\cite\{([^}]+)\}')
         all_cites = list(cite_pattern.finditer(modified_content))
         
@@ -471,7 +560,7 @@ def main():
                 prompt_idx += 1
                 
             prompt_lines.append("Please ensure:")
-            prompt_lines.append("- The BibTeX citation key matches my key EXACTLY (e.g., ref_thermal_modeling).")
+            prompt_lines.append("- The BibTeX citation key matches my key EXACTLY (e.g., ref_my_new_topic).")
             prompt_lines.append("- The papers are real, published, and highly cited (articles or textbooks).")
             prompt_lines.append("- The output is strictly formatted as valid BibTeX.")
             
@@ -536,8 +625,8 @@ def main():
         if new_dummies > 0:
             print(f"  3. Open and copy the pre-filled AI prompt from:")
             print(f"     {prompt_path}")
-            print("     Paste it into ChatGPT/Claude to generate real BibTeX entries,")
-            print("     and replace the dummy placeholders at the bottom of references.bib.")
+            print("     and append the generated BibTeX entries to the bottom of references.bib.")
+            print("     Then run 'python clean_bib.py' to automatically deduplicate references.bib.")
         else:
             print("  3. (All citations were successfully matched with existing bibliography entries!)")
         print(f"  4. Open the output directory and build main.tex using your LaTeX editor.")

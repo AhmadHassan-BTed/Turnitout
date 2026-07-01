@@ -450,6 +450,16 @@ class CitationShieldTransformer(BaseTransformer):
             topic = phrase.title() + " and Related Research"
             keywords_tuple = tuple(phrase.split())
             
+            # Check overlap with existing topic citations
+            from turnitout.core.utils import check_overlap
+            existing_list = [(info["key"], info["topic"]) for kw, info in self.topic_citations.items()]
+            
+            if check_overlap(key, topic, existing_list):
+                # Find which key it overlaps with and reuse it
+                for kw, info in self.topic_citations.items():
+                    if check_overlap(key, topic, [(info["key"], info["topic"])]):
+                        return info["key"]
+            
             if keywords_tuple not in self.topic_citations:
                 self.topic_citations[keywords_tuple] = {
                     "key": key,

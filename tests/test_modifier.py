@@ -182,3 +182,36 @@ def test_conceptual_bridging():
     assert modifier.conceptual_bridge_count >= 1
     assert validate_latex(modified) == []
 
+
+def test_overlap_detection_and_resolution():
+    """Verify that overlap detection correctly identifies semantic overlaps and CitationShieldTransformer maps them."""
+    from turnitout.core.utils import check_overlap
+    from turnitout.core.transformers.similarity_evasion import CitationShieldTransformer
+
+    # 1. Direct test of check_overlap
+    existing = [
+        ("ref_thermal_modeling", "Heat Conduction and Thermal Diffusion Modeling"),
+        ("ref_wave_propagation", "Wave Propagation and Vibration Analysis")
+    ]
+    # Candidate that overlaps (conduction, heat)
+    assert check_overlap("ref_heat_conduction_modeling", "Heat Conduction Modeling and Heat Transfer", existing) is True
+    # Candidate that overlaps (wave, acoustic, propagation)
+    assert check_overlap("ref_wave_equation_propagation", "Wave Equation and Acoustic Propagation", existing) is True
+    # Candidate that does NOT overlap
+    assert check_overlap("ref_option_pricing", "Option Pricing and Financial Derivative Models", existing) is False
+
+    # 2. Test mapping inside CitationShieldTransformer
+    topic_citations = {
+        ("heat", "conduction", "thermal"): {
+            "key": "ref_thermal_modeling",
+            "topic": "Heat Conduction and Thermal Diffusion Modeling"
+        }
+    }
+    transformer = CitationShieldTransformer(topic_citations=topic_citations)
+    # This line has "heat transfer" which should not match "conduction" in the keyword loop,
+    # but the phrase extractor will find "heat transfer", which overlaps with "Heat Conduction and Thermal Diffusion Modeling" (word "heat").
+    # It should map it back to "ref_thermal_modeling".
+    key = transformer._determine_topic_citation("The system undergoes heat transfer across the boundary.")
+    assert key == "ref_thermal_modeling"
+
+
