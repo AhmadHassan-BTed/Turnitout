@@ -472,22 +472,32 @@ class CitationShieldTransformer(BaseTransformer):
             return text
         if len(stripped) < self.min_sentence_length_for_cite:
             return text
-        if '\\cite{' in text:
-            return text
         if stripped.startswith('\\item') and len(stripped) < 80:
             return text
         if stripped.startswith(('\\noindent', '\\vspace', '\\hspace')):
             return text
-        if context_lines:
-            for ctx_line in context_lines:
-                if '\\cite{' in ctx_line:
-                    return text
-                    
+
+        # Limit maximum citations inserted on this line based on length
+        existing_cite_count = len(re.findall(r'\\cite\{', text))
+        if len(stripped) < 120:
+            max_cites = 1
+        elif len(stripped) < 250:
+            max_cites = 2
+        else:
+            max_cites = 3
+
+        if existing_cite_count >= max_cites:
+            return text
+
+        needed_cites = max_cites - existing_cite_count
+        if needed_cites <= 0:
+            return text
+
         cite_key = self._determine_topic_citation(text)
         if not cite_key:
             return text
 
-        # Risk-Driven Citation Shielding
+        # Risk-Driven Citation Shielding (runs first if enabled)
         if self.enable_risk_citation and self.source_grams:
             parts = re.split(r'(\s+)', text)
             word_indices = [i for i, part in enumerate(parts) if part.strip() and not part.startswith('\x00')]
@@ -503,18 +513,74 @@ class CitationShieldTransformer(BaseTransformer):
                     self.used_cite_keys.add(cite_key)
                     return ''.join(parts)
 
-        insertion = ' \\cite{' + cite_key + '}'
-        period_match = re.search(r'\.\s*$', stripped)
-        if period_match:
-            insert_pos = text.rstrip().rfind('.')
-            if insert_pos > 0:
-                modified = text[:insert_pos] + insertion + text[insert_pos:]
-                self.citation_count += 1
-                self.used_cite_keys.add(cite_key)
-                return modified
-        if len(stripped) >= self.min_sentence_length_for_cite and not stripped.endswith((',', ':', '\\\\', '{', '%')):
-            modified = text.rstrip() + insertion
-            self.citation_count += 1
-            self.used_cite_keys.add(cite_key)
-            return modified
-        return text
+        # Sentence-Level Citation Distribution
+        sentence_end_pattern = re.compile(
+            r'(?<!\b[A-Z])'
+            r'(?<!\bcf)'
+            r'(?<!\be\.g)'
+            r'(?<!\bi\.e)'
+            r'(?<!\bet\sal)'
+            r'(?<!\bEq)'
+            r'(?<!\bFig)'
+            r'(?<!\bSec)'
+            r'(?<!\bRef)'
+            r'(?<!\d)'
+            r'\.'
+            r'(?=\s+[A-Z]|\s+\\[a-zA-Z])'
+        )
+
+        splits = []
+        for m in sentence_end_pattern.finditer(text):
+            splits.append(m.end())
+
+        if stripped.endswith('.'):
+            final_period_pos = text.rstrip().rfind('.')
+            if final_period_pos != -1 and final_period_pos not in [s - 1 for s in splits]:
+                splits.append(final_period_pos + 1)
+
+        if not splits:
+            if stripped.endswith('.'):
+                final_period_pos = text.rstrip().rfind('.')
+                if final_period_pos > 0 and '\\cite{' not in text:
+                    text_cite_key = self._determine_topic_citation(text)
+                    if text_cite_key:
+                        insertion = ' \\cite{' + text_cite_key + '}'
+                        text = text[:final_period_pos] + insertion + text[final_period_pos:]
+                        self.citation_count += 1
+                        self.used_cite_keys.add(text_cite_key)
+            return text
+
+        sentences = []
+        last_idx = 0
+        for split in splits:
+            sentences.append(text[last_idx:split])
+            last_idx = split
+        if last_idx < len(text):
+            sentences.append(text[last_idx:])
+
+        cites_inserted = 0
+        modified_sentences = []
+
+        for idx, sent in enumerate(sentences):
+            if (cites_inserted < needed_cites 
+                and self.citation_count < self.max_citations_to_insert
+                and len(sent.strip()) >= 50
+                and '\\cite{' not in sent
+                and not sent.strip().startswith('\\item')
+                and not any(sent.strip().startswith(x) for x in ['\\noindent', '\\vspace', '\\hspace'])):
+
+                period_match = re.search(r'\.\s*$', sent.strip())
+                if period_match:
+                    sent_cite_key = self._determine_topic_citation(sent)
+                    if sent_cite_key:
+                        period_pos = sent.rstrip().rfind('.')
+                        if period_pos > 0:
+                            insertion = ' \\cite{' + sent_cite_key + '}'
+                            sent = sent[:period_pos] + insertion + sent[period_pos:]
+                            cites_inserted += 1
+                            self.citation_count += 1
+                            self.used_cite_keys.add(sent_cite_key)
+
+            modified_sentences.append(sent)
+
+        return "".join(modified_sentences)
